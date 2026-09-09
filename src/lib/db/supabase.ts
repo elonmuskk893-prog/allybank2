@@ -1468,14 +1468,17 @@ async function createExternalTransfer(input: {
   const total = round2(input.amount + fee);
   const sb = await createServerClient();
   const admin = createAdminClient();
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // Reserve the amount + fee while the transfer waits for its confirmation
+  // code; the balance only moves once the code is verified.
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: total,
     p_currency: "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError("insufficient_funds", "Insufficient funds for this transfer.");
   }
+
 
   const ref = `TFR-${Date.now().toString(36).toUpperCase()}`;
   // A unique confirmation code is issued immediately and stored on the
