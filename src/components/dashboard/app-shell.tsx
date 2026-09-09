@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/lib/next/navigation";
 import { bankFetch } from "@/lib/api";
 import type { Session } from "@/lib/types";
 import {
@@ -24,7 +24,7 @@ import { UserMenu } from "@/components/dashboard/user-menu";
 import { KycBanner } from "@/components/dashboard/kyc-banner";
 import { KycNagModal } from "@/components/dashboard/kyc-nag-modal";
 import { Toaster } from "sonner";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 
 const SessionContext = createContext<Session | null>(null);
 

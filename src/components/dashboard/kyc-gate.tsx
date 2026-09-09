@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useMe } from "@/components/dashboard/app-shell";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 
 interface KycGateProps {
   /** Verb used in the messaging, e.g. "transfer money". */

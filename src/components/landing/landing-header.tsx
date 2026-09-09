@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/next/link";
 import { useState } from "react";
 import { useTheme } from "@/components/theme-provider";
 import { useSite } from "@/lib/use-site";

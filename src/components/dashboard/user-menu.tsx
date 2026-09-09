@@ -1,6 +1,6 @@
 import type { Session } from "@/lib/types";
 import { Avatar } from "@/components/dashboard/avatar";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 
 interface UserMenuProps {
   me: Session;

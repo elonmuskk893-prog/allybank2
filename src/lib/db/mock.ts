@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+import { cookies } from "@/lib/next/headers";
 import {
   hashPassword,
   verifyPassword,

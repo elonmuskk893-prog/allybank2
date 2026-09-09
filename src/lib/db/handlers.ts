@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "@/lib/next/server";
 import { usingMock } from "@/lib/db";
 import { DbError } from "@/lib/db/error";
 
@@ -10,13 +10,13 @@ export function fail(status: number, errorCode?: string, error?: string, errorBo
   return NextResponse.json({ errorCode, error, ...(errorBody ? { errorBody } : {}) }, { status });
 }
 
-type Handler = () => Promise<NextResponse>;
+type Handler = () => Promise<Response>;
 
 /**
  * Wraps a data-layer call, translating DbError into the standard error
  * envelope and unexpected errors into a 500.
  */
-export async function route(fn: () => Promise<unknown>): Promise<NextResponse> {
+export async function route(fn: () => Promise<unknown>): Promise<Response> {
   try {
     const data = await fn();
     const response = ok(data);

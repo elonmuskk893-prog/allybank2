@@ -20,7 +20,7 @@ import type {
 import { Loader } from "@/components/ui/loader";
 import { useMe } from "@/components/dashboard/app-shell";
 import { useTheme } from "@/components/theme-provider";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 
 /* ------------------------------------------------------------------ */
 /* Transaction helpers                                                 */
