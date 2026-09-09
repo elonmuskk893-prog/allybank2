@@ -1135,17 +1135,20 @@ async function createWithdrawal(input: {
     throw new DbError("invalid_amount", "Enter a valid amount.");
   }
 
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // Pending withdrawals only RESERVE the money: `available` drops so it can't
+  // be spent twice, but the balance is not reduced until the withdrawal is
+  // actually completed (admin approval / confirmation code).
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: input.amount,
     p_currency: input.currency ?? "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError(
-      debitError.message.includes("insufficient_funds")
+      holdError.message.includes("insufficient_funds")
         ? "insufficient_funds"
         : "withdrawal_failed",
-      debitError.message.includes("insufficient_funds")
+      holdError.message.includes("insufficient_funds")
         ? "Insufficient funds for this withdrawal."
         : "The withdrawal could not be completed.",
       400,
@@ -1165,6 +1168,7 @@ async function createWithdrawal(input: {
     .select()
     .single();
 
+  const wRow = withdrawal as WithdrawalRow | null;
   await admin.from("transactions").insert({
     user_id: user.id,
     kind: "withdrawal",
@@ -1172,8 +1176,12 @@ async function createWithdrawal(input: {
     amount: input.amount,
     currency: input.currency ?? "USD",
     name: "Withdrawal",
+    // Tie the history row to THIS withdrawal so status updates can never hit
+    // another pending withdrawal of the same user.
+    reference: wRow?.id ?? null,
     status: "pending",
   });
+
 
   return { withdrawal };
 }
