@@ -13,9 +13,11 @@ import type { Session } from "@/lib/types";
 import {
   DESKTOP_NAV,
   MOBILE_NAV,
+  MORE_SHEET_NAV,
   PAGE_TITLES,
   type NavItem,
 } from "@/lib/nav";
+import { MobileSheetMenu } from "@/components/dashboard/mobile-sheet-menu";
 import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/dashboard/avatar";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
@@ -105,6 +107,7 @@ export function AppShell({ children }: AppShellProps) {
   const [me, setMe] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [impersonating, setImpersonating] = useState(false);
 
   const logoutUser = async () => {
@@ -141,6 +144,7 @@ export function AppShell({ children }: AppShellProps) {
 
   useEffect(() => {
     setUserMenuOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
 
 
