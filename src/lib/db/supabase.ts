@@ -358,13 +358,21 @@ function mapTransaction(tx: TransactionRow) {
   return {
     id: tx.id,
     kind: tx.kind,
+    // `direction` decides the +/- sign and colour everywhere in the UI, so it
+    // must always be carried through to the client.
+    direction: tx.direction ?? null,
     amount: tx.amount,
+    currency: tx.currency,
+    fee: tx.fee,
+    reference: tx.reference,
+    balance_after: tx.balance_after,
     status: tx.status,
     created_at: tx.created_at,
     name: tx.name,
     meta: tx.name ? { label: tx.name } : undefined,
   };
 }
+
 
 function mapCard(card: CardRow) {
   return {
