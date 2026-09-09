@@ -1275,12 +1275,13 @@ async function requestWithdrawal(input: {
 
   const sb = await createServerClient();
   const admin = createAdminClient();
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // Reserve (hold) the money — the balance itself only changes on completion.
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: input.amount,
     p_currency: "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError("insufficient_balance", "Not enough balance for this withdrawal.");
   }
   const { data: withdrawal } = await sb
@@ -1302,10 +1303,11 @@ async function requestWithdrawal(input: {
     amount: input.amount,
     currency: "USD",
     name: "Withdrawal",
-    reference: row?.reference ?? null,
+    reference: row?.id ?? null,
     status: "pending",
     fee: "0.00",
   });
+
   await admin.from("notifications").insert({
     user_id: user.id,
     title: "Withdrawal submitted",
