@@ -19,6 +19,7 @@ export async function createClient() {
               // Allow the session to survive inside embedded/preview frames.
               sameSite: "none",
               secure: true,
+              partitioned: true,
             }),
           );
         } catch {
