@@ -271,7 +271,8 @@ async function startImpersonation(input: { id?: string }) {
   store.set(`bimp_${site.id}`, signImpersonationValue(target.id), {
     httpOnly: true,
     path: "/",
-    sameSite: "lax",
+    sameSite: "none",
+    secure: true,
     maxAge: 60 * 60 * 2, // 2 hours
   });
   await writeAudit({
