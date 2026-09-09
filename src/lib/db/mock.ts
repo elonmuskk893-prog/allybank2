@@ -2276,6 +2276,34 @@ async function adminAdjustBalance(input: {
   return { ok: true, balance_after: String(account.balance) };
 }
 
+async function changePassword(_input: { current_password?: string; new_password?: string }) {
+  await requireUser();
+  return { ok: true };
+}
+
+async function securityStatus() {
+  const user = await requireUser();
+  return {
+    twofa_enabled: Boolean(user.twofa_enabled),
+    twofa_method: "email" as const,
+    pin_set: Boolean(user.pin_hash),
+    email: user.email,
+    email_verified: Boolean(user.email_verified_at),
+    updated_at: null as string | null,
+  };
+}
+
+async function setTwofa(input: { enabled?: boolean; current_password?: string }) {
+  const user = await requireUser();
+  user.twofa_enabled = Boolean(input.enabled);
+  return { ok: true, twofa_enabled: user.twofa_enabled };
+}
+
+async function sendTestEmail(_input: { to?: string }) {
+  await requireAdmin();
+  return { ok: true };
+}
+
 async function adminCreateTransaction(input: {
   user_id?: string;
   kind?: string;
@@ -2283,6 +2311,7 @@ async function adminCreateTransaction(input: {
   amount?: number | string;
   name?: string;
   apply_balance?: boolean;
+  mode?: "balance" | "history" | "both";
 }) {
   await requireAdmin();
   const amount = parseAmountInput(input.amount);
@@ -2294,7 +2323,13 @@ async function adminCreateTransaction(input: {
   const kind = allowedKinds.includes(input.kind ?? "") ? (input.kind as string) : "adjustment";
   const currency = "USD";
   const account = state.accounts.find((a) => a.user_id === input.user_id && a.currency === currency);
-  const apply = input.apply_balance !== false && Boolean(account);
+  const mode =
+    input.mode === "balance" || input.mode === "history" || input.mode === "both"
+      ? input.mode
+      : input.apply_balance === false
+        ? "history"
+        : "both";
+  const apply = mode !== "history" && Boolean(account);
   let balanceAfter: string | null = null;
   if (apply && account) {
     if (direction === "debit" && account.balance < amount) {
@@ -3320,6 +3355,10 @@ export const db = {
   adminUpdateUser,
   adminAdjustBalance,
   adminCreateTransaction,
+  changePassword,
+  securityStatus,
+  setTwofa,
+  sendTestEmail,
   adminDeleteUser,
   getAuditLogs,
   setAdminConfig,

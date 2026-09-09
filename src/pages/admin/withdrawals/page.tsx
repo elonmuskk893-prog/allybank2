@@ -9,6 +9,7 @@ interface WithdrawalRow {
   id: string;
   user_id: string;
   email?: string;
+  full_name?: string;
   method: string;
   amount: string;
   currency: string;
@@ -209,7 +210,7 @@ function WithdrawalsAdmin() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                      {new Date(row.created_at).toLocaleDateString()}
+                      {new Date(row.created_at).toLocaleString()}
                     </td>
                     <td className="space-x-2 px-4 py-3 text-right whitespace-nowrap">
                       <button
@@ -252,13 +253,15 @@ function WithdrawalsAdmin() {
             {[
               ["Withdrawal ID", detail.id],
               ["Reference", detail.reference ?? "--"],
-              ["User", detail.email ?? detail.user_id],
+              ["Member", detail.full_name || "--"],
+              ["Email", detail.email ?? detail.user_id],
               [
                 "Amount",
                 `${detail.currency} ${Number(detail.amount).toLocaleString()}`,
               ],
               ["Method", detail.method.replace(/_/g, " ")],
               ["Destination", detail.account_number ?? "--"],
+              ["Requested", new Date(detail.created_at).toLocaleString()],
             ].map(([k, v]) => (
               <div key={k} className="flex items-start justify-between gap-6 border-b border-gray-100 pb-1.5 dark:border-gray-800">
                 <dt className="shrink-0 text-xs uppercase tracking-wider text-gray-400">{k}</dt>

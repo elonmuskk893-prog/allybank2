@@ -8,6 +8,7 @@ import { inputCls, Modal, TableWrap } from "@/components/admin/ui";
 interface Asset {
   id: string;
   email?: string;
+  full_name?: string;
   symbol: string;
   name: string;
   balance: string;
@@ -70,7 +71,10 @@ function CryptoAssetsAdmin() {
           <tbody>
             {rows.map((a) => (
               <tr key={a.id} className="border-b border-gray-100 last:border-0 dark:border-gray-700/60">
-                <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">{a.email ?? "--"}</td>
+                <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100"><div>
+                      <div className="font-medium text-gray-900 dark:text-gray-100">{a.full_name || "Unnamed member"}</div>
+                      <div className="text-xs text-gray-500">{a.email ?? "--"}</div>
+                    </div></td>
                 <td className="px-4 py-3">
                   <span className="font-semibold text-gray-900 dark:text-gray-100">{a.symbol}</span>
                   <span className="ml-2 text-xs text-gray-500">{a.name}</span>
@@ -84,7 +88,7 @@ function CryptoAssetsAdmin() {
                     onClick={() =>
                       setEditing({
                         id: a.id,
-                        label: `${a.symbol} — ${a.email ?? ""}`,
+                        label: `${a.symbol} — ${a.full_name || "Unnamed member"} (${a.email ?? "no email"})`,
                         balance: String(Number(a.balance)),
                         price_usd: String(Number(a.price_usd ?? 0)),
                       })

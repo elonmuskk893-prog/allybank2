@@ -10,12 +10,23 @@ interface AdminUser {
   email: string;
   first_name: string | null;
   last_name: string | null;
-  member_no: string;
+  member_no?: string;
+  account_number?: string | null;
   status: string;
   kyc_status: string;
   email_verified_at: string | null;
-  two_fa_enabled: boolean;
-  created_at: string;
+  two_fa_enabled?: boolean;
+  twofa_enabled?: boolean;
+  created_at?: string | null;
+}
+
+/** Dates can be absent on imported records — never render "Invalid Date". */
+function joinedOn(value?: string | null): string {
+  if (!value) return "--";
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? "--"
+    : parsed.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
 }
 
 function AdminUsers() {
@@ -67,7 +78,7 @@ function AdminUsers() {
                   className="border-b border-gray-100 last:border-0 hover:bg-black/[0.02] dark:border-gray-700/60 dark:hover:bg-white/[0.02]"
                 >
                   <td className="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">
-                    {user.member_no}
+                    {user.member_no ?? user.account_number ?? "--"}
                   </td>
                   <td className="px-4 py-3">
                     <Link href={`/admin/users/${user.id}`} className="block">
@@ -85,10 +96,10 @@ function AdminUsers() {
                     {user.email_verified_at ? "✓" : "--"}
                   </td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                    {user.two_fa_enabled ? "✓" : "--"}
+                    {user.two_fa_enabled || user.twofa_enabled ? "✓" : "--"}
                   </td>
                   <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                    {new Date(user.created_at).toLocaleDateString()}
+                    {joinedOn(user.created_at)}
                   </td>
                 </tr>
               ))}

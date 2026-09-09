@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SmartsuppWidget } from "@/components/smartsupp-widget";
+import { LiveChat } from "@/components/live-chat";
 import { renderErrorPage } from "@/lib/error-page";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
 import appCss from "@/styles.css?url";
@@ -62,7 +62,7 @@ function RootDocument() {
       <body className="antialiased">
         <ThemeProvider>
           <Outlet />
-          <SmartsuppWidget />
+          <LiveChat />
         </ThemeProvider>
         <Scripts />
       </body>

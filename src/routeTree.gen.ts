@@ -73,6 +73,7 @@ import { Route as ServicesGrantsIndexRouteImport } from './routes/services/grant
 import { Route as ServicesLoansIndexRouteImport } from './routes/services/loans/index'
 import { Route as ServicesPersonalIndexRouteImport } from './routes/services/personal/index'
 import { Route as SettingsKycIndexRouteImport } from './routes/settings/kyc/index'
+import { Route as SettingsSecurityIndexRouteImport } from './routes/settings/security/index'
 import { Route as AdminUsersIdIndexRouteImport } from './routes/admin/users/$id/index'
 import { Route as ApiBankingPublicBalanceIndexRouteImport } from './routes/api/banking-public/balance/index'
 import { Route as ApiBankingPublicBeneficiariesIndexRouteImport } from './routes/api/banking-public/beneficiaries/index'
@@ -89,6 +90,7 @@ import { Route as ApiBankingPublicNotificationsIndexRouteImport } from './routes
 import { Route as ApiBankingPublicPaymentMethodsIndexRouteImport } from './routes/api/banking-public/payment-methods/index'
 import { Route as ApiBankingPublicPinIndexRouteImport } from './routes/api/banking-public/pin/index'
 import { Route as ApiBankingPublicProfileIndexRouteImport } from './routes/api/banking-public/profile/index'
+import { Route as ApiBankingPublicSecurityIndexRouteImport } from './routes/api/banking-public/security/index'
 import { Route as ApiBankingPublicSettingsIndexRouteImport } from './routes/api/banking-public/settings/index'
 import { Route as ApiBankingPublicSiteInfoIndexRouteImport } from './routes/api/banking-public/site-info/index'
 import { Route as ApiBankingPublicSiteSettingsIndexRouteImport } from './routes/api/banking-public/site-settings/index'
@@ -120,6 +122,8 @@ import { Route as ApiBankingPublicNotificationsMarkAllReadIndexRouteImport } fro
 import { Route as ApiBankingPublicNotificationsReadIndexRouteImport } from './routes/api/banking-public/notifications/read/index'
 import { Route as ApiBankingPublicPinGateClearIndexRouteImport } from './routes/api/banking-public/pin/gate-clear/index'
 import { Route as ApiBankingPublicPinVerifyIndexRouteImport } from './routes/api/banking-public/pin/verify/index'
+import { Route as ApiBankingPublicSecurityPasswordIndexRouteImport } from './routes/api/banking-public/security/password/index'
+import { Route as ApiBankingPublicSecurityTwofaIndexRouteImport } from './routes/api/banking-public/security/twofa/index'
 import { Route as ApiBankingPublicSettingsKycIndexRouteImport } from './routes/api/banking-public/settings/kyc/index'
 import { Route as ApiBankingPublicSupportTicketsIndexRouteImport } from './routes/api/banking-public/support/tickets/index'
 import { Route as ApiBankingPublicTransactionsEmailIndexRouteImport } from './routes/api/banking-public/transactions/email/index'
@@ -163,6 +167,7 @@ import { Route as ApiBankingSitesSlugAdminReferralsIndexRouteImport } from './ro
 import { Route as ApiBankingSitesSlugAdminSettingsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/settings/index'
 import { Route as ApiBankingSitesSlugAdminStorageAssetsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/storage-assets/index'
 import { Route as ApiBankingSitesSlugAdminTasksIndexRouteImport } from './routes/api/banking-sites/$slug/admin/tasks/index'
+import { Route as ApiBankingSitesSlugAdminTestEmailIndexRouteImport } from './routes/api/banking-sites/$slug/admin/test-email/index'
 import { Route as ApiBankingSitesSlugAdminTestimonialsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/testimonials/index'
 import { Route as ApiBankingSitesSlugAdminTicketsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/tickets/index'
 import { Route as ApiBankingSitesSlugAdminTransactionsCreateIndexRouteImport } from './routes/api/banking-sites/$slug/admin/transactions-create/index'
@@ -499,6 +504,11 @@ const SettingsKycIndexRoute = SettingsKycIndexRouteImport.update({
   path: '/settings/kyc/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsSecurityIndexRoute = SettingsSecurityIndexRouteImport.update({
+  id: '/settings/security/',
+  path: '/settings/security/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminUsersIdIndexRoute = AdminUsersIdIndexRouteImport.update({
   id: '/admin/users/$id/',
   path: '/admin/users/$id/',
@@ -591,6 +601,12 @@ const ApiBankingPublicProfileIndexRoute =
   ApiBankingPublicProfileIndexRouteImport.update({
     id: '/api/banking-public/profile/',
     path: '/api/banking-public/profile/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBankingPublicSecurityIndexRoute =
+  ApiBankingPublicSecurityIndexRouteImport.update({
+    id: '/api/banking-public/security/',
+    path: '/api/banking-public/security/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiBankingPublicSettingsIndexRoute =
@@ -777,6 +793,18 @@ const ApiBankingPublicPinVerifyIndexRoute =
   ApiBankingPublicPinVerifyIndexRouteImport.update({
     id: '/api/banking-public/pin/verify/',
     path: '/api/banking-public/pin/verify/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBankingPublicSecurityPasswordIndexRoute =
+  ApiBankingPublicSecurityPasswordIndexRouteImport.update({
+    id: '/api/banking-public/security/password/',
+    path: '/api/banking-public/security/password/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBankingPublicSecurityTwofaIndexRoute =
+  ApiBankingPublicSecurityTwofaIndexRouteImport.update({
+    id: '/api/banking-public/security/twofa/',
+    path: '/api/banking-public/security/twofa/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiBankingPublicSettingsKycIndexRoute =
@@ -1037,6 +1065,12 @@ const ApiBankingSitesSlugAdminTasksIndexRoute =
     path: '/api/banking-sites/$slug/admin/tasks/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiBankingSitesSlugAdminTestEmailIndexRoute =
+  ApiBankingSitesSlugAdminTestEmailIndexRouteImport.update({
+    id: '/api/banking-sites/$slug/admin/test-email/',
+    path: '/api/banking-sites/$slug/admin/test-email/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiBankingSitesSlugAdminTestimonialsIndexRoute =
   ApiBankingSitesSlugAdminTestimonialsIndexRouteImport.update({
     id: '/api/banking-sites/$slug/admin/testimonials/',
@@ -1181,6 +1215,7 @@ export interface FileRoutesByFullPath {
   '/services/loans/': typeof ServicesLoansIndexRoute
   '/services/personal/': typeof ServicesPersonalIndexRoute
   '/settings/kyc/': typeof SettingsKycIndexRoute
+  '/settings/security/': typeof SettingsSecurityIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
   '/api/banking-public/balance/': typeof ApiBankingPublicBalanceIndexRoute
   '/api/banking-public/beneficiaries/': typeof ApiBankingPublicBeneficiariesIndexRoute
@@ -1197,6 +1232,7 @@ export interface FileRoutesByFullPath {
   '/api/banking-public/payment-methods/': typeof ApiBankingPublicPaymentMethodsIndexRoute
   '/api/banking-public/pin/': typeof ApiBankingPublicPinIndexRoute
   '/api/banking-public/profile/': typeof ApiBankingPublicProfileIndexRoute
+  '/api/banking-public/security/': typeof ApiBankingPublicSecurityIndexRoute
   '/api/banking-public/settings/': typeof ApiBankingPublicSettingsIndexRoute
   '/api/banking-public/site-info/': typeof ApiBankingPublicSiteInfoIndexRoute
   '/api/banking-public/site-settings/': typeof ApiBankingPublicSiteSettingsIndexRoute
@@ -1228,6 +1264,8 @@ export interface FileRoutesByFullPath {
   '/api/banking-public/notifications/read/': typeof ApiBankingPublicNotificationsReadIndexRoute
   '/api/banking-public/pin/gate-clear/': typeof ApiBankingPublicPinGateClearIndexRoute
   '/api/banking-public/pin/verify/': typeof ApiBankingPublicPinVerifyIndexRoute
+  '/api/banking-public/security/password/': typeof ApiBankingPublicSecurityPasswordIndexRoute
+  '/api/banking-public/security/twofa/': typeof ApiBankingPublicSecurityTwofaIndexRoute
   '/api/banking-public/settings/kyc/': typeof ApiBankingPublicSettingsKycIndexRoute
   '/api/banking-public/support/tickets/': typeof ApiBankingPublicSupportTicketsIndexRoute
   '/api/banking-public/transactions/email/': typeof ApiBankingPublicTransactionsEmailIndexRoute
@@ -1271,6 +1309,7 @@ export interface FileRoutesByFullPath {
   '/api/banking-sites/$slug/admin/settings/': typeof ApiBankingSitesSlugAdminSettingsIndexRoute
   '/api/banking-sites/$slug/admin/storage-assets/': typeof ApiBankingSitesSlugAdminStorageAssetsIndexRoute
   '/api/banking-sites/$slug/admin/tasks/': typeof ApiBankingSitesSlugAdminTasksIndexRoute
+  '/api/banking-sites/$slug/admin/test-email/': typeof ApiBankingSitesSlugAdminTestEmailIndexRoute
   '/api/banking-sites/$slug/admin/testimonials/': typeof ApiBankingSitesSlugAdminTestimonialsIndexRoute
   '/api/banking-sites/$slug/admin/tickets/': typeof ApiBankingSitesSlugAdminTicketsIndexRoute
   '/api/banking-sites/$slug/admin/transactions-create/': typeof ApiBankingSitesSlugAdminTransactionsCreateIndexRoute
@@ -1350,6 +1389,7 @@ export interface FileRoutesByTo {
   '/services/loans': typeof ServicesLoansIndexRoute
   '/services/personal': typeof ServicesPersonalIndexRoute
   '/settings/kyc': typeof SettingsKycIndexRoute
+  '/settings/security': typeof SettingsSecurityIndexRoute
   '/admin/users/$id': typeof AdminUsersIdIndexRoute
   '/api/banking-public/balance': typeof ApiBankingPublicBalanceIndexRoute
   '/api/banking-public/beneficiaries': typeof ApiBankingPublicBeneficiariesIndexRoute
@@ -1366,6 +1406,7 @@ export interface FileRoutesByTo {
   '/api/banking-public/payment-methods': typeof ApiBankingPublicPaymentMethodsIndexRoute
   '/api/banking-public/pin': typeof ApiBankingPublicPinIndexRoute
   '/api/banking-public/profile': typeof ApiBankingPublicProfileIndexRoute
+  '/api/banking-public/security': typeof ApiBankingPublicSecurityIndexRoute
   '/api/banking-public/settings': typeof ApiBankingPublicSettingsIndexRoute
   '/api/banking-public/site-info': typeof ApiBankingPublicSiteInfoIndexRoute
   '/api/banking-public/site-settings': typeof ApiBankingPublicSiteSettingsIndexRoute
@@ -1397,6 +1438,8 @@ export interface FileRoutesByTo {
   '/api/banking-public/notifications/read': typeof ApiBankingPublicNotificationsReadIndexRoute
   '/api/banking-public/pin/gate-clear': typeof ApiBankingPublicPinGateClearIndexRoute
   '/api/banking-public/pin/verify': typeof ApiBankingPublicPinVerifyIndexRoute
+  '/api/banking-public/security/password': typeof ApiBankingPublicSecurityPasswordIndexRoute
+  '/api/banking-public/security/twofa': typeof ApiBankingPublicSecurityTwofaIndexRoute
   '/api/banking-public/settings/kyc': typeof ApiBankingPublicSettingsKycIndexRoute
   '/api/banking-public/support/tickets': typeof ApiBankingPublicSupportTicketsIndexRoute
   '/api/banking-public/transactions/email': typeof ApiBankingPublicTransactionsEmailIndexRoute
@@ -1440,6 +1483,7 @@ export interface FileRoutesByTo {
   '/api/banking-sites/$slug/admin/settings': typeof ApiBankingSitesSlugAdminSettingsIndexRoute
   '/api/banking-sites/$slug/admin/storage-assets': typeof ApiBankingSitesSlugAdminStorageAssetsIndexRoute
   '/api/banking-sites/$slug/admin/tasks': typeof ApiBankingSitesSlugAdminTasksIndexRoute
+  '/api/banking-sites/$slug/admin/test-email': typeof ApiBankingSitesSlugAdminTestEmailIndexRoute
   '/api/banking-sites/$slug/admin/testimonials': typeof ApiBankingSitesSlugAdminTestimonialsIndexRoute
   '/api/banking-sites/$slug/admin/tickets': typeof ApiBankingSitesSlugAdminTicketsIndexRoute
   '/api/banking-sites/$slug/admin/transactions-create': typeof ApiBankingSitesSlugAdminTransactionsCreateIndexRoute
@@ -1520,6 +1564,7 @@ export interface FileRoutesById {
   '/services/loans/': typeof ServicesLoansIndexRoute
   '/services/personal/': typeof ServicesPersonalIndexRoute
   '/settings/kyc/': typeof SettingsKycIndexRoute
+  '/settings/security/': typeof SettingsSecurityIndexRoute
   '/admin/users/$id/': typeof AdminUsersIdIndexRoute
   '/api/banking-public/balance/': typeof ApiBankingPublicBalanceIndexRoute
   '/api/banking-public/beneficiaries/': typeof ApiBankingPublicBeneficiariesIndexRoute
@@ -1536,6 +1581,7 @@ export interface FileRoutesById {
   '/api/banking-public/payment-methods/': typeof ApiBankingPublicPaymentMethodsIndexRoute
   '/api/banking-public/pin/': typeof ApiBankingPublicPinIndexRoute
   '/api/banking-public/profile/': typeof ApiBankingPublicProfileIndexRoute
+  '/api/banking-public/security/': typeof ApiBankingPublicSecurityIndexRoute
   '/api/banking-public/settings/': typeof ApiBankingPublicSettingsIndexRoute
   '/api/banking-public/site-info/': typeof ApiBankingPublicSiteInfoIndexRoute
   '/api/banking-public/site-settings/': typeof ApiBankingPublicSiteSettingsIndexRoute
@@ -1567,6 +1613,8 @@ export interface FileRoutesById {
   '/api/banking-public/notifications/read/': typeof ApiBankingPublicNotificationsReadIndexRoute
   '/api/banking-public/pin/gate-clear/': typeof ApiBankingPublicPinGateClearIndexRoute
   '/api/banking-public/pin/verify/': typeof ApiBankingPublicPinVerifyIndexRoute
+  '/api/banking-public/security/password/': typeof ApiBankingPublicSecurityPasswordIndexRoute
+  '/api/banking-public/security/twofa/': typeof ApiBankingPublicSecurityTwofaIndexRoute
   '/api/banking-public/settings/kyc/': typeof ApiBankingPublicSettingsKycIndexRoute
   '/api/banking-public/support/tickets/': typeof ApiBankingPublicSupportTicketsIndexRoute
   '/api/banking-public/transactions/email/': typeof ApiBankingPublicTransactionsEmailIndexRoute
@@ -1610,6 +1658,7 @@ export interface FileRoutesById {
   '/api/banking-sites/$slug/admin/settings/': typeof ApiBankingSitesSlugAdminSettingsIndexRoute
   '/api/banking-sites/$slug/admin/storage-assets/': typeof ApiBankingSitesSlugAdminStorageAssetsIndexRoute
   '/api/banking-sites/$slug/admin/tasks/': typeof ApiBankingSitesSlugAdminTasksIndexRoute
+  '/api/banking-sites/$slug/admin/test-email/': typeof ApiBankingSitesSlugAdminTestEmailIndexRoute
   '/api/banking-sites/$slug/admin/testimonials/': typeof ApiBankingSitesSlugAdminTestimonialsIndexRoute
   '/api/banking-sites/$slug/admin/tickets/': typeof ApiBankingSitesSlugAdminTicketsIndexRoute
   '/api/banking-sites/$slug/admin/transactions-create/': typeof ApiBankingSitesSlugAdminTransactionsCreateIndexRoute
@@ -1691,6 +1740,7 @@ export interface FileRouteTypes {
     | '/services/loans/'
     | '/services/personal/'
     | '/settings/kyc/'
+    | '/settings/security/'
     | '/admin/users/$id/'
     | '/api/banking-public/balance/'
     | '/api/banking-public/beneficiaries/'
@@ -1707,6 +1757,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/payment-methods/'
     | '/api/banking-public/pin/'
     | '/api/banking-public/profile/'
+    | '/api/banking-public/security/'
     | '/api/banking-public/settings/'
     | '/api/banking-public/site-info/'
     | '/api/banking-public/site-settings/'
@@ -1738,6 +1789,8 @@ export interface FileRouteTypes {
     | '/api/banking-public/notifications/read/'
     | '/api/banking-public/pin/gate-clear/'
     | '/api/banking-public/pin/verify/'
+    | '/api/banking-public/security/password/'
+    | '/api/banking-public/security/twofa/'
     | '/api/banking-public/settings/kyc/'
     | '/api/banking-public/support/tickets/'
     | '/api/banking-public/transactions/email/'
@@ -1781,6 +1834,7 @@ export interface FileRouteTypes {
     | '/api/banking-sites/$slug/admin/settings/'
     | '/api/banking-sites/$slug/admin/storage-assets/'
     | '/api/banking-sites/$slug/admin/tasks/'
+    | '/api/banking-sites/$slug/admin/test-email/'
     | '/api/banking-sites/$slug/admin/testimonials/'
     | '/api/banking-sites/$slug/admin/tickets/'
     | '/api/banking-sites/$slug/admin/transactions-create/'
@@ -1860,6 +1914,7 @@ export interface FileRouteTypes {
     | '/services/loans'
     | '/services/personal'
     | '/settings/kyc'
+    | '/settings/security'
     | '/admin/users/$id'
     | '/api/banking-public/balance'
     | '/api/banking-public/beneficiaries'
@@ -1876,6 +1931,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/payment-methods'
     | '/api/banking-public/pin'
     | '/api/banking-public/profile'
+    | '/api/banking-public/security'
     | '/api/banking-public/settings'
     | '/api/banking-public/site-info'
     | '/api/banking-public/site-settings'
@@ -1907,6 +1963,8 @@ export interface FileRouteTypes {
     | '/api/banking-public/notifications/read'
     | '/api/banking-public/pin/gate-clear'
     | '/api/banking-public/pin/verify'
+    | '/api/banking-public/security/password'
+    | '/api/banking-public/security/twofa'
     | '/api/banking-public/settings/kyc'
     | '/api/banking-public/support/tickets'
     | '/api/banking-public/transactions/email'
@@ -1950,6 +2008,7 @@ export interface FileRouteTypes {
     | '/api/banking-sites/$slug/admin/settings'
     | '/api/banking-sites/$slug/admin/storage-assets'
     | '/api/banking-sites/$slug/admin/tasks'
+    | '/api/banking-sites/$slug/admin/test-email'
     | '/api/banking-sites/$slug/admin/testimonials'
     | '/api/banking-sites/$slug/admin/tickets'
     | '/api/banking-sites/$slug/admin/transactions-create'
@@ -2029,6 +2088,7 @@ export interface FileRouteTypes {
     | '/services/loans/'
     | '/services/personal/'
     | '/settings/kyc/'
+    | '/settings/security/'
     | '/admin/users/$id/'
     | '/api/banking-public/balance/'
     | '/api/banking-public/beneficiaries/'
@@ -2045,6 +2105,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/payment-methods/'
     | '/api/banking-public/pin/'
     | '/api/banking-public/profile/'
+    | '/api/banking-public/security/'
     | '/api/banking-public/settings/'
     | '/api/banking-public/site-info/'
     | '/api/banking-public/site-settings/'
@@ -2076,6 +2137,8 @@ export interface FileRouteTypes {
     | '/api/banking-public/notifications/read/'
     | '/api/banking-public/pin/gate-clear/'
     | '/api/banking-public/pin/verify/'
+    | '/api/banking-public/security/password/'
+    | '/api/banking-public/security/twofa/'
     | '/api/banking-public/settings/kyc/'
     | '/api/banking-public/support/tickets/'
     | '/api/banking-public/transactions/email/'
@@ -2119,6 +2182,7 @@ export interface FileRouteTypes {
     | '/api/banking-sites/$slug/admin/settings/'
     | '/api/banking-sites/$slug/admin/storage-assets/'
     | '/api/banking-sites/$slug/admin/tasks/'
+    | '/api/banking-sites/$slug/admin/test-email/'
     | '/api/banking-sites/$slug/admin/testimonials/'
     | '/api/banking-sites/$slug/admin/tickets/'
     | '/api/banking-sites/$slug/admin/transactions-create/'
@@ -2199,6 +2263,7 @@ export interface RootRouteChildren {
   ServicesLoansIndexRoute: typeof ServicesLoansIndexRoute
   ServicesPersonalIndexRoute: typeof ServicesPersonalIndexRoute
   SettingsKycIndexRoute: typeof SettingsKycIndexRoute
+  SettingsSecurityIndexRoute: typeof SettingsSecurityIndexRoute
   AdminUsersIdIndexRoute: typeof AdminUsersIdIndexRoute
   ApiBankingPublicBalanceIndexRoute: typeof ApiBankingPublicBalanceIndexRoute
   ApiBankingPublicBeneficiariesIndexRoute: typeof ApiBankingPublicBeneficiariesIndexRoute
@@ -2215,6 +2280,7 @@ export interface RootRouteChildren {
   ApiBankingPublicPaymentMethodsIndexRoute: typeof ApiBankingPublicPaymentMethodsIndexRoute
   ApiBankingPublicPinIndexRoute: typeof ApiBankingPublicPinIndexRoute
   ApiBankingPublicProfileIndexRoute: typeof ApiBankingPublicProfileIndexRoute
+  ApiBankingPublicSecurityIndexRoute: typeof ApiBankingPublicSecurityIndexRoute
   ApiBankingPublicSettingsIndexRoute: typeof ApiBankingPublicSettingsIndexRoute
   ApiBankingPublicSiteInfoIndexRoute: typeof ApiBankingPublicSiteInfoIndexRoute
   ApiBankingPublicSiteSettingsIndexRoute: typeof ApiBankingPublicSiteSettingsIndexRoute
@@ -2246,6 +2312,8 @@ export interface RootRouteChildren {
   ApiBankingPublicNotificationsReadIndexRoute: typeof ApiBankingPublicNotificationsReadIndexRoute
   ApiBankingPublicPinGateClearIndexRoute: typeof ApiBankingPublicPinGateClearIndexRoute
   ApiBankingPublicPinVerifyIndexRoute: typeof ApiBankingPublicPinVerifyIndexRoute
+  ApiBankingPublicSecurityPasswordIndexRoute: typeof ApiBankingPublicSecurityPasswordIndexRoute
+  ApiBankingPublicSecurityTwofaIndexRoute: typeof ApiBankingPublicSecurityTwofaIndexRoute
   ApiBankingPublicSettingsKycIndexRoute: typeof ApiBankingPublicSettingsKycIndexRoute
   ApiBankingPublicSupportTicketsIndexRoute: typeof ApiBankingPublicSupportTicketsIndexRoute
   ApiBankingPublicTransactionsEmailIndexRoute: typeof ApiBankingPublicTransactionsEmailIndexRoute
@@ -2289,6 +2357,7 @@ export interface RootRouteChildren {
   ApiBankingSitesSlugAdminSettingsIndexRoute: typeof ApiBankingSitesSlugAdminSettingsIndexRoute
   ApiBankingSitesSlugAdminStorageAssetsIndexRoute: typeof ApiBankingSitesSlugAdminStorageAssetsIndexRoute
   ApiBankingSitesSlugAdminTasksIndexRoute: typeof ApiBankingSitesSlugAdminTasksIndexRoute
+  ApiBankingSitesSlugAdminTestEmailIndexRoute: typeof ApiBankingSitesSlugAdminTestEmailIndexRoute
   ApiBankingSitesSlugAdminTestimonialsIndexRoute: typeof ApiBankingSitesSlugAdminTestimonialsIndexRoute
   ApiBankingSitesSlugAdminTicketsIndexRoute: typeof ApiBankingSitesSlugAdminTicketsIndexRoute
   ApiBankingSitesSlugAdminTransactionsCreateIndexRoute: typeof ApiBankingSitesSlugAdminTransactionsCreateIndexRoute
@@ -2754,6 +2823,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsKycIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/security/': {
+      id: '/settings/security/'
+      path: '/settings/security'
+      fullPath: '/settings/security/'
+      preLoaderRoute: typeof SettingsSecurityIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/users/$id/': {
       id: '/admin/users/$id/'
       path: '/admin/users/$id'
@@ -2864,6 +2940,13 @@ declare module '@tanstack/react-router' {
       path: '/api/banking-public/profile'
       fullPath: '/api/banking-public/profile/'
       preLoaderRoute: typeof ApiBankingPublicProfileIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/banking-public/security/': {
+      id: '/api/banking-public/security/'
+      path: '/api/banking-public/security'
+      fullPath: '/api/banking-public/security/'
+      preLoaderRoute: typeof ApiBankingPublicSecurityIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/banking-public/settings/': {
@@ -3081,6 +3164,20 @@ declare module '@tanstack/react-router' {
       path: '/api/banking-public/pin/verify'
       fullPath: '/api/banking-public/pin/verify/'
       preLoaderRoute: typeof ApiBankingPublicPinVerifyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/banking-public/security/password/': {
+      id: '/api/banking-public/security/password/'
+      path: '/api/banking-public/security/password'
+      fullPath: '/api/banking-public/security/password/'
+      preLoaderRoute: typeof ApiBankingPublicSecurityPasswordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/banking-public/security/twofa/': {
+      id: '/api/banking-public/security/twofa/'
+      path: '/api/banking-public/security/twofa'
+      fullPath: '/api/banking-public/security/twofa/'
+      preLoaderRoute: typeof ApiBankingPublicSecurityTwofaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/banking-public/settings/kyc/': {
@@ -3384,6 +3481,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBankingSitesSlugAdminTasksIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/banking-sites/$slug/admin/test-email/': {
+      id: '/api/banking-sites/$slug/admin/test-email/'
+      path: '/api/banking-sites/$slug/admin/test-email'
+      fullPath: '/api/banking-sites/$slug/admin/test-email/'
+      preLoaderRoute: typeof ApiBankingSitesSlugAdminTestEmailIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/banking-sites/$slug/admin/testimonials/': {
       id: '/api/banking-sites/$slug/admin/testimonials/'
       path: '/api/banking-sites/$slug/admin/testimonials'
@@ -3543,6 +3647,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesLoansIndexRoute: ServicesLoansIndexRoute,
   ServicesPersonalIndexRoute: ServicesPersonalIndexRoute,
   SettingsKycIndexRoute: SettingsKycIndexRoute,
+  SettingsSecurityIndexRoute: SettingsSecurityIndexRoute,
   AdminUsersIdIndexRoute: AdminUsersIdIndexRoute,
   ApiBankingPublicBalanceIndexRoute: ApiBankingPublicBalanceIndexRoute,
   ApiBankingPublicBeneficiariesIndexRoute:
@@ -3562,6 +3667,7 @@ const rootRouteChildren: RootRouteChildren = {
     ApiBankingPublicPaymentMethodsIndexRoute,
   ApiBankingPublicPinIndexRoute: ApiBankingPublicPinIndexRoute,
   ApiBankingPublicProfileIndexRoute: ApiBankingPublicProfileIndexRoute,
+  ApiBankingPublicSecurityIndexRoute: ApiBankingPublicSecurityIndexRoute,
   ApiBankingPublicSettingsIndexRoute: ApiBankingPublicSettingsIndexRoute,
   ApiBankingPublicSiteInfoIndexRoute: ApiBankingPublicSiteInfoIndexRoute,
   ApiBankingPublicSiteSettingsIndexRoute:
@@ -3609,6 +3715,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBankingPublicPinGateClearIndexRoute:
     ApiBankingPublicPinGateClearIndexRoute,
   ApiBankingPublicPinVerifyIndexRoute: ApiBankingPublicPinVerifyIndexRoute,
+  ApiBankingPublicSecurityPasswordIndexRoute:
+    ApiBankingPublicSecurityPasswordIndexRoute,
+  ApiBankingPublicSecurityTwofaIndexRoute:
+    ApiBankingPublicSecurityTwofaIndexRoute,
   ApiBankingPublicSettingsKycIndexRoute: ApiBankingPublicSettingsKycIndexRoute,
   ApiBankingPublicSupportTicketsIndexRoute:
     ApiBankingPublicSupportTicketsIndexRoute,
@@ -3689,6 +3799,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiBankingSitesSlugAdminStorageAssetsIndexRoute,
   ApiBankingSitesSlugAdminTasksIndexRoute:
     ApiBankingSitesSlugAdminTasksIndexRoute,
+  ApiBankingSitesSlugAdminTestEmailIndexRoute:
+    ApiBankingSitesSlugAdminTestEmailIndexRoute,
   ApiBankingSitesSlugAdminTestimonialsIndexRoute:
     ApiBankingSitesSlugAdminTestimonialsIndexRoute,
   ApiBankingSitesSlugAdminTicketsIndexRoute:
