@@ -70,7 +70,7 @@ function AdminUserDetail() {
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [balanceForm, setBalanceForm] = useState({ direction: "credit", amount: "", currency: "USD", reason: "" });
   const [txnOpen, setTxnOpen] = useState(false);
-  const [txnForm, setTxnForm] = useState({ kind: "adjustment", direction: "credit", amount: "", name: "" });
+  const [txnForm, setTxnForm] = useState({ kind: "adjustment", direction: "credit", amount: "", name: "", mode: "both" });
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [txnDelete, setTxnDelete] = useState<TxnRow | null>(null);
   const [impersonateOpen, setImpersonateOpen] = useState(false);
@@ -505,7 +505,40 @@ function AdminUserDetail() {
                 <Field label="Description">
                   <input value={txnForm.name} onChange={(e) => setTxnForm({ ...txnForm, name: e.target.value })} className={inputCls} placeholder="Promo bonus" />
                 </Field>
-                <p className="text-xs text-gray-500">The balance effect is applied automatically and logged to the audit trail.</p>
+                <Field label="What should this do?">
+                  <div className="space-y-2">
+                    {[
+                      ["both", "Balance + transaction history", "Updates the balance and records the entry."],
+                      ["balance", "Affect balance only", "Updates the balance. No history entry is created."],
+                      ["history", "Transaction history only", "Records the entry. The balance is not changed."],
+                    ].map(([value, label, hint]) => (
+                      <label
+                        key={value}
+                        className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm ${
+                          txnForm.mode === value
+                            ? "border-sky-500 bg-sky-50 dark:bg-sky-950/30"
+                            : "border-gray-200 dark:border-gray-700"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="txn-mode"
+                          className="mt-0.5"
+                          checked={txnForm.mode === value}
+                          onChange={() => setTxnForm({ ...txnForm, mode: value })}
+                        />
+                        <span>
+                          <span className="font-medium text-gray-900 dark:text-gray-100">{label}</span>
+                          <span className="block text-xs text-gray-500">{hint}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </Field>
+                <p className="text-xs text-gray-500">
+                  Every action is logged to the audit trail. Submitting once applies exactly one balance change and/or
+                  one history entry — there are no duplicates.
+                </p>
                 <button
                   disabled={busy || !txnForm.amount}
                   onClick={() =>
@@ -516,7 +549,7 @@ function AdminUserDetail() {
                           ...txnForm,
                           amount: parseAmountInput(txnForm.amount),
                           user_id: user.id,
-                          apply_balance: true,
+                          mode: txnForm.mode,
                         }),
                       });
                       if (!res.ok) {
@@ -524,7 +557,7 @@ function AdminUserDetail() {
                         return;
                       }
                       setTxnOpen(false);
-                      setTxnForm({ kind: "adjustment", direction: "credit", amount: "", name: "" });
+                      setTxnForm({ kind: "adjustment", direction: "credit", amount: "", name: "", mode: "both" });
                       await load();
                     })
                   }
