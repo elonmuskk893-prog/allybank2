@@ -28,7 +28,7 @@ export async function GET() {
         .join(","),
     );
     const csv = [header.map(csvCell).join(","), ...lines].join("\n");
-    return new NextResponse(csv, {
+    return new Response(csv, {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": 'attachment; filename="transactions.csv"',
