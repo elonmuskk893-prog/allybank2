@@ -1359,12 +1359,17 @@ async function verifyWithdrawal(input: { withdrawal_id: string; code: string }) 
     })
     .eq("id", w.id);
 
+  // Now — and only now — the reserved money actually leaves the balance.
+  await settleWithdrawalHold(w);
+
   await admin
     .from("transactions")
     .update({ status: "completed" })
     .eq("user_id", user.id)
     .eq("kind", "withdrawal")
+    .eq("reference", w.id)
     .eq("status", "pending");
+
 
   await admin.from("notifications").insert({
     user_id: user.id,
