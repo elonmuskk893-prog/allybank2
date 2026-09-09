@@ -1586,13 +1586,22 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
     .limit(1);
   const counter = firstRow(counterparts) as { id: string; user_id: string; amount: string | number; currency: string } | null;
   if (counter) {
-    const sb = await createServerClient();
-    await sb.rpc("credit_account", {
-      p_user_id: counter.user_id,
-      p_amount: Number(counter.amount),
-      p_currency: counter.currency,
-    });
-    await admin.from("transactions").update({ status: "completed" }).eq("id", counter.id);
+    // Claim the pending credit row first, so the recipient can never be
+    // credited twice if this runs concurrently.
+    const { data: claimedCredit } = await admin
+      .from("transactions")
+      .update({ status: "completed" })
+      .eq("id", counter.id)
+      .eq("status", "pending")
+      .select("id");
+    if (claimedCredit && claimedCredit.length > 0) {
+      await admin.rpc("credit_account", {
+        p_user_id: counter.user_id,
+        p_amount: Number(counter.amount),
+        p_currency: counter.currency,
+      });
+    }
+
     await admin.from("notifications").insert({
       user_id: counter.user_id,
       title: "Transfer received",
