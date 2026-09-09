@@ -96,6 +96,93 @@ export type Database = {
           },
         ]
       }
+      admin_config: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      admin_tasks: {
+        Row: {
+          assignee: string | null
+          created_at: string
+          description: string | null
+          due_at: string | null
+          id: string
+          priority: string
+          status: string
+          title: string
+        }
+        Insert: {
+          assignee?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          assignee?: string | null
+          created_at?: string
+          description?: string | null
+          due_at?: string | null
+          id?: string
+          priority?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          admin_email: string | null
+          admin_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          target_id: string | null
+          target_label: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          admin_email?: string | null
+          admin_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_label?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string | null
+          admin_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          target_id?: string | null
+          target_label?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       beneficiaries: {
         Row: {
           account_number: string | null
@@ -228,6 +315,36 @@ export type Database = {
           },
         ]
       }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          handled: boolean
+          id: string
+          message: string
+          name: string
+          subject: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          handled?: boolean
+          id?: string
+          message: string
+          name: string
+          subject?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          handled?: boolean
+          id?: string
+          message?: string
+          name?: string
+          subject?: string | null
+        }
+        Relationships: []
+      }
       crypto_assets: {
         Row: {
           balance: number
@@ -307,6 +424,71 @@ export type Database = {
           },
         ]
       }
+      email_verifications: {
+        Row: {
+          code_hash: string
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          code_hash: string
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          code_hash?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      faqs: {
+        Row: {
+          answer: string
+          created_at: string
+          enabled: boolean
+          id: string
+          question: string
+          sort_order: number
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          question: string
+          sort_order?: number
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          question?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       grants: {
         Row: {
           amount: number | null
@@ -342,6 +524,77 @@ export type Database = {
           },
         ]
       }
+      irs_refunds: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          tax_year: number
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          tax_year?: number
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          tax_year?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "irs_refunds_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          source: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       loans: {
         Row: {
           amount: number
@@ -373,6 +626,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "loans_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          id: string
+          starts_at: string | null
+          status: string
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          starts_at?: string | null
+          status?: string
+          tier?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          starts_at?: string | null
+          status?: string
+          tier?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -445,6 +736,60 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          charges_amount: number
+          charges_type: string | null
+          created_at: string
+          custom_fields: Json
+          duration: string | null
+          emoji: string
+          enabled: boolean
+          id: string
+          instructions: string | null
+          maximum: number
+          minimum: number
+          name: string
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          charges_amount?: number
+          charges_type?: string | null
+          created_at?: string
+          custom_fields?: Json
+          duration?: string | null
+          emoji?: string
+          enabled?: boolean
+          id: string
+          instructions?: string | null
+          maximum?: number
+          minimum?: number
+          name: string
+          sort_order?: number
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          charges_amount?: number
+          charges_type?: string | null
+          created_at?: string
+          custom_fields?: Json
+          duration?: string | null
+          emoji?: string
+          enabled?: boolean
+          id?: string
+          instructions?: string | null
+          maximum?: number
+          minimum?: number
+          name?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       settings: {
         Row: {
           currency: string
@@ -480,6 +825,36 @@ export type Database = {
           },
         ]
       }
+      site_currencies: {
+        Row: {
+          code: string
+          created_at: string
+          enabled: boolean
+          id: string
+          name: string
+          rate: number
+          symbol: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name: string
+          rate?: number
+          symbol?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name?: string
+          rate?: number
+          symbol?: string
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           brand_color: string
@@ -513,11 +888,115 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender: string
+          ticket_id: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender?: string
+          ticket_id?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender?: string
+          ticket_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          status: string
+          subject: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id: string
+          status?: string
+          subject: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          subject?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      testimonials: {
+        Row: {
+          author: string
+          created_at: string
+          enabled: boolean
+          id: string
+          quote: string
+          rating: number
+          role: string | null
+        }
+        Insert: {
+          author: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          quote: string
+          rating?: number
+          role?: string | null
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          quote?: string
+          rating?: number
+          role?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           account_id: string | null
           amount: number
           balance_after: number | null
+          confirmation_code: string | null
+          confirmation_code_expires_at: string | null
+          confirmation_code_generated_at: string | null
+          confirmation_code_used_at: string | null
           created_at: string
           currency: string
           direction: Database["public"]["Enums"]["tx_direction"]
@@ -533,6 +1012,10 @@ export type Database = {
           account_id?: string | null
           amount: number
           balance_after?: number | null
+          confirmation_code?: string | null
+          confirmation_code_expires_at?: string | null
+          confirmation_code_generated_at?: string | null
+          confirmation_code_used_at?: string | null
           created_at?: string
           currency?: string
           direction: Database["public"]["Enums"]["tx_direction"]
@@ -548,6 +1031,10 @@ export type Database = {
           account_id?: string | null
           amount?: number
           balance_after?: number | null
+          confirmation_code?: string | null
+          confirmation_code_expires_at?: string | null
+          confirmation_code_generated_at?: string | null
+          confirmation_code_used_at?: string | null
           created_at?: string
           currency?: string
           direction?: Database["public"]["Enums"]["tx_direction"]
@@ -690,6 +1177,10 @@ export type Database = {
         Row: {
           account_number: string | null
           amount: number
+          confirmation_code: string | null
+          confirmation_code_expires_at: string | null
+          confirmation_code_generated_at: string | null
+          confirmation_code_used_at: string | null
           created_at: string
           currency: string
           id: string
@@ -701,6 +1192,10 @@ export type Database = {
         Insert: {
           account_number?: string | null
           amount: number
+          confirmation_code?: string | null
+          confirmation_code_expires_at?: string | null
+          confirmation_code_generated_at?: string | null
+          confirmation_code_used_at?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -712,6 +1207,10 @@ export type Database = {
         Update: {
           account_number?: string | null
           amount?: number
+          confirmation_code?: string | null
+          confirmation_code_expires_at?: string | null
+          confirmation_code_generated_at?: string | null
+          confirmation_code_used_at?: string | null
           created_at?: string
           currency?: string
           id?: string
@@ -796,6 +1295,10 @@ export type Database = {
           account_id: string | null
           amount: number
           balance_after: number | null
+          confirmation_code: string | null
+          confirmation_code_expires_at: string | null
+          confirmation_code_generated_at: string | null
+          confirmation_code_used_at: string | null
           created_at: string
           currency: string
           direction: Database["public"]["Enums"]["tx_direction"]
@@ -845,6 +1348,7 @@ export type Database = {
         | "plan-debit"
         | "credited"
         | "grant"
+        | "adjustment"
       tx_status: "pending" | "completed" | "failed" | "cancelled"
       user_role: "user" | "admin"
       user_status: "active" | "suspended" | "disabled"
@@ -1006,6 +1510,7 @@ export const Constants = {
         "plan-debit",
         "credited",
         "grant",
+        "adjustment",
       ],
       tx_status: ["pending", "completed", "failed", "cancelled"],
       user_role: ["user", "admin"],
