@@ -1025,20 +1025,21 @@ async function memberTransfer(
   const fee = round2(input.amount * (cfg.transfer_charges / 100));
   const total = round2(input.amount + fee);
 
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // A pending transfer only RESERVES the money (available drops, balance is
+  // untouched). It is settled when the confirmation code is verified and
+  // released if it is rejected/cancelled.
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: total,
     p_currency: input.currency ?? "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError("insufficient_funds", "Insufficient funds for this transfer.");
   }
 
-  await admin.rpc("credit_account", {
-    p_user_id: recipient.id,
-    p_amount: input.amount,
-    p_currency: input.currency ?? "USD",
-  });
+  // The recipient is credited only once the transfer is confirmed
+  // (see verifyTransfer) — never at request time.
+
 
   const ref = `TFR-${Date.now().toString(36).toUpperCase()}`;
   // Member transfers also wait for the confirmation code. The recipient is
