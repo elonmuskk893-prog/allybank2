@@ -1568,10 +1568,25 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
   }
 
   const now = new Date().toISOString();
-  await admin
+  // Claim the sender row (status + hold flag) before touching any balance, so
+  // the same transfer can never be settled twice.
+  const { data: claimedSender } = await admin
     .from("transactions")
-    .update({ status: "completed", confirmation_code_used_at: now })
-    .eq("id", w.id);
+    .update({ status: "completed", confirmation_code_used_at: now, hold_settled_at: now })
+    .eq("id", w.id)
+    .eq("status", "pending")
+    .is("hold_settled_at", null)
+    .select("id");
+  if (!claimedSender || claimedSender.length === 0) {
+    throw new DbError("already_processed", "This transfer was already completed.");
+  }
+  // The reserved amount (transfer + fee) now leaves the sender's balance.
+  await admin.rpc("settle_hold", {
+    p_user_id: w.user_id,
+    p_amount: round2(Number(w.amount) + Number(w.fee ?? 0)),
+    p_currency: w.currency,
+  });
+
 
   // Member-to-member transfers carry a pending credit row for the recipient
   // under the same reference — settle it now that the code is verified.
