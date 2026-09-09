@@ -36,8 +36,10 @@ const KIND_LABELS: Record<string, string> = {
   "crypto-swap": "Crypto swap",
 };
 
-function isCredit(kind: string): boolean {
-  return !DEBIT_KINDS.includes(kind);
+function isCredit(tx: { kind: string; direction?: string | null }): boolean {
+  if (tx.direction === "credit") return true;
+  if (tx.direction === "debit") return false;
+  return !DEBIT_KINDS.includes(tx.kind);
 }
 
 function kindLabel(kind: string): string {
@@ -120,8 +122,8 @@ function TransactionsFlow() {
     if (!transactions) return [];
     const items = transactions.filter((tx) => {
       if (
-        ("Credit" === typeFilter && !isCredit(tx.kind)) ||
-        ("Debit" === typeFilter && isCredit(tx.kind))
+        ("Credit" === typeFilter && !isCredit(tx)) ||
+        ("Debit" === typeFilter && isCredit(tx))
       )
         return false;
       const date = new Date(tx.created_at);
@@ -154,7 +156,7 @@ function TransactionsFlow() {
   if (transactions === null) return <Loader />;
 
   const amountLabel = (tx: Tx) =>
-    formatCurrency(cur, Math.abs(Number(tx.amount)));
+    `${isCredit(tx) ? "+" : "-"} ${formatCurrency(cur, Math.abs(Number(tx.amount)))}`;
 
   return (
     <div className="-mx-4 -my-5 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 lg:-mx-6 lg:p-6">
@@ -238,7 +240,7 @@ function TransactionsFlow() {
                   </tr>
                 ) : (
                   visible.map((tx) => {
-                    const credit = isCredit(tx.kind);
+                    const credit = isCredit(tx);
                     return (
                       <tr
                         key={tx.id}
@@ -338,7 +340,7 @@ function TransactionsFlow() {
             </div>
           ) : (
             visible.map((tx) => {
-              const credit = isCredit(tx.kind);
+              const credit = isCredit(tx);
               return (
                 <div
                   key={tx.id}
@@ -573,7 +575,7 @@ function ReceiptModal({
   siteName: string;
   onClose: () => void;
 }) {
-  const credit = isCredit(tx.kind);
+  const credit = isCredit(tx);
   const amount = formatCurrency(cur, Math.abs(Number(tx.amount)));
   const balanceAfter =
     tx.balance_after != null
@@ -761,7 +763,7 @@ function ExportModal({
     });
     const rows = filtered
       .map((tx) => {
-        const credit = isCredit(tx.kind);
+        const credit = isCredit(tx);
         const amount = formatCurrency(cur, Math.abs(Number(tx.amount)));
         const balanceAfter =
           tx.balance_after != null
