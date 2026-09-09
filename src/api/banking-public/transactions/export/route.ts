@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "@/lib/next/server";
 import { db } from "@/lib/db";
 import { DbError } from "@/lib/db/error";
 

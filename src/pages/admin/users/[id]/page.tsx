@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import Link from "@/lib/next/link";
+import { useParams, useRouter } from "@/lib/next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { AdminShell, useAdmin } from "@/components/admin/admin-shell";
 import { adminFetch, bankFetch } from "@/lib/api";

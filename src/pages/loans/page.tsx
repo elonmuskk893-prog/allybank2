@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import Link from "@/lib/next/link";
+import { useRouter } from "@/lib/next/navigation";
 import { AppShell, useMe } from "@/components/dashboard/app-shell";
 import { bankFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";

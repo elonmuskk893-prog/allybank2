@@ -1,8 +1,8 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { useRouter, useSearchParams } from "@/lib/next/navigation";
+import Link from "@/lib/next/link";
 import { AuthLayout, type AuthPanelContent } from "@/components/auth/auth-layout";
 import { bankFetch } from "@/lib/api";
 import { useSite } from "@/lib/use-site";

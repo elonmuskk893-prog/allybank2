@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "@/lib/next/navigation";
 import { AuthLayout, type AuthPanelContent } from "@/components/auth/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import { SubmitButton } from "@/components/auth/submit-button";

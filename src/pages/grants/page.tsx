@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 import { AppShell, useMe } from "@/components/dashboard/app-shell";
 import { bankFetch } from "@/lib/api";
 

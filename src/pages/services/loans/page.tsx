@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/next/link";
 import { useState } from "react";
 import { PublicLayout } from "@/components/landing/public-layout";
 

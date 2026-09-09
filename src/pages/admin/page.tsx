@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/lib/next/link";
 import { useEffect, useState } from "react";
 import { AdminShell, useAdmin } from "@/components/admin/admin-shell";
 import { adminFetch } from "@/lib/api";

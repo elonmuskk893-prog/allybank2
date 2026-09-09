@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 import { PublicLayout } from "@/components/landing/public-layout";
 import { useSite } from "@/lib/use-site";
 

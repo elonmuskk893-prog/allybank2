@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "@/lib/next/navigation";
+import Link from "@/lib/next/link";
 import { AuthLayout, type AuthPanelContent } from "@/components/auth/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import { SubmitButton } from "@/components/auth/submit-button";
