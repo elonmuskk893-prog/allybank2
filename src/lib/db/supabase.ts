@@ -1021,7 +1021,8 @@ async function memberTransfer(
     throw new DbError("recipient_not_found", "No member found with that email.");
   }
 
-  const sb = await createServerClient();
+  await createServerClient();
+
   const fee = round2(input.amount * (cfg.transfer_charges / 100));
   const total = round2(input.amount + fee);
 
