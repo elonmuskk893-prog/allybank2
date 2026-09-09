@@ -2,6 +2,8 @@ import { createClient as createServerClient } from "@/lib/supabase/server";
 import {
   createAdminClient,
   isSupabaseConfigured,
+  supabaseAnonKey,
+  supabaseUrl,
 } from "@/lib/supabase/admin";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
 import { cookies } from "@/lib/next/headers";
@@ -1768,8 +1770,8 @@ async function setPin(input: { current_password?: string; pin: string }) {
     throw new DbError("invalid_password", "Your account password is incorrect.");
   }
   const anon = createAnonClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl(),
+    supabaseAnonKey(),
     { auth: { persistSession: false } },
   );
   const { error: signInError } = await anon.auth.signInWithPassword({
