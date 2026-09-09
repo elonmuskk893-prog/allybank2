@@ -546,6 +546,8 @@ function mapUser(row: UserRow) {
     country: row.country ?? "US",
     currency: row.currency,
     twofa_enabled: row.twofa_enabled,
+    full_name: `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
+    created_at: row.created_at,
   };
 }
 
@@ -2276,6 +2278,34 @@ async function adminAdjustBalance(input: {
   return { ok: true, balance_after: String(account.balance) };
 }
 
+async function changePassword(_input: { current_password?: string; new_password?: string }) {
+  await requireSession();
+  return { ok: true };
+}
+
+async function securityStatus() {
+  const user = await requireSession();
+  return {
+    twofa_enabled: Boolean(user.twofa_enabled),
+    twofa_method: "email" as const,
+    pin_set: Boolean(user.pin_hash),
+    email: user.email,
+    email_verified: Boolean(user.email_verified_at),
+    updated_at: null as string | null,
+  };
+}
+
+async function setTwofa(input: { enabled?: boolean; current_password?: string }) {
+  const user = await requireSession();
+  user.twofa_enabled = Boolean(input.enabled);
+  return { ok: true, twofa_enabled: user.twofa_enabled };
+}
+
+async function sendTestEmail(_input: { to?: string }) {
+  await requireAdmin();
+  return { ok: true };
+}
+
 async function adminCreateTransaction(input: {
   user_id?: string;
   kind?: string;
@@ -2283,6 +2313,7 @@ async function adminCreateTransaction(input: {
   amount?: number | string;
   name?: string;
   apply_balance?: boolean;
+  mode?: "balance" | "history" | "both";
 }) {
   await requireAdmin();
   const amount = parseAmountInput(input.amount);
@@ -2294,7 +2325,13 @@ async function adminCreateTransaction(input: {
   const kind = allowedKinds.includes(input.kind ?? "") ? (input.kind as string) : "adjustment";
   const currency = "USD";
   const account = state.accounts.find((a) => a.user_id === input.user_id && a.currency === currency);
-  const apply = input.apply_balance !== false && Boolean(account);
+  const mode =
+    input.mode === "balance" || input.mode === "history" || input.mode === "both"
+      ? input.mode
+      : input.apply_balance === false
+        ? "history"
+        : "both";
+  const apply = mode !== "history" && Boolean(account);
   let balanceAfter: string | null = null;
   if (apply && account) {
     if (direction === "debit" && account.balance < amount) {
@@ -2952,9 +2989,10 @@ async function getSiteSettings() {
   return {
     site: state.site,
     contact: state.siteSettings.get("contact") ?? {},
-    live_chat: { provider: "smartsupp", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) },
-    security: state.siteSettings.get("security") ?? {},
-    features: state.siteSettings.get("features") ?? {},
+    live_chat: { provider: "builtin", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) } as Record<string, unknown>,
+    security: (state.siteSettings.get("security") ?? {}) as Record<string, unknown>,
+    features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
+    email: (state.siteSettings.get("email") ?? {}) as Record<string, unknown>,
   };
 }
 
@@ -2969,7 +3007,7 @@ async function updateSiteSettings(input: { group?: string; value?: Record<string
     if (typeof input.value.brand_color === "string" && input.value.brand_color.trim()) s.brand_color = input.value.brand_color.trim();
     if ("logo_url" in input.value) s.logo_url = (input.value.logo_url as string) || null;
     Object.assign(state.site, s);
-  } else if (["contact", "live_chat", "security", "features"].includes(input.group)) {
+  } else if (["contact", "live_chat", "security", "features", "email"].includes(input.group)) {
     state.siteSettings.set(input.group, input.value);
   } else {
     throw new DbError("invalid_group", "Unknown settings group.");
@@ -2982,10 +3020,29 @@ async function publicSiteSettings() {
   return {
     name: state.site.name,
     brand_color: state.site.brand_color,
-    logo_url: null,
-    contact: state.siteSettings.get("contact") ?? {},
-    live_chat: { provider: "smartsupp", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) },
-    features: state.siteSettings.get("features") ?? {},
+    logo_url: null as string | null | undefined,
+    contact: (state.siteSettings.get("contact") ?? {}) as Record<string, unknown>,
+    live_chat: {
+      provider: "builtin",
+      enabled: false,
+      key: "",
+      position: "bottom-right",
+      offset_bottom: 96,
+      welcome_message: "Hi! How can we help you today?",
+      title: "Live support",
+      dashboard_only: true,
+      ...(state.siteSettings.get("live_chat") ?? {}),
+    } as {
+      provider: string;
+      enabled: boolean;
+      key: string;
+      position: string;
+      offset_bottom: number;
+      welcome_message: string;
+      title: string;
+      dashboard_only: boolean;
+    },
+    features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
   };
 }
 
@@ -3320,6 +3377,10 @@ export const db = {
   adminUpdateUser,
   adminAdjustBalance,
   adminCreateTransaction,
+  changePassword,
+  securityStatus,
+  setTwofa,
+  sendTestEmail,
   adminDeleteUser,
   getAuditLogs,
   setAdminConfig,

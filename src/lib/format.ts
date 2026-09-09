@@ -97,3 +97,33 @@ export function parseNumeric(value: string): number {
   const n = Number(value);
   return Number.isFinite(n) ? n : 0;
 }
+
+/** Transaction kinds that always take money out of the account. */
+export const DEBIT_KINDS = new Set([
+  "admin-debit",
+  "withdrawal",
+  "transfer",
+  "transfer-out",
+  "plan-debit",
+  "card-spend",
+  "fee",
+  "loan-repay",
+]);
+
+/** True when a transaction adds money to the account. `direction` wins when set. */
+export function isCreditTx(tx: { kind?: string; direction?: string | null }): boolean {
+  if (tx.direction === "credit") return true;
+  if (tx.direction === "debit") return false;
+  return !DEBIT_KINDS.has(String(tx.kind ?? ""));
+}
+
+/** "+ $500.00" for money in, "- $500.00" for money out. */
+export function signedAmount(currency: string, amount: number | string, credit: boolean): string {
+  const value = Math.abs(Number(amount) || 0);
+  return `${credit ? "+" : "-"} ${formatCurrency(currency, value)}`;
+}
+
+/** Tailwind text colour for a transaction amount. */
+export function amountClass(credit: boolean): string {
+  return credit ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400";
+}

@@ -17,9 +17,46 @@ import {
 } from "@/lib/db/security";
 import {
   logUndeliveredCode,
-  sendPasswordResetCodeEmail,
-  sendVerificationCodeEmail,
+  passwordResetCodeEmail,
+  verificationCodeEmail,
+  depositApprovedEmail,
+  withdrawalStatusEmail,
+  testEmail,
+  resolveEmailConfig,
+  isEmailConfigured,
+  sendMail,
+  type EmailConfig,
+  type MailInput,
 } from "@/lib/mailer";
+
+/** Read the admin-configured email settings (server-side only). */
+async function loadEmailConfig(): Promise<EmailConfig> {
+  try {
+    const admin = createAdminClient();
+    const { data } = await admin.from("admin_config").select("value").eq("key", "email").maybeSingle();
+    return resolveEmailConfig((data as { value?: EmailConfig } | null)?.value ?? null);
+  } catch {
+    return resolveEmailConfig(null);
+  }
+}
+
+/** Send a prepared template to one recipient. Never throws. */
+async function deliver(to: string, template: MailInput): Promise<boolean> {
+  if (!to) return false;
+  const cfg = await loadEmailConfig();
+  if (!isEmailConfigured(cfg)) return false;
+  const result = await sendMail(cfg, { ...template, to });
+  return result.sent;
+}
+
+async function siteNameForEmail(): Promise<string> {
+  try {
+    const site = await resolveSite(undefined);
+    return site?.name ?? "Online Banking";
+  } catch {
+    return "Online Banking";
+  }
+}
 import { DbError } from "@/lib/db/error";
 import { parseAmountInput } from "@/lib/utils";
 import type {
@@ -208,6 +245,8 @@ function mapUser(row: UserRow) {
     country: row.country ?? "US",
     currency: row.currency,
     twofa_enabled: row.twofa_enabled,
+    full_name: `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
+    created_at: row.created_at,
   };
 }
 
@@ -1930,7 +1969,7 @@ async function register(input: {
       code_hash: (await hashPassword(code)).hash,
       expires_at: new Date(Date.now() + VERIFY_CODE_TTL_MS).toISOString(),
     });
-    const sent = await sendVerificationCodeEmail(email, code);
+    const sent = await deliver(email, verificationCodeEmail(code, await siteNameForEmail()));
     if (sent) {
       needs_email_verification = true;
     } else {
@@ -2085,7 +2124,7 @@ async function forgotPassword(input: { email: string }) {
     expires_at: expires,
   });
 
-  const sent = await sendPasswordResetCodeEmail(email, code);
+  const sent = await deliver(email, passwordResetCodeEmail(code, await siteNameForEmail()));
   let dev_code: string | undefined;
   if (!sent) {
     dev_code = code;
@@ -2185,7 +2224,7 @@ async function resendVerifyCode() {
     code_hash: (await hashPassword(code)).hash,
     expires_at: new Date(Date.now() + VERIFY_CODE_TTL_MS).toISOString(),
   });
-  const sent = await sendVerificationCodeEmail(email, code);
+  const sent = await deliver(email, verificationCodeEmail(code, await siteNameForEmail()));
   if (!sent) logUndeliveredCode("verification (resend)", email, code);
   return { resend_in: 120 };
 }
@@ -2353,7 +2392,7 @@ interface AdminListOptions {
   status?: string;
 }
 
-type AdminRow<T> = T & { email?: string };
+type AdminRow<T> = T & { email?: string; full_name?: string };
 
 async function fetchListWithUsers<T>(
   table: string,
@@ -2365,7 +2404,7 @@ async function fetchListWithUsers<T>(
   const admin = createAdminClient();
   let query = admin
     .from(table)
-    .select("*, users(email)")
+    .select("*, users(email, first_name, last_name)")
     .order(orderColumn, { ascending: false })
     .limit(200);
   if (opts.status) query = query.eq("status", opts.status);
@@ -2379,9 +2418,16 @@ async function fetchListWithUsers<T>(
   const { data, error } = await query;
   if (error) throw new DbError("list_failed", error.message, 500);
   return (((data ?? []) as Record<string, unknown>[]).map((row) => {
-    const rel = row.users as { email?: string } | null | undefined;
+    const rel = row.users as
+      | { email?: string; first_name?: string; last_name?: string }
+      | null
+      | undefined;
     const { users: _users, ...rest } = row;
-    return { ...(rest as T), email: rel?.email };
+    return {
+      ...(rest as T),
+      email: rel?.email,
+      full_name: `${rel?.first_name ?? ""} ${rel?.last_name ?? ""}`.trim() || undefined,
+    };
   }) as AdminRow<T>[]);
 }
 
@@ -2454,6 +2500,26 @@ async function setDepositStatus(input: { id?: string; status?: string }) {
           ? (Number(account.balance) + Number(deposit.amount)).toString()
           : null,
     });
+    const { data: depositUser } = await admin
+      .from("users")
+      .select("email, first_name, last_name")
+      .eq("id", deposit.user_id)
+      .single();
+    const depositOwner = depositUser as { email: string; first_name?: string; last_name?: string } | null;
+    if (depositOwner?.email) {
+      await deliver(
+        depositOwner.email,
+        depositApprovedEmail({
+          siteName: await siteNameForEmail(),
+          name: `${depositOwner.first_name ?? ""} ${depositOwner.last_name ?? ""}`.trim() || "there",
+          amount: Number(deposit.amount),
+          currency: deposit.currency,
+          method: deposit.method,
+          reference: deposit.reference,
+          balance: account != null ? Number(account.balance) + Number(deposit.amount) : null,
+        }),
+      );
+    }
     await admin.from("notifications").insert({
       user_id: deposit.user_id,
       title: "Deposit approved",
@@ -2543,6 +2609,36 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
           : null,
     });
     if (reversalError) throw new DbError("update_failed", reversalError.message, 500);
+  }
+
+  if (["completed", "rejected", "failed"].includes(input.status)) {
+    const { data: wUser } = await admin
+      .from("users")
+      .select("email, first_name, last_name")
+      .eq("id", withdrawal.user_id)
+      .single();
+    const owner = wUser as { email: string; first_name?: string; last_name?: string } | null;
+    const { data: wAccount } = await admin
+      .from("accounts")
+      .select("balance")
+      .eq("user_id", withdrawal.user_id)
+      .eq("currency", withdrawal.currency)
+      .maybeSingle();
+    if (owner?.email) {
+      await deliver(
+        owner.email,
+        withdrawalStatusEmail({
+          siteName: await siteNameForEmail(),
+          name: `${owner.first_name ?? ""} ${owner.last_name ?? ""}`.trim() || "there",
+          amount: Number(withdrawal.amount),
+          currency: withdrawal.currency,
+          method: withdrawal.method,
+          reference: withdrawal.reference,
+          status: input.status,
+          balance: wAccount ? Number((wAccount as { balance: string }).balance) : null,
+        }),
+      );
+    }
   }
 
   const txnStatus =
@@ -2924,6 +3020,8 @@ async function adminCreateTransaction(input: {
   amount?: number | string;
   name?: string;
   apply_balance?: boolean;
+  /** balance = balance only, history = history only, both = balance + history */
+  mode?: "balance" | "history" | "both";
 }) {
   await requireAdmin();
   const amount = parseAmountInput(input.amount);
@@ -2942,7 +3040,14 @@ async function adminCreateTransaction(input: {
 
   let accountId: string | null = null;
   let balanceAfter: string | null = null;
-  const apply = input.apply_balance !== false;
+  const mode: "balance" | "history" | "both" =
+    input.mode === "balance" || input.mode === "history" || input.mode === "both"
+      ? input.mode
+      : input.apply_balance === false
+        ? "history"
+        : "both";
+  const apply = mode !== "history";
+  const writeHistory = mode !== "balance";
   if (apply) {
     const rpc = direction === "credit" ? "credit_account" : "debit_account";
     const { error: rpcError } = await sb.rpc(rpc, {
@@ -2969,7 +3074,8 @@ async function adminCreateTransaction(input: {
     balanceAfter = account != null ? String(account.balance) : null;
   }
 
-  const { data: txn } = await admin
+  const { data: txn } = writeHistory
+    ? await admin
     .from("transactions")
     .insert({
       user_id: input.user_id,
@@ -2989,14 +3095,15 @@ async function adminCreateTransaction(input: {
       balance_after: balanceAfter,
     })
     .select()
-    .single();
+    .single()
+    : { data: null };
 
   await writeAudit({
     action: "transaction.create",
     target_type: "transaction",
     target_id: (txn as { id?: string })?.id,
     target_label: (rows as { email: string }).email,
-    details: { user_id: input.user_id, kind, direction, amount, apply_balance: apply },
+    details: { user_id: input.user_id, kind, direction, amount, mode },
   });
   return { ok: true, transaction: txn };
 }
@@ -3020,6 +3127,101 @@ async function adminDeleteUser(id?: string) {
     target_label: target.email,
     details: { role: target.role },
   });
+  return { ok: true };
+}
+
+/** Verify a user's password by attempting a throwaway sign-in. */
+async function verifyAccountPassword(email: string, password: string): Promise<boolean> {
+  if (!password) return false;
+  const { createClient } = await import("@supabase/supabase-js");
+  const url = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"] ?? "";
+  const key =
+    process.env["SUPABASE_PUBLISHABLE_KEY"] ??
+    process.env["SUPABASE_ANON_KEY"] ??
+    process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
+    "";
+  const probe = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { error } = await probe.auth.signInWithPassword({ email, password });
+  return !error;
+}
+
+async function changePassword(input: { current_password?: string; new_password?: string }) {
+  const user = await requireUser();
+  const next = String(input.new_password ?? "");
+  if (next.length < 8) {
+    throw new DbError("weak_password", "Your new password must be at least 8 characters.");
+  }
+  if (!(await verifyAccountPassword(user.email, String(input.current_password ?? "")))) {
+    throw new DbError("invalid_password", "Your current password is incorrect.", 400);
+  }
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(user.id, { password: next });
+  if (error) throw new DbError("update_failed", error.message, 500);
+  await admin.from("notifications").insert({
+    user_id: user.id,
+    title: "Password changed",
+    body: "Your account password was changed. If this wasn't you, contact support immediately.",
+    link: "/settings/security",
+  });
+  return { ok: true };
+}
+
+async function securityStatus() {
+  const user = await requireUser();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("users")
+    .select("twofa_enabled, pin_hash, email_verified_at, updated_at")
+    .eq("id", user.id)
+    .single();
+  const row = data as
+    | { twofa_enabled: boolean; pin_hash: string | null; email_verified_at: string | null; updated_at: string }
+    | null;
+  return {
+    twofa_enabled: Boolean(row?.twofa_enabled),
+    twofa_method: "email" as const,
+    pin_set: Boolean(row?.pin_hash),
+    email: user.email,
+    email_verified: Boolean(row?.email_verified_at),
+    updated_at: row?.updated_at ?? null,
+  };
+}
+
+async function setTwofa(input: { enabled?: boolean; current_password?: string }) {
+  const user = await requireUser();
+  const enabled = Boolean(input.enabled);
+  if (!(await verifyAccountPassword(user.email, String(input.current_password ?? "")))) {
+    throw new DbError("invalid_password", "Your password is incorrect.", 400);
+  }
+  const admin = createAdminClient();
+  const { error } = await admin.from("users").update({ twofa_enabled: enabled }).eq("id", user.id);
+  if (error) throw new DbError("update_failed", error.message, 500);
+  await admin.from("notifications").insert({
+    user_id: user.id,
+    title: enabled ? "Two-factor authentication enabled" : "Two-factor authentication disabled",
+    body: enabled
+      ? "You'll now be asked for a one-time code sent to your email at every sign-in."
+      : "Two-factor authentication is now off for your account.",
+    link: "/settings/security",
+  });
+  return { ok: true, twofa_enabled: enabled };
+}
+
+/** Admin: send a test message with the currently saved email settings. */
+async function sendTestEmail(input: { to?: string }) {
+  await requireAdmin();
+  const to = String(input.to ?? "").trim();
+  if (!to || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
+    throw new DbError("invalid_email", "Enter a valid recipient email address.");
+  }
+  const cfg = await loadEmailConfig();
+  if (!isEmailConfigured(cfg)) {
+    throw new DbError("email_not_configured", "Save your email settings (host/key and from address) first.");
+  }
+  const result = await sendMail(cfg, { ...testEmail(await siteNameForEmail()), to });
+  if (!result.sent) {
+    throw new DbError("send_failed", result.error ?? "The test email could not be sent.", 400);
+  }
   return { ok: true };
 }
 
@@ -3616,6 +3818,7 @@ interface SiteSettingsGroups {
   live_chat: Record<string, unknown>;
   security: Record<string, unknown>;
   features: Record<string, unknown>;
+  email: Record<string, unknown>;
 }
 
 async function readConfigGroups(admin: ReturnType<typeof createAdminClient>): Promise<SiteSettingsGroups> {
@@ -3627,13 +3830,25 @@ async function readConfigGroups(admin: ReturnType<typeof createAdminClient>): Pr
   return {
     contact: (map.get("contact") as Record<string, unknown>) ?? {},
     live_chat: {
-      provider: "smartsupp",
+      provider: "builtin",
       enabled: false,
       key: "",
+      position: "bottom-right",
+      offset_bottom: 96,
+      welcome_message: "Hi! How can we help you today?",
+      title: "Live support",
+      dashboard_only: true,
       ...((map.get("live_chat") as Record<string, unknown>) ?? {}),
     },
     security: (map.get("security") as Record<string, unknown>) ?? {},
     features: (map.get("features") as Record<string, unknown>) ?? {},
+    email: (() => {
+      const raw = { ...((map.get("email") as Record<string, unknown>) ?? {}) };
+      // Never return stored credentials to the browser.
+      if (raw.smtp_password) raw.smtp_password = "********";
+      if (raw.api_key) raw.api_key = "********";
+      return raw;
+    })(),
   };
 }
 
@@ -3661,7 +3876,18 @@ async function updateSiteSettings(input: { group?: string; value?: Record<string
     const current = await resolveSite(undefined);
     const { error } = await admin.from("sites").update(patch).eq("id", current.id);
     if (error) throw new DbError("update_failed", error.message, 500);
-  } else if (["contact", "live_chat", "security", "features"].includes(input.group)) {
+  } else if (["contact", "live_chat", "security", "features", "email"].includes(input.group)) {
+    if (input.group === "email") {
+      const { data: existing } = await admin
+        .from("admin_config")
+        .select("value")
+        .eq("key", "email")
+        .maybeSingle();
+      const prev = ((existing as { value?: Record<string, unknown> } | null)?.value ?? {}) as Record<string, unknown>;
+      for (const field of ["smtp_password", "api_key"]) {
+        if (!input.value[field] || input.value[field] === "********") input.value[field] = prev[field] ?? "";
+      }
+    }
     await admin
       .from("admin_config")
       .upsert({ key: input.group, value: input.value, updated_at: new Date().toISOString() }, { onConflict: "key" });
@@ -3684,9 +3910,14 @@ async function publicSiteSettings() {
     logo_url: site.logo_url,
     contact: groups.contact,
     live_chat: {
-      provider: chat.provider ?? "smartsupp",
+      provider: String(chat.provider ?? "builtin"),
       enabled: Boolean(chat.enabled),
       key: String(chat.key ?? ""),
+      position: String(chat.position ?? "bottom-right"),
+      offset_bottom: Number(chat.offset_bottom ?? 96),
+      welcome_message: String(chat.welcome_message ?? "Hi! How can we help you today?"),
+      title: String(chat.title ?? "Live support"),
+      dashboard_only: chat.dashboard_only !== false,
     },
     features: groups.features,
   };
@@ -3883,6 +4114,7 @@ async function adminCryptoAssets(search?: string): Promise<{
   assets: ({
     id: string;
     email?: string;
+    full_name?: string;
     symbol: string;
     name: string;
     balance: string;
@@ -3893,7 +4125,7 @@ async function adminCryptoAssets(search?: string): Promise<{
   const admin = createAdminClient();
   let query = admin
     .from("crypto_assets")
-    .select("*, users(email)")
+    .select("*, users(email, first_name, last_name)")
     .order("created_at", { ascending: false })
     .limit(300);
   if (search) {
@@ -3903,10 +4135,22 @@ async function adminCryptoAssets(search?: string): Promise<{
   const { data } = await query;
   return {
     assets: ((data ?? []) as Record<string, unknown>[]).map((row) => {
-      const rel = row.users as { email?: string } | null;
+      const rel = row.users as
+        | { email?: string; first_name?: string; last_name?: string }
+        | null;
       const { users: _users, ...rest } = row;
-      return rest as { id: string; symbol: string; name: string; balance: string; price_usd: string | null };
-    }).map((r) => ({ ...r, email: (r as { email?: string }).email })),
+      return {
+        ...(rest as {
+          id: string;
+          symbol: string;
+          name: string;
+          balance: string;
+          price_usd: string | null;
+        }),
+        email: rel?.email,
+        full_name: `${rel?.first_name ?? ""} ${rel?.last_name ?? ""}`.trim() || undefined,
+      };
+    }),
   };
 }
 
@@ -4039,6 +4283,10 @@ export const db = {
   adminUpdateUser,
   adminAdjustBalance,
   adminCreateTransaction,
+  changePassword,
+  securityStatus,
+  setTwofa,
+  sendTestEmail,
   adminDeleteUser,
   getAuditLogs,
   setAdminConfig,

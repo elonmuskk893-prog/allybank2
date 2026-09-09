@@ -7,6 +7,8 @@ import {
   formatCurrency,
   formatDateTime,
   greeting,
+  isCreditTx,
+  signedAmount,
 } from "@/lib/format";
 import type {
   Balance,
@@ -55,13 +57,13 @@ const DEBIT_KINDS = new Set([
 
 function toTransactions(transactions: Transaction[], currency: string) {
   return transactions.map((tx) => {
-    const credit = !DEBIT_KINDS.has(tx.kind);
+    const credit = isCreditTx(tx as { kind?: string; direction?: string | null });
     return {
       id: String(tx.id),
       credit,
       name: tx.meta?.label ?? TX_LABELS[tx.kind] ?? tx.kind,
       date: formatDateTime(tx.created_at),
-      amount: `${credit ? "+" : "-"}${formatCurrency(currency, Math.abs(Number(tx.amount)))}`,
+      amount: signedAmount(currency, tx.amount, credit),
     };
   });
 }
