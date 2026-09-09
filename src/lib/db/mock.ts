@@ -546,6 +546,8 @@ function mapUser(row: UserRow) {
     country: row.country ?? "US",
     currency: row.currency,
     twofa_enabled: row.twofa_enabled,
+    full_name: `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
+    created_at: row.created_at,
   };
 }
 
@@ -2277,12 +2279,12 @@ async function adminAdjustBalance(input: {
 }
 
 async function changePassword(_input: { current_password?: string; new_password?: string }) {
-  await requireUser();
+  await requireSession();
   return { ok: true };
 }
 
 async function securityStatus() {
-  const user = await requireUser();
+  const user = await requireSession();
   return {
     twofa_enabled: Boolean(user.twofa_enabled),
     twofa_method: "email" as const,
@@ -2294,7 +2296,7 @@ async function securityStatus() {
 }
 
 async function setTwofa(input: { enabled?: boolean; current_password?: string }) {
-  const user = await requireUser();
+  const user = await requireSession();
   user.twofa_enabled = Boolean(input.enabled);
   return { ok: true, twofa_enabled: user.twofa_enabled };
 }

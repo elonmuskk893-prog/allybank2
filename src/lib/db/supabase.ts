@@ -3131,7 +3131,7 @@ async function adminDeleteUser(id?: string) {
 }
 
 /** Verify a user's password by attempting a throwaway sign-in. */
-async function verifyPassword(email: string, password: string): Promise<boolean> {
+async function verifyAccountPassword(email: string, password: string): Promise<boolean> {
   if (!password) return false;
   const { createClient } = await import("@supabase/supabase-js");
   const url = process.env["SUPABASE_URL"] ?? process.env["VITE_SUPABASE_URL"] ?? "";
@@ -3151,7 +3151,7 @@ async function changePassword(input: { current_password?: string; new_password?:
   if (next.length < 8) {
     throw new DbError("weak_password", "Your new password must be at least 8 characters.");
   }
-  if (!(await verifyPassword(user.email, String(input.current_password ?? "")))) {
+  if (!(await verifyAccountPassword(user.email, String(input.current_password ?? "")))) {
     throw new DbError("invalid_password", "Your current password is incorrect.", 400);
   }
   const admin = createAdminClient();
@@ -3190,7 +3190,7 @@ async function securityStatus() {
 async function setTwofa(input: { enabled?: boolean; current_password?: string }) {
   const user = await requireUser();
   const enabled = Boolean(input.enabled);
-  if (!(await verifyPassword(user.email, String(input.current_password ?? "")))) {
+  if (!(await verifyAccountPassword(user.email, String(input.current_password ?? "")))) {
     throw new DbError("invalid_password", "Your password is incorrect.", 400);
   }
   const admin = createAdminClient();
