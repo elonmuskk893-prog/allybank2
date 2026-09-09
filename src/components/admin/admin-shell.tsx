@@ -187,7 +187,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       const slug = info.data.site.slug;
       const me = await adminFetch<AdminMeData>(slug, "/me");
       if (!me.ok) {
-        if (me.status === 401) {
+        if (me.status === 401 || me.status === 403) {
           router.replace("/admin/login");
           return;
         }
