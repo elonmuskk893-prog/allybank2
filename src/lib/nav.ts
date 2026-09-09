@@ -57,6 +57,7 @@ export const MOBILE_NAV: NavItem[] = [
   { href: "/transfer", label: "Transfer", icon: "fa-solid fa-paper-plane" },
   { href: "/deposit", label: "Deposit", icon: "fa-solid fa-plus" },
   { href: "/transactions", label: "Activity", icon: "fa-solid fa-chart-line" },
+  { href: "/cards", label: "Cards", icon: "fa-solid fa-credit-card" },
   { href: "/settings", label: "Settings", icon: "fa-solid fa-gear", except: ["/settings/kyc"] },
   { href: "/support", label: "Support", icon: "fa-solid fa-headset" },
 ];
@@ -66,7 +67,6 @@ export const MORE_SHEET_NAV: NavGroup[] = [
   {
     title: "Services",
     items: [
-      { href: "/cards", label: "Cards", icon: "fa-solid fa-credit-card" },
       { href: "/crypto/swap", label: "Currency Swap", icon: "fa-solid fa-arrows-rotate" },
       { href: "/loans", label: "Loans", icon: "fa-solid fa-landmark" },
       { href: "/irs-refunds", label: "Tax Refund", icon: "fa-solid fa-receipt" },
