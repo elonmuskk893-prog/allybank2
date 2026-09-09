@@ -15,10 +15,32 @@ interface SiteRow {
 interface Settings {
   site: SiteRow;
   contact: Record<string, unknown>;
-  live_chat: { provider?: string; enabled?: boolean; key?: string };
+  live_chat: {
+    provider?: string;
+    enabled?: boolean;
+    key?: string;
+    position?: string;
+    offset_bottom?: number;
+    welcome_message?: string;
+    title?: string;
+    dashboard_only?: boolean;
+  };
   security: Record<string, unknown>;
   features: Record<string, unknown>;
+  email?: Record<string, unknown>;
 }
+
+const EMPTY_EMAIL = {
+  provider: "smtp",
+  smtp_host: "",
+  smtp_port: "587",
+  smtp_user: "",
+  smtp_password: "",
+  encryption: "starttls",
+  api_key: "",
+  from_email: "",
+  from_name: "",
+};
 
 const CONTACT_FIELDS: [string, string][] = [
   ["support_email", "Support email"],
@@ -60,7 +82,19 @@ function SettingsAdmin() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [general, setGeneral] = useState({ name: "", brand_color: "#0ea5e9", logo_url: "" });
   const [contact, setContact] = useState<Record<string, string>>({});
-  const [chat, setChat] = useState({ enabled: false, key: "" });
+  const [chat, setChat] = useState({
+    provider: "builtin",
+    enabled: false,
+    key: "",
+    position: "bottom-right",
+    offset_bottom: 96,
+    welcome_message: "Hi! How can we help you today?",
+    title: "Live support",
+    dashboard_only: true,
+  });
+  const [email, setEmail] = useState({ ...EMPTY_EMAIL });
+  const [testTo, setTestTo] = useState("");
+  const [testState, setTestState] = useState<string | null>(null);
   const [features, setFeatures] = useState({ maintenance_mode: false });
   const [savedGroup, setSavedGroup] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -77,7 +111,20 @@ function SettingsAdmin() {
       logo_url: s.site?.logo_url ?? "",
     });
     setContact(Object.fromEntries(CONTACT_FIELDS.map(([k]) => [k, String(s.contact?.[k] ?? "")])));
-    setChat({ enabled: Boolean(s.live_chat?.enabled), key: String(s.live_chat?.key ?? "") });
+    setChat({
+      provider: String(s.live_chat?.provider ?? "builtin"),
+      enabled: Boolean(s.live_chat?.enabled),
+      key: String(s.live_chat?.key ?? ""),
+      position: String(s.live_chat?.position ?? "bottom-right"),
+      offset_bottom: Number(s.live_chat?.offset_bottom ?? 96),
+      welcome_message: String(s.live_chat?.welcome_message ?? "Hi! How can we help you today?"),
+      title: String(s.live_chat?.title ?? "Live support"),
+      dashboard_only: s.live_chat?.dashboard_only !== false,
+    });
+    setEmail({
+      ...EMPTY_EMAIL,
+      ...Object.fromEntries(Object.entries(s.email ?? {}).map(([k, v]) => [k, String(v ?? "")])),
+    });
     setFeatures({ maintenance_mode: Boolean(s.features?.maintenance_mode) });
   }, []);
 
@@ -169,41 +216,160 @@ function SettingsAdmin() {
         </button>
       </section>
 
-      {/* Live chat — Smartsupp */}
+      {/* Live chat */}
       <section className="max-w-2xl space-y-4 rounded-2xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/50 dark:bg-gray-800">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Live chat (Smartsupp)</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Live chat</h2>
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${chat.enabled ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" : "bg-gray-100 text-gray-600 dark:bg-gray-700/60"}`}>
-            {chat.enabled ? "Live on site" : "Disabled"}
+            {chat.enabled ? "Live" : "Disabled"}
           </span>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
-          Paste your Smartsupp dashboard key (or the whole install snippet — the key is extracted automatically).
-          Saving applies the widget to the website immediately; no redeploy needed.
-        </p>
         <Toggle
           checked={chat.enabled}
           onChange={(v) => setChat({ ...chat, enabled: v })}
-          label="Enable Smartsupp live chat widget"
-          hint="The chat bubble appears on all customer-facing pages."
+          label="Enable live chat"
+          hint="Turn the chat bubble on or off across the site."
         />
-        <Field label="Smartsupp key or install code">
-          <textarea
-            rows={4}
-            value={chat.key}
-            onChange={(e) => setChat({ ...chat, key: e.target.value })}
-            className={`${inputCls} font-mono text-xs`}
-            placeholder='_smartsupp.key = "abc123def456…";   — or just abc123def456…'
+        <Toggle
+          checked={chat.dashboard_only}
+          onChange={(v) => setChat({ ...chat, dashboard_only: v })}
+          label="Signed-in dashboard only"
+          hint="Keeps the bubble off the homepage, login and registration pages."
+        />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Provider">
+            <select value={chat.provider} onChange={(e) => setChat({ ...chat, provider: e.target.value })} className={inputCls}>
+              <option value="builtin">Built-in chat (messages go to Tickets)</option>
+              <option value="smartsupp">Smartsupp</option>
+            </select>
+          </Field>
+          <Field label="Bubble position">
+            <select value={chat.position} onChange={(e) => setChat({ ...chat, position: e.target.value })} className={inputCls}>
+              <option value="bottom-right">Bottom right</option>
+              <option value="bottom-left">Bottom left</option>
+            </select>
+          </Field>
+          <Field label="Distance from bottom on mobile (px)">
+            <input
+              type="number"
+              min="0"
+              value={chat.offset_bottom}
+              onChange={(e) => setChat({ ...chat, offset_bottom: Number(e.target.value) })}
+              className={inputCls}
+            />
+          </Field>
+          <Field label="Chat window title">
+            <input value={chat.title} onChange={(e) => setChat({ ...chat, title: e.target.value })} className={inputCls} />
+          </Field>
+        </div>
+        <Field label="Welcome message">
+          <input
+            value={chat.welcome_message}
+            onChange={(e) => setChat({ ...chat, welcome_message: e.target.value })}
+            className={inputCls}
           />
         </Field>
+        {chat.provider === "smartsupp" && (
+          <Field label="Smartsupp key or install code">
+            <textarea
+              rows={4}
+              value={chat.key}
+              onChange={(e) => setChat({ ...chat, key: e.target.value })}
+              className={`${inputCls} font-mono text-xs`}
+              placeholder='_smartsupp.key = "abc123def456…";   — or just abc123def456…'
+            />
+          </Field>
+        )}
         <button
           disabled={busy}
-          onClick={() => save("live_chat", { provider: "smartsupp", enabled: chat.enabled, key: chat.key })}
+          onClick={() => save("live_chat", chat)}
           className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
           style={{ background: "var(--brand)" }}
         >
           {savedGroup === "live_chat" ? "Saved & applied ✓" : "Save live chat settings"}
         </button>
+      </section>
+
+      {/* Email / SMTP */}
+      <section className="max-w-2xl space-y-4 rounded-2xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/50 dark:bg-gray-800">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Email / SMTP</h2>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          Used for verification codes, password resets, and deposit/withdrawal notifications.
+          Credentials are stored on the server and never sent to the browser.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Field label="Delivery method">
+            <select value={String(email.provider)} onChange={(e) => setEmail({ ...email, provider: e.target.value })} className={inputCls}>
+              <option value="smtp">SMTP server</option>
+              <option value="resend">Resend API</option>
+              <option value="mailersend">MailerSend API</option>
+            </select>
+          </Field>
+          <Field label="From name">
+            <input value={String(email.from_name)} onChange={(e) => setEmail({ ...email, from_name: e.target.value })} className={inputCls} />
+          </Field>
+          <Field label="From email">
+            <input value={String(email.from_email)} onChange={(e) => setEmail({ ...email, from_email: e.target.value })} className={inputCls} placeholder="no-reply@yourbank.com" />
+          </Field>
+          {email.provider === "smtp" ? (
+            <>
+              <Field label="SMTP host">
+                <input value={String(email.smtp_host)} onChange={(e) => setEmail({ ...email, smtp_host: e.target.value })} className={inputCls} placeholder="smtp.yourhost.com" />
+              </Field>
+              <Field label="SMTP port">
+                <input value={String(email.smtp_port)} onChange={(e) => setEmail({ ...email, smtp_port: e.target.value })} className={inputCls} placeholder="587" />
+              </Field>
+              <Field label="Encryption">
+                <select value={String(email.encryption)} onChange={(e) => setEmail({ ...email, encryption: e.target.value })} className={inputCls}>
+                  <option value="starttls">STARTTLS (587)</option>
+                  <option value="tls">SSL/TLS (465)</option>
+                  <option value="none">None</option>
+                </select>
+              </Field>
+              <Field label="SMTP username">
+                <input value={String(email.smtp_user)} onChange={(e) => setEmail({ ...email, smtp_user: e.target.value })} className={inputCls} />
+              </Field>
+              <Field label="SMTP password">
+                <input type="password" value={String(email.smtp_password)} onChange={(e) => setEmail({ ...email, smtp_password: e.target.value })} className={inputCls} placeholder="••••••••" />
+              </Field>
+            </>
+          ) : (
+            <Field label="API key">
+              <input type="password" value={String(email.api_key)} onChange={(e) => setEmail({ ...email, api_key: e.target.value })} className={inputCls} placeholder="••••••••" />
+            </Field>
+          )}
+        </div>
+        <button
+          disabled={busy}
+          onClick={() => save("email", email)}
+          className="rounded-lg px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          style={{ background: "var(--brand)" }}
+        >
+          {savedGroup === "email" ? "Saved ✓" : "Save email settings"}
+        </button>
+
+        <div className="rounded-xl bg-gray-50 p-4 dark:bg-gray-900/40">
+          <Field label="Send a test email to">
+            <input value={testTo} onChange={(e) => setTestTo(e.target.value)} className={inputCls} placeholder="you@example.com" />
+          </Field>
+          <button
+            disabled={busy || !testTo}
+            onClick={async () => {
+              setBusy(true);
+              setTestState(null);
+              const res = await adminFetch("teslamodel", "/test-email", {
+                method: "POST",
+                body: JSON.stringify({ to: testTo }),
+              });
+              setBusy(false);
+              setTestState(res.ok ? "Test email sent — check the inbox." : (res.error ?? "The test email failed."));
+            }}
+            className="mt-3 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50 dark:border-gray-600 dark:text-gray-200"
+          >
+            Send test email
+          </button>
+          {testState && <p className="mt-2 text-xs text-gray-600 dark:text-gray-300">{testState}</p>}
+        </div>
       </section>
 
       {/* Features */}
