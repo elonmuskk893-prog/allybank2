@@ -1245,6 +1245,56 @@ async function deleteBeneficiary(id: string) {
   return { ok: true };
 }
 
+/**
+ * Withdrawal money-hold helpers.
+ *
+ * A pending withdrawal reserves the amount (available drops, balance stays).
+ * Exactly one of these two can ever run for a given withdrawal — the
+ * timestamp columns make both operations idempotent, so a double approval or
+ * a reject-after-approve can never move the money twice.
+ */
+type HoldWithdrawal = WithdrawalRow & {
+  hold_settled_at?: string | null;
+  hold_released_at?: string | null;
+};
+
+async function settleWithdrawalHold(w: HoldWithdrawal) {
+  const admin = createAdminClient();
+  const { data: claimed } = await admin
+    .from("withdrawals")
+    .update({ hold_settled_at: new Date().toISOString() })
+    .eq("id", w.id)
+    .is("hold_settled_at", null)
+    .is("hold_released_at", null)
+    .select("id");
+  if (!claimed || claimed.length === 0) return false;
+  await admin.rpc("settle_hold", {
+    p_user_id: w.user_id,
+    p_amount: Number(w.amount),
+    p_currency: w.currency,
+  });
+  return true;
+}
+
+async function releaseWithdrawalHold(w: HoldWithdrawal) {
+  const admin = createAdminClient();
+  const { data: claimed } = await admin
+    .from("withdrawals")
+    .update({ hold_released_at: new Date().toISOString() })
+    .eq("id", w.id)
+    .is("hold_settled_at", null)
+    .is("hold_released_at", null)
+    .select("id");
+  if (!claimed || claimed.length === 0) return false;
+  await admin.rpc("release_hold", {
+    p_user_id: w.user_id,
+    p_amount: Number(w.amount),
+    p_currency: w.currency,
+  });
+  return true;
+}
+
+
 async function requestWithdrawal(input: {
   amount: number;
   method_id?: string | number;
