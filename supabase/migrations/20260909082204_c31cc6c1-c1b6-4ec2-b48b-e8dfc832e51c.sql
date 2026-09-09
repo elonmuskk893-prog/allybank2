@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.hold_funds(uuid, numeric, text) FROM authenticated;
