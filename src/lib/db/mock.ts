@@ -3020,10 +3020,29 @@ async function publicSiteSettings() {
   return {
     name: state.site.name,
     brand_color: state.site.brand_color,
-    logo_url: null,
-    contact: state.siteSettings.get("contact") ?? {},
-    live_chat: { provider: "smartsupp", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) },
-    features: state.siteSettings.get("features") ?? {},
+    logo_url: null as string | null | undefined,
+    contact: (state.siteSettings.get("contact") ?? {}) as Record<string, unknown>,
+    live_chat: {
+      provider: "builtin",
+      enabled: false,
+      key: "",
+      position: "bottom-right",
+      offset_bottom: 96,
+      welcome_message: "Hi! How can we help you today?",
+      title: "Live support",
+      dashboard_only: true,
+      ...(state.siteSettings.get("live_chat") ?? {}),
+    } as {
+      provider: string;
+      enabled: boolean;
+      key: string;
+      position: string;
+      offset_bottom: number;
+      welcome_message: string;
+      title: string;
+      dashboard_only: boolean;
+    },
+    features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
   };
 }
 
