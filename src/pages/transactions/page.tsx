@@ -49,6 +49,7 @@ function kindLabel(kind: string): string {
 interface Tx {
   id: number | string;
   kind: string;
+  direction?: string | null;
   amount: number | string;
   created_at: string;
   balance_after?: number | string | null;
@@ -256,7 +257,7 @@ function TransactionsFlow() {
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3">
-                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                          <div className={`text-sm font-semibold ${credit ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
                             {amountLabel(tx)}
                           </div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -356,7 +357,7 @@ function TransactionsFlow() {
                         />
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                        <div className={`text-sm font-semibold ${credit ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"}`}>
                           {amountLabel(tx)}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">

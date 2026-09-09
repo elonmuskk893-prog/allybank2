@@ -6,7 +6,10 @@ import {
   cryptoIcon,
   formatCurrency,
   formatDateTime,
-  greeting,, isCreditTx, signedAmount } from "@/lib/format";
+  greeting,
+  isCreditTx,
+  signedAmount,
+} from "@/lib/format";
 import type {
   Balance,
   Beneficiary,
