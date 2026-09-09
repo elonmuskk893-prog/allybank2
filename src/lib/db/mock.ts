@@ -2989,9 +2989,10 @@ async function getSiteSettings() {
   return {
     site: state.site,
     contact: state.siteSettings.get("contact") ?? {},
-    live_chat: { provider: "smartsupp", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) },
-    security: state.siteSettings.get("security") ?? {},
-    features: state.siteSettings.get("features") ?? {},
+    live_chat: { provider: "builtin", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) } as Record<string, unknown>,
+    security: (state.siteSettings.get("security") ?? {}) as Record<string, unknown>,
+    features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
+    email: (state.siteSettings.get("email") ?? {}) as Record<string, unknown>,
   };
 }
 
@@ -3006,7 +3007,7 @@ async function updateSiteSettings(input: { group?: string; value?: Record<string
     if (typeof input.value.brand_color === "string" && input.value.brand_color.trim()) s.brand_color = input.value.brand_color.trim();
     if ("logo_url" in input.value) s.logo_url = (input.value.logo_url as string) || null;
     Object.assign(state.site, s);
-  } else if (["contact", "live_chat", "security", "features"].includes(input.group)) {
+  } else if (["contact", "live_chat", "security", "features", "email"].includes(input.group)) {
     state.siteSettings.set(input.group, input.value);
   } else {
     throw new DbError("invalid_group", "Unknown settings group.");
