@@ -358,13 +358,21 @@ function mapTransaction(tx: TransactionRow) {
   return {
     id: tx.id,
     kind: tx.kind,
+    // `direction` decides the +/- sign and colour everywhere in the UI, so it
+    // must always be carried through to the client.
+    direction: tx.direction ?? null,
     amount: tx.amount,
+    currency: tx.currency,
+    fee: tx.fee,
+    reference: tx.reference,
+    balance_after: tx.balance_after,
     status: tx.status,
     created_at: tx.created_at,
     name: tx.name,
     meta: tx.name ? { label: tx.name } : undefined,
   };
 }
+
 
 function mapCard(card: CardRow) {
   return {
@@ -1013,24 +1021,26 @@ async function memberTransfer(
     throw new DbError("recipient_not_found", "No member found with that email.");
   }
 
-  const sb = await createServerClient();
+  await createServerClient();
+
   const fee = round2(input.amount * (cfg.transfer_charges / 100));
   const total = round2(input.amount + fee);
 
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // A pending transfer only RESERVES the money (available drops, balance is
+  // untouched). It is settled when the confirmation code is verified and
+  // released if it is rejected/cancelled.
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: total,
     p_currency: input.currency ?? "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError("insufficient_funds", "Insufficient funds for this transfer.");
   }
 
-  await admin.rpc("credit_account", {
-    p_user_id: recipient.id,
-    p_amount: input.amount,
-    p_currency: input.currency ?? "USD",
-  });
+  // The recipient is credited only once the transfer is confirmed
+  // (see verifyTransfer) — never at request time.
+
 
   const ref = `TFR-${Date.now().toString(36).toUpperCase()}`;
   // Member transfers also wait for the confirmation code. The recipient is
@@ -1125,17 +1135,20 @@ async function createWithdrawal(input: {
     throw new DbError("invalid_amount", "Enter a valid amount.");
   }
 
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // Pending withdrawals only RESERVE the money: `available` drops so it can't
+  // be spent twice, but the balance is not reduced until the withdrawal is
+  // actually completed (admin approval / confirmation code).
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: input.amount,
     p_currency: input.currency ?? "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError(
-      debitError.message.includes("insufficient_funds")
+      holdError.message.includes("insufficient_funds")
         ? "insufficient_funds"
         : "withdrawal_failed",
-      debitError.message.includes("insufficient_funds")
+      holdError.message.includes("insufficient_funds")
         ? "Insufficient funds for this withdrawal."
         : "The withdrawal could not be completed.",
       400,
@@ -1155,6 +1168,7 @@ async function createWithdrawal(input: {
     .select()
     .single();
 
+  const wRow = withdrawal as WithdrawalRow | null;
   await admin.from("transactions").insert({
     user_id: user.id,
     kind: "withdrawal",
@@ -1162,8 +1176,12 @@ async function createWithdrawal(input: {
     amount: input.amount,
     currency: input.currency ?? "USD",
     name: "Withdrawal",
+    // Tie the history row to THIS withdrawal so status updates can never hit
+    // another pending withdrawal of the same user.
+    reference: wRow?.id ?? null,
     status: "pending",
   });
+
 
   return { withdrawal };
 }
@@ -1227,6 +1245,56 @@ async function deleteBeneficiary(id: string) {
   return { ok: true };
 }
 
+/**
+ * Withdrawal money-hold helpers.
+ *
+ * A pending withdrawal reserves the amount (available drops, balance stays).
+ * Exactly one of these two can ever run for a given withdrawal — the
+ * timestamp columns make both operations idempotent, so a double approval or
+ * a reject-after-approve can never move the money twice.
+ */
+type HoldWithdrawal = WithdrawalRow & {
+  hold_settled_at?: string | null;
+  hold_released_at?: string | null;
+};
+
+async function settleWithdrawalHold(w: HoldWithdrawal) {
+  const admin = createAdminClient();
+  const { data: claimed } = await admin
+    .from("withdrawals")
+    .update({ hold_settled_at: new Date().toISOString() })
+    .eq("id", w.id)
+    .is("hold_settled_at", null)
+    .is("hold_released_at", null)
+    .select("id");
+  if (!claimed || claimed.length === 0) return false;
+  await admin.rpc("settle_hold", {
+    p_user_id: w.user_id,
+    p_amount: Number(w.amount),
+    p_currency: w.currency,
+  });
+  return true;
+}
+
+async function releaseWithdrawalHold(w: HoldWithdrawal) {
+  const admin = createAdminClient();
+  const { data: claimed } = await admin
+    .from("withdrawals")
+    .update({ hold_released_at: new Date().toISOString() })
+    .eq("id", w.id)
+    .is("hold_settled_at", null)
+    .is("hold_released_at", null)
+    .select("id");
+  if (!claimed || claimed.length === 0) return false;
+  await admin.rpc("release_hold", {
+    p_user_id: w.user_id,
+    p_amount: Number(w.amount),
+    p_currency: w.currency,
+  });
+  return true;
+}
+
+
 async function requestWithdrawal(input: {
   amount: number;
   method_id?: string | number;
@@ -1257,12 +1325,13 @@ async function requestWithdrawal(input: {
 
   const sb = await createServerClient();
   const admin = createAdminClient();
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // Reserve (hold) the money — the balance itself only changes on completion.
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: input.amount,
     p_currency: "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError("insufficient_balance", "Not enough balance for this withdrawal.");
   }
   const { data: withdrawal } = await sb
@@ -1284,10 +1353,11 @@ async function requestWithdrawal(input: {
     amount: input.amount,
     currency: "USD",
     name: "Withdrawal",
-    reference: row?.reference ?? null,
+    reference: row?.id ?? null,
     status: "pending",
     fee: "0.00",
   });
+
   await admin.from("notifications").insert({
     user_id: user.id,
     title: "Withdrawal submitted",
@@ -1341,12 +1411,17 @@ async function verifyWithdrawal(input: { withdrawal_id: string; code: string }) 
     })
     .eq("id", w.id);
 
+  // Now — and only now — the reserved money actually leaves the balance.
+  await settleWithdrawalHold(w);
+
   await admin
     .from("transactions")
     .update({ status: "completed" })
     .eq("user_id", user.id)
     .eq("kind", "withdrawal")
+    .eq("reference", w.id)
     .eq("status", "pending");
+
 
   await admin.from("notifications").insert({
     user_id: user.id,
@@ -1393,14 +1468,17 @@ async function createExternalTransfer(input: {
   const total = round2(input.amount + fee);
   const sb = await createServerClient();
   const admin = createAdminClient();
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // Reserve the amount + fee while the transfer waits for its confirmation
+  // code; the balance only moves once the code is verified.
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: total,
     p_currency: "USD",
   });
-  if (debitError) {
+  if (holdError) {
     throw new DbError("insufficient_funds", "Insufficient funds for this transfer.");
   }
+
 
   const ref = `TFR-${Date.now().toString(36).toUpperCase()}`;
   // A unique confirmation code is issued immediately and stored on the
@@ -1493,10 +1571,25 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
   }
 
   const now = new Date().toISOString();
-  await admin
+  // Claim the sender row (status + hold flag) before touching any balance, so
+  // the same transfer can never be settled twice.
+  const { data: claimedSender } = await admin
     .from("transactions")
-    .update({ status: "completed", confirmation_code_used_at: now })
-    .eq("id", w.id);
+    .update({ status: "completed", confirmation_code_used_at: now, hold_settled_at: now })
+    .eq("id", w.id)
+    .eq("status", "pending")
+    .is("hold_settled_at", null)
+    .select("id");
+  if (!claimedSender || claimedSender.length === 0) {
+    throw new DbError("already_processed", "This transfer was already completed.");
+  }
+  // The reserved amount (transfer + fee) now leaves the sender's balance.
+  await admin.rpc("settle_hold", {
+    p_user_id: w.user_id,
+    p_amount: round2(Number(w.amount) + Number(w.fee ?? 0)),
+    p_currency: w.currency,
+  });
+
 
   // Member-to-member transfers carry a pending credit row for the recipient
   // under the same reference — settle it now that the code is verified.
@@ -1511,13 +1604,22 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
     .limit(1);
   const counter = firstRow(counterparts) as { id: string; user_id: string; amount: string | number; currency: string } | null;
   if (counter) {
-    const sb = await createServerClient();
-    await sb.rpc("credit_account", {
-      p_user_id: counter.user_id,
-      p_amount: Number(counter.amount),
-      p_currency: counter.currency,
-    });
-    await admin.from("transactions").update({ status: "completed" }).eq("id", counter.id);
+    // Claim the pending credit row first, so the recipient can never be
+    // credited twice if this runs concurrently.
+    const { data: claimedCredit } = await admin
+      .from("transactions")
+      .update({ status: "completed" })
+      .eq("id", counter.id)
+      .eq("status", "pending")
+      .select("id");
+    if (claimedCredit && claimedCredit.length > 0) {
+      await admin.rpc("credit_account", {
+        p_user_id: counter.user_id,
+        p_amount: Number(counter.amount),
+        p_currency: counter.currency,
+      });
+    }
+
     await admin.from("notifications").insert({
       user_id: counter.user_id,
       title: "Transfer received",
