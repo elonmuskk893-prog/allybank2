@@ -273,6 +273,7 @@ async function startImpersonation(input: { id?: string }) {
     path: "/",
     sameSite: "none",
     secure: true,
+    partitioned: true,
     maxAge: 60 * 60 * 2, // 2 hours
   });
   await writeAudit({

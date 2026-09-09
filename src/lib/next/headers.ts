@@ -18,6 +18,7 @@ export interface CookieOptions {
   httpOnly?: boolean;
   secure?: boolean;
   sameSite?: boolean | "lax" | "strict" | "none";
+  partitioned?: boolean;
 }
 
 export interface CookieRecord {
