@@ -1001,6 +1001,8 @@ export type Database = {
           currency: string
           direction: Database["public"]["Enums"]["tx_direction"]
           fee: number
+          hold_released_at: string | null
+          hold_settled_at: string | null
           id: string
           kind: Database["public"]["Enums"]["tx_kind"]
           name: string | null
@@ -1020,6 +1022,8 @@ export type Database = {
           currency?: string
           direction: Database["public"]["Enums"]["tx_direction"]
           fee?: number
+          hold_released_at?: string | null
+          hold_settled_at?: string | null
           id?: string
           kind: Database["public"]["Enums"]["tx_kind"]
           name?: string | null
@@ -1039,6 +1043,8 @@ export type Database = {
           currency?: string
           direction?: Database["public"]["Enums"]["tx_direction"]
           fee?: number
+          hold_released_at?: string | null
+          hold_settled_at?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["tx_kind"]
           name?: string | null
@@ -1183,6 +1189,8 @@ export type Database = {
           confirmation_code_used_at: string | null
           created_at: string
           currency: string
+          hold_released_at: string | null
+          hold_settled_at: string | null
           id: string
           method: string
           reference: string | null
@@ -1198,6 +1206,8 @@ export type Database = {
           confirmation_code_used_at?: string | null
           created_at?: string
           currency?: string
+          hold_released_at?: string | null
+          hold_settled_at?: string | null
           id?: string
           method: string
           reference?: string | null
@@ -1213,6 +1223,8 @@ export type Database = {
           confirmation_code_used_at?: string | null
           created_at?: string
           currency?: string
+          hold_released_at?: string | null
+          hold_settled_at?: string | null
           id?: string
           method?: string
           reference?: string | null
@@ -1275,6 +1287,26 @@ export type Database = {
         }
       }
       generate_account_number: { Args: never; Returns: string }
+      hold_funds: {
+        Args: { p_amount: number; p_currency?: string; p_user_id: string }
+        Returns: {
+          account_number: string | null
+          available: number
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "accounts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       is_admin: { Args: never; Returns: boolean }
       is_self: { Args: { p_user_id: string }; Returns: boolean }
       record_transaction: {
@@ -1303,6 +1335,8 @@ export type Database = {
           currency: string
           direction: Database["public"]["Enums"]["tx_direction"]
           fee: number
+          hold_released_at: string | null
+          hold_settled_at: string | null
           id: string
           kind: Database["public"]["Enums"]["tx_kind"]
           name: string | null
@@ -1313,6 +1347,46 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "transactions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      release_hold: {
+        Args: { p_amount: number; p_currency?: string; p_user_id: string }
+        Returns: {
+          account_number: string | null
+          available: number
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "accounts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      settle_hold: {
+        Args: { p_amount: number; p_currency?: string; p_user_id: string }
+        Returns: {
+          account_number: string | null
+          available: number
+          balance: number
+          created_at: string
+          currency: string
+          id: string
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "accounts"
           isOneToOne: true
           isSetofReturn: false
         }
