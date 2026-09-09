@@ -267,10 +267,66 @@ export function AppShell({ children }: AppShellProps) {
                     </Link>
                   );
                 })}
+                {(() => {
+                  const moreActive = MORE_SHEET_NAV.some((group) =>
+                    group.items.some((item) => isActive(item)),
+                  );
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => setMoreOpen(true)}
+                      className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-xl px-0.5 py-2"
+                    >
+                      {moreActive && (
+                        <div
+                          className="absolute inset-0 rounded-xl shadow-lg"
+                          style={{ background: activePill }}
+                        />
+                      )}
+                      <div className="relative z-10 flex flex-col items-center">
+                        <div
+                          className={cn(
+                            "mb-0.5 grid h-7 w-7 place-items-center rounded-lg",
+                            moreActive ? "bg-white/20" : "bg-gray-100 dark:bg-gray-800",
+                          )}
+                        >
+                          <i
+                            className={`fa-solid fa-bars text-sm ${
+                              moreActive ? "text-white" : "text-gray-500 dark:text-gray-400"
+                            }`}
+                          />
+                        </div>
+                        <span
+                          className={cn(
+                            "text-[10px] leading-tight",
+                            moreActive
+                              ? "font-semibold text-white"
+                              : "font-medium text-gray-500 dark:text-gray-400",
+                          )}
+                        >
+                          More
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>
         </div>
+
+        {moreOpen && (
+          <MobileSheetMenu
+            groups={MORE_SHEET_NAV}
+            isActive={isActive}
+            activePill={activePill}
+            brand={brand}
+            me={me}
+            fullName={fullName}
+            onLogout={logoutUser}
+            onClose={() => setMoreOpen(false)}
+          />
+        )}
 
         <KycNagModal me={me} pathname={pathname} />
         <Toaster position="top-center" richColors closeButton />
