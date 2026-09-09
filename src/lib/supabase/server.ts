@@ -13,7 +13,13 @@ export async function createClient() {
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
+            cookieStore.set(name, value, {
+              ...options,
+              path: "/",
+              // Allow the session to survive inside embedded/preview frames.
+              sameSite: "none",
+              secure: true,
+            }),
           );
         } catch {
           // Called from a Server Component; safe to ignore.
