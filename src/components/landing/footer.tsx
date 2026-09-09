@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 import { useSite } from "@/lib/use-site";
 export function LandingFooter() {
   const { site } = useSite();

@@ -35,8 +35,8 @@ import {
   Users,
   X,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "@/lib/next/link";
+import { usePathname, useRouter } from "@/lib/next/navigation";
 import {
   createContext,
   useContext,

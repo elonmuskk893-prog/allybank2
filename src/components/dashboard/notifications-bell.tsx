@@ -4,7 +4,7 @@ import { SafeHtml, looksLikeHtml } from "@/components/dashboard/safe-html";
 import { useEffect, useState } from "react";
 import { bankFetch } from "@/lib/api";
 import type { NotificationItem } from "@/lib/types";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 
 interface NotificationsResponse {
   notifications: NotificationItem[];

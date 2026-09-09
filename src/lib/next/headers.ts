@@ -6,7 +6,7 @@ import {
   getCookie,
   setCookie,
   deleteCookie,
-  getHeaders,
+  getRequestHeaders,
   getRequestHeader,
 } from "@tanstack/react-start/server";
 
@@ -82,5 +82,5 @@ export async function cookies(): Promise<CookieStore> {
 }
 
 export async function headers(): Promise<Headers> {
-  return new Headers((getHeaders() ?? {}) as Record<string, string>);
+  return new Headers((getRequestHeaders() ?? {}) as unknown as Record<string, string>);
 }

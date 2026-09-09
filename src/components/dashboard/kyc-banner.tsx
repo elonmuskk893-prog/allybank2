@@ -1,6 +1,6 @@
 import type { Session } from "@/lib/types";
 import { needsKyc } from "@/lib/kyc";
-import Link from "next/link";
+import Link from "@/lib/next/link";
 
 interface KycBannerProps {
   me: Session;

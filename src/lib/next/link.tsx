@@ -26,7 +26,7 @@ const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
   }
 
   return (
-    <TSLink ref={ref} to={href} replace={replace} {...(rest as never)}>
+    <TSLink ref={ref} to={href} replace={replace} {...(rest as Record<string, unknown>)}>
       {children}
     </TSLink>
   );

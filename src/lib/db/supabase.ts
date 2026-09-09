@@ -4,7 +4,7 @@ import {
   isSupabaseConfigured,
 } from "@/lib/supabase/admin";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { cookies } from "@/lib/next/headers";
 import {
   hashPassword,
   verifyPassword,

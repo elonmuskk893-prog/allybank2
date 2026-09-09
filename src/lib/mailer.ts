@@ -1,24 +1,18 @@
-import nodemailer from "nodemailer";
-
 /**
- * SMTP mail delivery (MailerSend by default). Configured through env vars:
- *   SMTP_HOST  (default smtp.mailersend.net)
- *   SMTP_PORT  (default 587)
- *   SMTP_USER
- *   SMTP_PASS
+ * Transactional email delivery over HTTPS (the serverless runtime cannot open
+ * raw SMTP sockets). Configured through env vars, checked in this order:
+ *   RESEND_API_KEY      -> Resend API
+ *   MAILERSEND_API_KEY  -> MailerSend API
+ * Shared:
  *   EMAIL_FROM_NAME    (default "Tesla Model")
  *   EMAIL_FROM_ADDRESS (default no-reply@teslamodel.xyz)
  */
-const SMTP_HOST = process.env.SMTP_HOST ?? "smtp.mailersend.net";
-const SMTP_PORT = Number(process.env.SMTP_PORT ?? 587);
-const SMTP_USER = process.env.SMTP_USER ?? "";
-const SMTP_PASS = process.env.SMTP_PASS ?? "";
-const EMAIL_FROM_NAME = process.env.EMAIL_FROM_NAME ?? "Tesla Model";
-const EMAIL_FROM_ADDRESS =
-  process.env.EMAIL_FROM_ADDRESS ?? "no-reply@teslamodel.xyz";
+function env(name: string): string {
+  return process.env[name] ?? "";
+}
 
 export function isMailerConfigured() {
-  return Boolean(SMTP_USER && SMTP_PASS);
+  return Boolean(env("RESEND_API_KEY") || env("MAILERSEND_API_KEY"));
 }
 
 interface MailInput {
@@ -29,22 +23,57 @@ interface MailInput {
 }
 
 async function sendMail(input: MailInput): Promise<boolean> {
-  if (!isMailerConfigured()) return false;
-  const transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: SMTP_PORT,
-    secure: SMTP_PORT === 465,
-    auth: { user: SMTP_USER, pass: SMTP_PASS },
-  });
+  const fromName = env("EMAIL_FROM_NAME") || "Tesla Model";
+  const fromAddress = env("EMAIL_FROM_ADDRESS") || "no-reply@teslamodel.xyz";
+  const resendKey = env("RESEND_API_KEY");
+  const mailerSendKey = env("MAILERSEND_API_KEY");
+
   try {
-    await transporter.sendMail({
-      from: `${EMAIL_FROM_NAME} <${EMAIL_FROM_ADDRESS}>`,
-      to: input.to,
-      subject: input.subject,
-      text: input.text,
-      html: input.html,
-    });
-    return true;
+    if (resendKey) {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${resendKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          from: `${fromName} <${fromAddress}>`,
+          to: [input.to],
+          subject: input.subject,
+          text: input.text,
+          html: input.html,
+        }),
+      });
+      if (!response.ok) {
+        console.error("[mailer] resend failed:", response.status, await response.text());
+        return false;
+      }
+      return true;
+    }
+
+    if (mailerSendKey) {
+      const response = await fetch("https://api.mailersend.com/v1/email", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${mailerSendKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          from: { email: fromAddress, name: fromName },
+          to: [{ email: input.to }],
+          subject: input.subject,
+          text: input.text,
+          html: input.html,
+        }),
+      });
+      if (!response.ok) {
+        console.error("[mailer] mailersend failed:", response.status, await response.text());
+        return false;
+      }
+      return true;
+    }
+
+    return false;
   } catch (error) {
     console.error("[mailer] send failed:", (error as Error).message);
     return false;

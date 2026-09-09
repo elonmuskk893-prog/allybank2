@@ -1,5 +1,5 @@
-import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
+import { cookies } from "@/lib/next/headers";
+import { NextResponse } from "@/lib/next/server";
 import { MOCK_USER, SITE } from "./data";
 
 /** Standard success envelope used across the mock API. */
