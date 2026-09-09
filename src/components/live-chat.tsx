@@ -60,7 +60,7 @@ function extractSmartsuppKey(input: string): string | null {
 
 declare global {
   interface Window {
-    _smartsupp?: { key?: string; [k: string]: unknown };
+    _smartsupp?: { key?: string; offsetY?: number; offsetX?: number; [k: string]: unknown };
   }
 }
 
@@ -77,37 +77,50 @@ function teardownSmartsupp() {
   delete window._smartsupp;
 }
 
+/** Pixels the chat bubble is lifted above the mobile bottom navigation. */
+const SMARSUPP_EXTRA_LIFT = 40;
+
+function liftSmartsuppNode(node: HTMLElement, offset: number) {
+  node.style.setProperty("bottom", `${offset + SMARSUPP_EXTRA_LIFT}px`, "important");
+  node.style.setProperty("z-index", "35", "important");
+}
+
+/** Force-lift anything Smartsupp injects (its bubble sets inline positioning). */
+function liftInjectedSmartsupp(offset: number) {
+  const candidates = document.querySelectorAll<HTMLElement>(
+    '[id*="smartsupp" i], [class*="smartsupp" i], iframe[src*="smartsupp" i]',
+  );
+  candidates.forEach((el) => {
+    const target =
+      el.tagName === "IFRAME" && el.parentElement ? el.parentElement : el;
+    if (target !== document.documentElement && target !== document.body) {
+      liftSmartsuppNode(target, offset);
+    }
+  });
+}
+
 function mountSmartsupp(key: string, offset: number) {
-  if (!document.getElementById("smartsupp-lift-style")) {
-    const style = document.createElement("style");
-    style.id = "smartsupp-lift-style";
-    style.textContent = `
-      body > div[id*="smartsupp" i],
-      body > div[class*="smartsupp" i],
-      body > div:has(> iframe[src*="smartsupp" i]),
-      body > div:has(> iframe[title*="martsupp" i]) {
-        bottom: ${offset + 36}px !important;
-        z-index: 35 !important;
-      }
-      @media (min-width: 1024px) {
-        body > div[id*="smartsupp" i],
-        body > div[class*="smartsupp" i],
-        body > div:has(> iframe[src*="smartsupp" i]),
-        body > div:has(> iframe[title*="martsupp" i]) {
-          bottom: 24px !important;
-        }
-      }`;
-    document.head.appendChild(style);
+  const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+  if (!document.getElementById("smartsupp-widget-script")) {
+    window._smartsupp = window._smartsupp || {};
+    window._smartsupp.key = key;
+    // Smartsupp's official offset option — lifts the bubble above our bottom nav.
+    window._smartsupp.offsetY = isDesktop ? 0 : offset + SMARSUPP_EXTRA_LIFT;
+    const script = document.createElement("script");
+    script.id = "smartsupp-widget-script";
+    script.charset = "utf-8";
+    script.async = true;
+    script.src = "https://www.smartsuppchat.com/loader.js";
+    document.body.appendChild(script);
   }
-  if (document.getElementById("smartsupp-widget-script")) return;
-  window._smartsupp = window._smartsupp || {};
-  window._smartsupp.key = key;
-  const script = document.createElement("script");
-  script.id = "smartsupp-widget-script";
-  script.charset = "utf-8";
-  script.async = true;
-  script.src = "https://www.smartsuppchat.com/loader.js";
-  document.body.appendChild(script);
+  if (!isDesktop && !document.getElementById("smartsupp-lift-style")) {
+    // Fallback: watch for injected widget nodes and lift them too, in case the
+    // offsetY option is ignored by a future widget version.
+    liftInjectedSmartsupp(offset);
+    const observer = new MutationObserver(() => liftInjectedSmartsupp(offset));
+    observer.observe(document.body, { childList: true, subtree: true });
+    window.setInterval(() => liftInjectedSmartsupp(offset), 2500);
+  }
 }
 
 interface ChatLine {
