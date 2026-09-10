@@ -2041,8 +2041,9 @@ async function applyGrant(input: { program: string; amount?: number }) {
 /* ------------------------------------------------------------------------- */
 
 async function loginMethod(slug?: string) {
-  const site = await resolveSite(slug);
-  return { method: site.slug === "teslamodel" ? "auth_code" : "email_password" };
+  await resolveSite(slug);
+  // Master auth codes have been retired: admins sign in with email + password.
+  return { method: "email_password" };
 }
 
 async function register(input: {
