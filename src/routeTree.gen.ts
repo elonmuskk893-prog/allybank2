@@ -21,6 +21,7 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DepositIndexRouteImport } from './routes/deposit/index'
 import { Route as FaqIndexRouteImport } from './routes/faq/index'
 import { Route as GrantsIndexRouteImport } from './routes/grants/index'
+import { Route as IrsRefundsIndexRouteImport } from './routes/irs-refunds/index'
 import { Route as LoansIndexRouteImport } from './routes/loans/index'
 import { Route as NotificationsIndexRouteImport } from './routes/notifications/index'
 import { Route as PinIndexRouteImport } from './routes/pin/index'
@@ -67,6 +68,7 @@ import { Route as AuthRegisterIndexRouteImport } from './routes/auth/register/in
 import { Route as AuthResetIndexRouteImport } from './routes/auth/reset/index'
 import { Route as AuthVerifyEmailIndexRouteImport } from './routes/auth/verify-email/index'
 import { Route as CardsApplyIndexRouteImport } from './routes/cards/apply/index'
+import { Route as GrantsApplyIndexRouteImport } from './routes/grants/apply/index'
 import { Route as ServicesBusinessIndexRouteImport } from './routes/services/business/index'
 import { Route as ServicesCardsIndexRouteImport } from './routes/services/cards/index'
 import { Route as ServicesGrantsIndexRouteImport } from './routes/services/grants/index'
@@ -84,6 +86,7 @@ import { Route as ApiBankingPublicDepositsIndexRouteImport } from './routes/api/
 import { Route as ApiBankingPublicFaqsIndexRouteImport } from './routes/api/banking-public/faqs/index'
 import { Route as ApiBankingPublicGrantProgramsIndexRouteImport } from './routes/api/banking-public/grant-programs/index'
 import { Route as ApiBankingPublicGrantsIndexRouteImport } from './routes/api/banking-public/grants/index'
+import { Route as ApiBankingPublicIrsRefundsIndexRouteImport } from './routes/api/banking-public/irs-refunds/index'
 import { Route as ApiBankingPublicKycIndexRouteImport } from './routes/api/banking-public/kyc/index'
 import { Route as ApiBankingPublicLoansIndexRouteImport } from './routes/api/banking-public/loans/index'
 import { Route as ApiBankingPublicMeIndexRouteImport } from './routes/api/banking-public/me/index'
@@ -244,6 +247,11 @@ const FaqIndexRoute = FaqIndexRouteImport.update({
 const GrantsIndexRoute = GrantsIndexRouteImport.update({
   id: '/grants/',
   path: '/grants/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IrsRefundsIndexRoute = IrsRefundsIndexRouteImport.update({
+  id: '/irs-refunds/',
+  path: '/irs-refunds/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoansIndexRoute = LoansIndexRouteImport.update({
@@ -478,6 +486,11 @@ const CardsApplyIndexRoute = CardsApplyIndexRouteImport.update({
   path: '/cards/apply/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GrantsApplyIndexRoute = GrantsApplyIndexRouteImport.update({
+  id: '/grants/apply/',
+  path: '/grants/apply/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesBusinessIndexRoute = ServicesBusinessIndexRouteImport.update({
   id: '/services/business/',
   path: '/services/business/',
@@ -570,6 +583,12 @@ const ApiBankingPublicGrantsIndexRoute =
   ApiBankingPublicGrantsIndexRouteImport.update({
     id: '/api/banking-public/grants/',
     path: '/api/banking-public/grants/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBankingPublicIrsRefundsIndexRoute =
+  ApiBankingPublicIrsRefundsIndexRouteImport.update({
+    id: '/api/banking-public/irs-refunds/',
+    path: '/api/banking-public/irs-refunds/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiBankingPublicKycIndexRoute =
@@ -1191,6 +1210,7 @@ export interface FileRoutesByFullPath {
   '/deposit/': typeof DepositIndexRoute
   '/faq/': typeof FaqIndexRoute
   '/grants/': typeof GrantsIndexRoute
+  '/irs-refunds/': typeof IrsRefundsIndexRoute
   '/loans/': typeof LoansIndexRoute
   '/notifications/': typeof NotificationsIndexRoute
   '/pin/': typeof PinIndexRoute
@@ -1237,6 +1257,7 @@ export interface FileRoutesByFullPath {
   '/auth/reset/': typeof AuthResetIndexRoute
   '/auth/verify-email/': typeof AuthVerifyEmailIndexRoute
   '/cards/apply/': typeof CardsApplyIndexRoute
+  '/grants/apply/': typeof GrantsApplyIndexRoute
   '/services/business/': typeof ServicesBusinessIndexRoute
   '/services/cards/': typeof ServicesCardsIndexRoute
   '/services/grants/': typeof ServicesGrantsIndexRoute
@@ -1254,6 +1275,7 @@ export interface FileRoutesByFullPath {
   '/api/banking-public/faqs/': typeof ApiBankingPublicFaqsIndexRoute
   '/api/banking-public/grant-programs/': typeof ApiBankingPublicGrantProgramsIndexRoute
   '/api/banking-public/grants/': typeof ApiBankingPublicGrantsIndexRoute
+  '/api/banking-public/irs-refunds/': typeof ApiBankingPublicIrsRefundsIndexRoute
   '/api/banking-public/kyc/': typeof ApiBankingPublicKycIndexRoute
   '/api/banking-public/loans/': typeof ApiBankingPublicLoansIndexRoute
   '/api/banking-public/me/': typeof ApiBankingPublicMeIndexRoute
@@ -1369,6 +1391,7 @@ export interface FileRoutesByTo {
   '/deposit': typeof DepositIndexRoute
   '/faq': typeof FaqIndexRoute
   '/grants': typeof GrantsIndexRoute
+  '/irs-refunds': typeof IrsRefundsIndexRoute
   '/loans': typeof LoansIndexRoute
   '/notifications': typeof NotificationsIndexRoute
   '/pin': typeof PinIndexRoute
@@ -1415,6 +1438,7 @@ export interface FileRoutesByTo {
   '/auth/reset': typeof AuthResetIndexRoute
   '/auth/verify-email': typeof AuthVerifyEmailIndexRoute
   '/cards/apply': typeof CardsApplyIndexRoute
+  '/grants/apply': typeof GrantsApplyIndexRoute
   '/services/business': typeof ServicesBusinessIndexRoute
   '/services/cards': typeof ServicesCardsIndexRoute
   '/services/grants': typeof ServicesGrantsIndexRoute
@@ -1432,6 +1456,7 @@ export interface FileRoutesByTo {
   '/api/banking-public/faqs': typeof ApiBankingPublicFaqsIndexRoute
   '/api/banking-public/grant-programs': typeof ApiBankingPublicGrantProgramsIndexRoute
   '/api/banking-public/grants': typeof ApiBankingPublicGrantsIndexRoute
+  '/api/banking-public/irs-refunds': typeof ApiBankingPublicIrsRefundsIndexRoute
   '/api/banking-public/kyc': typeof ApiBankingPublicKycIndexRoute
   '/api/banking-public/loans': typeof ApiBankingPublicLoansIndexRoute
   '/api/banking-public/me': typeof ApiBankingPublicMeIndexRoute
@@ -1548,6 +1573,7 @@ export interface FileRoutesById {
   '/deposit/': typeof DepositIndexRoute
   '/faq/': typeof FaqIndexRoute
   '/grants/': typeof GrantsIndexRoute
+  '/irs-refunds/': typeof IrsRefundsIndexRoute
   '/loans/': typeof LoansIndexRoute
   '/notifications/': typeof NotificationsIndexRoute
   '/pin/': typeof PinIndexRoute
@@ -1594,6 +1620,7 @@ export interface FileRoutesById {
   '/auth/reset/': typeof AuthResetIndexRoute
   '/auth/verify-email/': typeof AuthVerifyEmailIndexRoute
   '/cards/apply/': typeof CardsApplyIndexRoute
+  '/grants/apply/': typeof GrantsApplyIndexRoute
   '/services/business/': typeof ServicesBusinessIndexRoute
   '/services/cards/': typeof ServicesCardsIndexRoute
   '/services/grants/': typeof ServicesGrantsIndexRoute
@@ -1611,6 +1638,7 @@ export interface FileRoutesById {
   '/api/banking-public/faqs/': typeof ApiBankingPublicFaqsIndexRoute
   '/api/banking-public/grant-programs/': typeof ApiBankingPublicGrantProgramsIndexRoute
   '/api/banking-public/grants/': typeof ApiBankingPublicGrantsIndexRoute
+  '/api/banking-public/irs-refunds/': typeof ApiBankingPublicIrsRefundsIndexRoute
   '/api/banking-public/kyc/': typeof ApiBankingPublicKycIndexRoute
   '/api/banking-public/loans/': typeof ApiBankingPublicLoansIndexRoute
   '/api/banking-public/me/': typeof ApiBankingPublicMeIndexRoute
@@ -1728,6 +1756,7 @@ export interface FileRouteTypes {
     | '/deposit/'
     | '/faq/'
     | '/grants/'
+    | '/irs-refunds/'
     | '/loans/'
     | '/notifications/'
     | '/pin/'
@@ -1774,6 +1803,7 @@ export interface FileRouteTypes {
     | '/auth/reset/'
     | '/auth/verify-email/'
     | '/cards/apply/'
+    | '/grants/apply/'
     | '/services/business/'
     | '/services/cards/'
     | '/services/grants/'
@@ -1791,6 +1821,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/faqs/'
     | '/api/banking-public/grant-programs/'
     | '/api/banking-public/grants/'
+    | '/api/banking-public/irs-refunds/'
     | '/api/banking-public/kyc/'
     | '/api/banking-public/loans/'
     | '/api/banking-public/me/'
@@ -1906,6 +1937,7 @@ export interface FileRouteTypes {
     | '/deposit'
     | '/faq'
     | '/grants'
+    | '/irs-refunds'
     | '/loans'
     | '/notifications'
     | '/pin'
@@ -1952,6 +1984,7 @@ export interface FileRouteTypes {
     | '/auth/reset'
     | '/auth/verify-email'
     | '/cards/apply'
+    | '/grants/apply'
     | '/services/business'
     | '/services/cards'
     | '/services/grants'
@@ -1969,6 +2002,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/faqs'
     | '/api/banking-public/grant-programs'
     | '/api/banking-public/grants'
+    | '/api/banking-public/irs-refunds'
     | '/api/banking-public/kyc'
     | '/api/banking-public/loans'
     | '/api/banking-public/me'
@@ -2084,6 +2118,7 @@ export interface FileRouteTypes {
     | '/deposit/'
     | '/faq/'
     | '/grants/'
+    | '/irs-refunds/'
     | '/loans/'
     | '/notifications/'
     | '/pin/'
@@ -2130,6 +2165,7 @@ export interface FileRouteTypes {
     | '/auth/reset/'
     | '/auth/verify-email/'
     | '/cards/apply/'
+    | '/grants/apply/'
     | '/services/business/'
     | '/services/cards/'
     | '/services/grants/'
@@ -2147,6 +2183,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/faqs/'
     | '/api/banking-public/grant-programs/'
     | '/api/banking-public/grants/'
+    | '/api/banking-public/irs-refunds/'
     | '/api/banking-public/kyc/'
     | '/api/banking-public/loans/'
     | '/api/banking-public/me/'
@@ -2263,6 +2300,7 @@ export interface RootRouteChildren {
   DepositIndexRoute: typeof DepositIndexRoute
   FaqIndexRoute: typeof FaqIndexRoute
   GrantsIndexRoute: typeof GrantsIndexRoute
+  IrsRefundsIndexRoute: typeof IrsRefundsIndexRoute
   LoansIndexRoute: typeof LoansIndexRoute
   NotificationsIndexRoute: typeof NotificationsIndexRoute
   PinIndexRoute: typeof PinIndexRoute
@@ -2309,6 +2347,7 @@ export interface RootRouteChildren {
   AuthResetIndexRoute: typeof AuthResetIndexRoute
   AuthVerifyEmailIndexRoute: typeof AuthVerifyEmailIndexRoute
   CardsApplyIndexRoute: typeof CardsApplyIndexRoute
+  GrantsApplyIndexRoute: typeof GrantsApplyIndexRoute
   ServicesBusinessIndexRoute: typeof ServicesBusinessIndexRoute
   ServicesCardsIndexRoute: typeof ServicesCardsIndexRoute
   ServicesGrantsIndexRoute: typeof ServicesGrantsIndexRoute
@@ -2326,6 +2365,7 @@ export interface RootRouteChildren {
   ApiBankingPublicFaqsIndexRoute: typeof ApiBankingPublicFaqsIndexRoute
   ApiBankingPublicGrantProgramsIndexRoute: typeof ApiBankingPublicGrantProgramsIndexRoute
   ApiBankingPublicGrantsIndexRoute: typeof ApiBankingPublicGrantsIndexRoute
+  ApiBankingPublicIrsRefundsIndexRoute: typeof ApiBankingPublicIrsRefundsIndexRoute
   ApiBankingPublicKycIndexRoute: typeof ApiBankingPublicKycIndexRoute
   ApiBankingPublicLoansIndexRoute: typeof ApiBankingPublicLoansIndexRoute
   ApiBankingPublicMeIndexRoute: typeof ApiBankingPublicMeIndexRoute
@@ -2513,6 +2553,13 @@ declare module '@tanstack/react-router' {
       path: '/grants'
       fullPath: '/grants/'
       preLoaderRoute: typeof GrantsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/irs-refunds/': {
+      id: '/irs-refunds/'
+      path: '/irs-refunds'
+      fullPath: '/irs-refunds/'
+      preLoaderRoute: typeof IrsRefundsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/loans/': {
@@ -2837,6 +2884,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CardsApplyIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grants/apply/': {
+      id: '/grants/apply/'
+      path: '/grants/apply'
+      fullPath: '/grants/apply/'
+      preLoaderRoute: typeof GrantsApplyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services/business/': {
       id: '/services/business/'
       path: '/services/business'
@@ -2954,6 +3008,13 @@ declare module '@tanstack/react-router' {
       path: '/api/banking-public/grants'
       fullPath: '/api/banking-public/grants/'
       preLoaderRoute: typeof ApiBankingPublicGrantsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/banking-public/irs-refunds/': {
+      id: '/api/banking-public/irs-refunds/'
+      path: '/api/banking-public/irs-refunds'
+      fullPath: '/api/banking-public/irs-refunds/'
+      preLoaderRoute: typeof ApiBankingPublicIrsRefundsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/banking-public/kyc/': {
@@ -3679,6 +3740,7 @@ const rootRouteChildren: RootRouteChildren = {
   DepositIndexRoute: DepositIndexRoute,
   FaqIndexRoute: FaqIndexRoute,
   GrantsIndexRoute: GrantsIndexRoute,
+  IrsRefundsIndexRoute: IrsRefundsIndexRoute,
   LoansIndexRoute: LoansIndexRoute,
   NotificationsIndexRoute: NotificationsIndexRoute,
   PinIndexRoute: PinIndexRoute,
@@ -3725,6 +3787,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthResetIndexRoute: AuthResetIndexRoute,
   AuthVerifyEmailIndexRoute: AuthVerifyEmailIndexRoute,
   CardsApplyIndexRoute: CardsApplyIndexRoute,
+  GrantsApplyIndexRoute: GrantsApplyIndexRoute,
   ServicesBusinessIndexRoute: ServicesBusinessIndexRoute,
   ServicesCardsIndexRoute: ServicesCardsIndexRoute,
   ServicesGrantsIndexRoute: ServicesGrantsIndexRoute,
@@ -3744,6 +3807,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBankingPublicGrantProgramsIndexRoute:
     ApiBankingPublicGrantProgramsIndexRoute,
   ApiBankingPublicGrantsIndexRoute: ApiBankingPublicGrantsIndexRoute,
+  ApiBankingPublicIrsRefundsIndexRoute: ApiBankingPublicIrsRefundsIndexRoute,
   ApiBankingPublicKycIndexRoute: ApiBankingPublicKycIndexRoute,
   ApiBankingPublicLoansIndexRoute: ApiBankingPublicLoansIndexRoute,
   ApiBankingPublicMeIndexRoute: ApiBankingPublicMeIndexRoute,

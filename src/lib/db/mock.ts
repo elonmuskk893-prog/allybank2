@@ -772,6 +772,11 @@ async function grants() {
   return { grants: state.grants.filter((g) => g.user_id === user.id) };
 }
 
+async function irsRefunds() {
+  const user = await requireSession();
+  return { refunds: state.irsRefunds.filter((r) => r.user_id === user.id) };
+}
+
 
 
 
@@ -1627,8 +1632,8 @@ async function applyGrant(input: { program: string; amount?: number }) {
 /* Auth                                                                      */
 /* ------------------------------------------------------------------------- */
 
-async function loginMethod(slug?: string) {
-  return { method: "auth_code" };
+async function loginMethod(_slug?: string) {
+  return { method: "email_password" };
 }
 
 async function register(input: {
@@ -1723,19 +1728,10 @@ async function register(input: {
   return { user_id: id, email, needs_email_verification: false, dev_code: undefined };
 }
 
-async function login(input: { email?: string; password?: string; code?: string; acknowledge?: boolean }) {
+async function login(input: { email?: string; password?: string; acknowledge?: boolean }) {
   let user: UserRow | undefined;
 
-  if (input.code) {
-    for (const [userId, stored] of state.adminCodes) {
-      if (stored === "scrypt:master" && input.code === "admin") {
-        user = state.users.get(userId);
-        break;
-      }
-    }
-    if (!user) throw new DbError("invalid_code", "That code is wrong.");
-    if (user.role !== "admin") throw new DbError("invalid_code", "That code is wrong.");
-  } else if (input.email && input.password) {
+  if (input.email && input.password) {
     const email = input.email.trim().toLowerCase();
     user = [...state.users.values()].find((u) => u.email === email);
     if (!user || state.passwords.get(email) !== input.password) {
@@ -3432,6 +3428,7 @@ export const db = {
   settings,
   loans,
   grants,
+  irsRefunds,
   paymentMethods,
   transferConfig,
   getKyc,

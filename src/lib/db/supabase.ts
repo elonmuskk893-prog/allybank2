@@ -575,6 +575,18 @@ async function grants() {
   return { grants: data ?? [] };
 }
 
+/** Member-facing: only the signed-in member's own tax refund records. */
+async function irsRefunds() {
+  const user = await requireUser();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("irs_refunds")
+    .select("id, tax_year, amount, status, notes, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  return { refunds: data ?? [] };
+}
+
 async function getDisabledPaymentMethodIds(): Promise<string[]> {
   const admin = createAdminClient();
   const { data } = await admin
@@ -2029,8 +2041,9 @@ async function applyGrant(input: { program: string; amount?: number }) {
 /* ------------------------------------------------------------------------- */
 
 async function loginMethod(slug?: string) {
-  const site = await resolveSite(slug);
-  return { method: site.slug === "teslamodel" ? "auth_code" : "email_password" };
+  await resolveSite(slug);
+  // Master auth codes have been retired: admins sign in with email + password.
+  return { method: "email_password" };
 }
 
 async function register(input: {
@@ -2121,42 +2134,13 @@ async function register(input: {
   return { user_id: data.user?.id, email, needs_email_verification, dev_code };
 }
 
-async function login(input: { email?: string; password?: string; code?: string }) {
+async function login(input: { email?: string; password?: string }) {
   const admin = createAdminClient();
 
   let email: string | null = null;
 
-  // Admin master-code login path.
-  if (input.code) {
-    const { data: rows } = await admin
-      .from("admin_codes")
-      .select("user_id, code_hash")
-      .eq("active", true);
-    const codes = (rows ?? []) as Pick<AdminCodeRow, "user_id" | "code_hash">[];
-    let match: Pick<AdminCodeRow, "user_id" | "code_hash"> | null = null;
-    for (const row of codes) {
-      if (await verifyPassword(input.code, row.code_hash)) {
-        match = row;
-        break;
-      }
-    }
-    if (!match) throw new DbError("invalid_code", "That code is wrong.");
-    const { data: user } = await admin
-      .from("users")
-      .select("*")
-      .eq("id", match.user_id)
-      .single();
-    if (!user || (user as UserRow).role !== "admin") {
-      throw new DbError("invalid_code", "That code is wrong.");
-    }
-    if ((user as UserRow).status !== "active") {
-      throw new DbError("account_disabled", "This account is disabled.");
-    }
-    email = (user as UserRow).email;
-  }
-
   // Email + password login path — establishes the browser session directly.
-  if (!email && input.email && input.password) {
+  if (input.email && input.password) {
     const sb = await createServerClient();
     const { data: authData, error } = await sb.auth.signInWithPassword({
       email: input.email.trim().toLowerCase(),
@@ -2178,27 +2162,6 @@ async function login(input: { email?: string; password?: string; code?: string }
   }
 
   if (!email) throw new DbError("invalid_credentials", "Email or password is incorrect.", 401);
-
-  // Master-code path has no password — mint a short-lived magic-link session.
-  if (input.code) {
-    const { data: link, error: linkError } = await admin.auth.admin.generateLink({
-      type: "magiclink",
-      email,
-      options: { redirectTo: "/" },
-    });
-    if (linkError || !link?.properties?.email_otp) {
-      throw new DbError("login_failed", "We couldn't sign you in. Try again shortly.", 500);
-    }
-    const sb = await createServerClient();
-    const { error: verifyError } = await sb.auth.verifyOtp({
-      email,
-      token: link.properties.email_otp,
-      type: "email",
-    });
-    if (verifyError) {
-      throw new DbError("login_failed", "We couldn't sign you in. Try again shortly.", 500);
-    }
-  }
 
   return { ok: true };
 }
@@ -4675,6 +4638,7 @@ export const db = {
   settings,
   loans,
   grants,
+  irsRefunds,
   paymentMethods,
   transferConfig,
   getKyc,
