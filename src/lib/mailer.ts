@@ -410,3 +410,43 @@ export function testEmail(siteName: string): MailInput {
     html: layout(siteName, "Email settings are working", "This is a test message sent from your admin panel.", [["Status", "Delivered"]], "You can now enable transaction notifications."),
   };
 }
+
+/**
+ * Admin broadcast. `bodyHtml` is the message the admin composed (already
+ * sanitized upstream); it is dropped straight into the branded shell so the
+ * HTML they write is exactly what the member receives.
+ */
+export function broadcastEmail(input: {
+  siteName: string;
+  title: string;
+  bodyHtml: string;
+  link?: string | null;
+  name?: string;
+}): MailInput {
+  const cta = input.link
+    ? `<p style="margin:24px 0 0;"><a href="${input.link}" style="display:inline-block;background:#0ea5e9;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:bold;">View details</a></p>`
+    : "";
+  const greeting = input.name ? `<p style="margin:0 0 16px;font-size:14px;color:#111827;">Hi ${input.name},</p>` : "";
+  const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e5e7eb;">
+        <tr><td style="background:#0ea5e9;padding:20px 28px;"><span style="color:#ffffff;font-size:18px;font-weight:bold;">${input.siteName}</span></td></tr>
+        <tr><td style="padding:28px;">
+          <h1 style="margin:0 0 16px;font-size:20px;color:#111827;">${input.title}</h1>
+          ${greeting}
+          <div style="font-size:14px;color:#374151;line-height:1.7;">${input.bodyHtml}</div>
+          ${cta}
+          <p style="margin:28px 0 0;font-size:12px;color:#9ca3af;">You are receiving this message because you hold an account with ${input.siteName}.</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`;
+  return {
+    to: "",
+    subject: input.title,
+    text: input.bodyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+    html,
+  };
+}

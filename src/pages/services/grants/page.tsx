@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "@/lib/next/link";
 import { PublicLayout } from "@/components/landing/public-layout";
 
@@ -38,6 +39,16 @@ const TINTS = {
 
 type TintKey = keyof typeof TINTS;
 
+interface GrantProgram {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  tint: string;
+  bullets: string[];
+}
+
+/** Shown until the admin-managed programs load (and if none are enabled). */
 const GRANTS = [
   {
     icon: "fa-solid fa-store",
@@ -115,6 +126,29 @@ const STEPS = [
 ] as const;
 
 export default function GrantsServicesPage() {
+  // Programs are managed in Admin → Grants → Programs; enabling, editing or
+  // disabling one there changes this list immediately.
+  const [programs, setPrograms] = useState<GrantProgram[] | null>(null);
+
+  useEffect(() => {
+    fetch("/api/banking-public/grant-programs")
+      .then((r) => r.json())
+      .then((json) => setPrograms((json?.data?.programs as GrantProgram[]) ?? []))
+      .catch(() => setPrograms([]));
+  }, []);
+
+  const cards: GrantProgram[] =
+    programs && programs.length > 0
+      ? programs
+      : GRANTS.map((g, i) => ({
+          id: `static-${i}`,
+          title: g.title,
+          description: g.body,
+          icon: g.icon,
+          tint: g.tint,
+          bullets: [...g.items],
+        }));
+
   return (
     <PublicLayout>
       <>
@@ -161,11 +195,11 @@ export default function GrantsServicesPage() {
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {GRANTS.map((e) => {
-                const t = TINTS[e.tint as TintKey];
+              {cards.map((e) => {
+                const t = TINTS[e.tint as TintKey] ?? TINTS.blue;
                 return (
                   <div
-                    key={e.title}
+                    key={e.id}
                     className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300"
                   >
                     <div className={`w-16 h-16 ${t.bg} rounded-2xl flex items-center justify-center mb-6`}>
@@ -174,9 +208,9 @@ export default function GrantsServicesPage() {
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
                       {e.title}
                     </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">{e.body}</p>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">{e.description}</p>
                     <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
-                      {e.items.map((item) => (
+                      {e.bullets.map((item) => (
                         <li key={item} className="flex items-center">
                           <i className="fa-solid fa-check text-green-500 mr-2" />
                           {item}

@@ -26,6 +26,8 @@ export interface LiveChatSettings {
   welcome_message?: string;
   title?: string;
   dashboard_only?: boolean;
+  /** Raw embed snippet for any third-party widget (Tawk.to, Crisp, Intercom…). */
+  custom_code?: string;
 }
 
 /** Routes that belong to the signed-in dashboard experience. */
@@ -123,6 +125,53 @@ function mountSmartsupp(key: string, offset: number) {
   }
 }
 
+/* ------------------------------------------------------------------------- */
+/* Custom provider: run any vendor's embed snippet exactly once               */
+/* ------------------------------------------------------------------------- */
+
+const CUSTOM_MARKER = "live-chat-custom-snippet";
+
+function teardownCustom() {
+  document.querySelectorAll(`[data-${CUSTOM_MARKER}]`).forEach((el) => el.remove());
+}
+
+/**
+ * Injects the snippet the admin pasted in Admin → Settings → Live chat.
+ * Inline and external <script> tags are recreated so the browser executes them
+ * (innerHTML alone never runs scripts); everything is tagged so switching the
+ * provider off removes it cleanly and it can never mount twice.
+ */
+function mountCustom(snippet: string, offset: number) {
+  if (document.querySelector(`[data-${CUSTOM_MARKER}]`)) return;
+  const holder = document.createElement("div");
+  holder.innerHTML = snippet;
+  Array.from(holder.childNodes).forEach((node) => {
+    if (node.nodeName === "SCRIPT") {
+      const source = node as HTMLScriptElement;
+      const script = document.createElement("script");
+      Array.from(source.attributes).forEach((a) => script.setAttribute(a.name, a.value));
+      script.text = source.text;
+      script.setAttribute(`data-${CUSTOM_MARKER}`, "1");
+      document.body.appendChild(script);
+    } else if (node.nodeType === 1) {
+      const el = node as HTMLElement;
+      el.setAttribute(`data-${CUSTOM_MARKER}`, "1");
+      document.body.appendChild(el);
+    }
+  });
+  const style = document.createElement("style");
+  style.setAttribute(`data-${CUSTOM_MARKER}`, "1");
+  // Keep any vendor bubble clear of the mobile bottom navigation.
+  style.textContent = `@media (max-width: 1023px){
+    #crisp-chatbox > div, #tawkchat-container, .tawk-min-container,
+    #intercom-container, .intercom-lightweight-app-launcher,
+    iframe[title*="chat" i], iframe[id*="chat" i] {
+      bottom: ${offset + 40}px !important;
+    }
+  }`;
+  document.head.appendChild(style);
+}
+
 interface ChatLine {
   from: "you" | "support";
   text: string;
@@ -165,12 +214,16 @@ export function LiveChat() {
   // Third-party widget lifecycle.
   useEffect(() => {
     if (typeof document === "undefined") return;
+    const offset = Number(active?.offset_bottom ?? 96);
+
     const key = active && active.provider === "smartsupp" ? extractSmartsuppKey(active.key ?? "") : null;
-    if (!key) {
-      teardownSmartsupp();
-      return;
-    }
-    mountSmartsupp(key, Number(active?.offset_bottom ?? 96));
+    if (key) mountSmartsupp(key, offset);
+    else teardownSmartsupp();
+
+    const snippet =
+      active && active.provider === "custom" ? (active.custom_code ?? active.key ?? "").trim() : "";
+    if (snippet) mountCustom(snippet, offset);
+    else teardownCustom();
   }, [active]);
 
   const send = useCallback(async () => {
@@ -201,7 +254,7 @@ export function LiveChat() {
     ]);
   }, [draft, sending]);
 
-  if (!active || active.provider === "smartsupp") return null;
+  if (!active || active.provider === "smartsupp" || active.provider === "custom") return null;
 
   const offset = Number(active.offset_bottom ?? 96);
   const left = active.position === "bottom-left";

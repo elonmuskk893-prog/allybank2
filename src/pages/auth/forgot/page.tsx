@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
     event.preventDefault();
     setLoading(true);
     setError(null);
-    const result = await bankFetch<{ dev_code?: string }>("/auth/forgot", {
+    const result = await bankFetch("/auth/forgot", {
       method: "POST",
       body: { email },
     });
@@ -40,10 +40,8 @@ export default function ForgotPasswordPage() {
       return;
     }
     setLoading(false);
-    // When email delivery is unavailable the API returns the code directly so
-    // recovery never dead-ends; it is forwarded to the reset screen.
-    const code = result.data?.dev_code ? `&code=${encodeURIComponent(result.data.dev_code)}` : "";
-    router.replace(`/auth/reset?email=${encodeURIComponent(email)}${code}`);
+    // The code is only ever delivered by email — never surfaced in the browser.
+    router.replace(`/auth/reset?email=${encodeURIComponent(email)}&sent=1`);
   }
 
   return (

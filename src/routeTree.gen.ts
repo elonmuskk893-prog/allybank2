@@ -82,6 +82,7 @@ import { Route as ApiBankingPublicContactIndexRouteImport } from './routes/api/b
 import { Route as ApiBankingPublicDepositIndexRouteImport } from './routes/api/banking-public/deposit/index'
 import { Route as ApiBankingPublicDepositsIndexRouteImport } from './routes/api/banking-public/deposits/index'
 import { Route as ApiBankingPublicFaqsIndexRouteImport } from './routes/api/banking-public/faqs/index'
+import { Route as ApiBankingPublicGrantProgramsIndexRouteImport } from './routes/api/banking-public/grant-programs/index'
 import { Route as ApiBankingPublicGrantsIndexRouteImport } from './routes/api/banking-public/grants/index'
 import { Route as ApiBankingPublicKycIndexRouteImport } from './routes/api/banking-public/kyc/index'
 import { Route as ApiBankingPublicLoansIndexRouteImport } from './routes/api/banking-public/loans/index'
@@ -152,6 +153,7 @@ import { Route as ApiBankingSitesSlugAdminCryptoAssetsIndexRouteImport } from '.
 import { Route as ApiBankingSitesSlugAdminCurrenciesIndexRouteImport } from './routes/api/banking-sites/$slug/admin/currencies/index'
 import { Route as ApiBankingSitesSlugAdminDepositsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/deposits/index'
 import { Route as ApiBankingSitesSlugAdminFaqsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/faqs/index'
+import { Route as ApiBankingSitesSlugAdminGrantProgramsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/grant-programs/index'
 import { Route as ApiBankingSitesSlugAdminGrantsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/grants/index'
 import { Route as ApiBankingSitesSlugAdminImportUsersIndexRouteImport } from './routes/api/banking-sites/$slug/admin/import-users/index'
 import { Route as ApiBankingSitesSlugAdminIrsRefundsIndexRouteImport } from './routes/api/banking-sites/$slug/admin/irs-refunds/index'
@@ -556,6 +558,12 @@ const ApiBankingPublicFaqsIndexRoute =
   ApiBankingPublicFaqsIndexRouteImport.update({
     id: '/api/banking-public/faqs/',
     path: '/api/banking-public/faqs/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBankingPublicGrantProgramsIndexRoute =
+  ApiBankingPublicGrantProgramsIndexRouteImport.update({
+    id: '/api/banking-public/grant-programs/',
+    path: '/api/banking-public/grant-programs/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiBankingPublicGrantsIndexRoute =
@@ -977,6 +985,12 @@ const ApiBankingSitesSlugAdminFaqsIndexRoute =
     path: '/api/banking-sites/$slug/admin/faqs/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiBankingSitesSlugAdminGrantProgramsIndexRoute =
+  ApiBankingSitesSlugAdminGrantProgramsIndexRouteImport.update({
+    id: '/api/banking-sites/$slug/admin/grant-programs/',
+    path: '/api/banking-sites/$slug/admin/grant-programs/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiBankingSitesSlugAdminGrantsIndexRoute =
   ApiBankingSitesSlugAdminGrantsIndexRouteImport.update({
     id: '/api/banking-sites/$slug/admin/grants/',
@@ -1238,6 +1252,7 @@ export interface FileRoutesByFullPath {
   '/api/banking-public/deposit/': typeof ApiBankingPublicDepositIndexRoute
   '/api/banking-public/deposits/': typeof ApiBankingPublicDepositsIndexRoute
   '/api/banking-public/faqs/': typeof ApiBankingPublicFaqsIndexRoute
+  '/api/banking-public/grant-programs/': typeof ApiBankingPublicGrantProgramsIndexRoute
   '/api/banking-public/grants/': typeof ApiBankingPublicGrantsIndexRoute
   '/api/banking-public/kyc/': typeof ApiBankingPublicKycIndexRoute
   '/api/banking-public/loans/': typeof ApiBankingPublicLoansIndexRoute
@@ -1308,6 +1323,7 @@ export interface FileRoutesByFullPath {
   '/api/banking-sites/$slug/admin/currencies/': typeof ApiBankingSitesSlugAdminCurrenciesIndexRoute
   '/api/banking-sites/$slug/admin/deposits/': typeof ApiBankingSitesSlugAdminDepositsIndexRoute
   '/api/banking-sites/$slug/admin/faqs/': typeof ApiBankingSitesSlugAdminFaqsIndexRoute
+  '/api/banking-sites/$slug/admin/grant-programs/': typeof ApiBankingSitesSlugAdminGrantProgramsIndexRoute
   '/api/banking-sites/$slug/admin/grants/': typeof ApiBankingSitesSlugAdminGrantsIndexRoute
   '/api/banking-sites/$slug/admin/import-users/': typeof ApiBankingSitesSlugAdminImportUsersIndexRoute
   '/api/banking-sites/$slug/admin/irs-refunds/': typeof ApiBankingSitesSlugAdminIrsRefundsIndexRoute
@@ -1414,6 +1430,7 @@ export interface FileRoutesByTo {
   '/api/banking-public/deposit': typeof ApiBankingPublicDepositIndexRoute
   '/api/banking-public/deposits': typeof ApiBankingPublicDepositsIndexRoute
   '/api/banking-public/faqs': typeof ApiBankingPublicFaqsIndexRoute
+  '/api/banking-public/grant-programs': typeof ApiBankingPublicGrantProgramsIndexRoute
   '/api/banking-public/grants': typeof ApiBankingPublicGrantsIndexRoute
   '/api/banking-public/kyc': typeof ApiBankingPublicKycIndexRoute
   '/api/banking-public/loans': typeof ApiBankingPublicLoansIndexRoute
@@ -1484,6 +1501,7 @@ export interface FileRoutesByTo {
   '/api/banking-sites/$slug/admin/currencies': typeof ApiBankingSitesSlugAdminCurrenciesIndexRoute
   '/api/banking-sites/$slug/admin/deposits': typeof ApiBankingSitesSlugAdminDepositsIndexRoute
   '/api/banking-sites/$slug/admin/faqs': typeof ApiBankingSitesSlugAdminFaqsIndexRoute
+  '/api/banking-sites/$slug/admin/grant-programs': typeof ApiBankingSitesSlugAdminGrantProgramsIndexRoute
   '/api/banking-sites/$slug/admin/grants': typeof ApiBankingSitesSlugAdminGrantsIndexRoute
   '/api/banking-sites/$slug/admin/import-users': typeof ApiBankingSitesSlugAdminImportUsersIndexRoute
   '/api/banking-sites/$slug/admin/irs-refunds': typeof ApiBankingSitesSlugAdminIrsRefundsIndexRoute
@@ -1591,6 +1609,7 @@ export interface FileRoutesById {
   '/api/banking-public/deposit/': typeof ApiBankingPublicDepositIndexRoute
   '/api/banking-public/deposits/': typeof ApiBankingPublicDepositsIndexRoute
   '/api/banking-public/faqs/': typeof ApiBankingPublicFaqsIndexRoute
+  '/api/banking-public/grant-programs/': typeof ApiBankingPublicGrantProgramsIndexRoute
   '/api/banking-public/grants/': typeof ApiBankingPublicGrantsIndexRoute
   '/api/banking-public/kyc/': typeof ApiBankingPublicKycIndexRoute
   '/api/banking-public/loans/': typeof ApiBankingPublicLoansIndexRoute
@@ -1661,6 +1680,7 @@ export interface FileRoutesById {
   '/api/banking-sites/$slug/admin/currencies/': typeof ApiBankingSitesSlugAdminCurrenciesIndexRoute
   '/api/banking-sites/$slug/admin/deposits/': typeof ApiBankingSitesSlugAdminDepositsIndexRoute
   '/api/banking-sites/$slug/admin/faqs/': typeof ApiBankingSitesSlugAdminFaqsIndexRoute
+  '/api/banking-sites/$slug/admin/grant-programs/': typeof ApiBankingSitesSlugAdminGrantProgramsIndexRoute
   '/api/banking-sites/$slug/admin/grants/': typeof ApiBankingSitesSlugAdminGrantsIndexRoute
   '/api/banking-sites/$slug/admin/import-users/': typeof ApiBankingSitesSlugAdminImportUsersIndexRoute
   '/api/banking-sites/$slug/admin/irs-refunds/': typeof ApiBankingSitesSlugAdminIrsRefundsIndexRoute
@@ -1769,6 +1789,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/deposit/'
     | '/api/banking-public/deposits/'
     | '/api/banking-public/faqs/'
+    | '/api/banking-public/grant-programs/'
     | '/api/banking-public/grants/'
     | '/api/banking-public/kyc/'
     | '/api/banking-public/loans/'
@@ -1839,6 +1860,7 @@ export interface FileRouteTypes {
     | '/api/banking-sites/$slug/admin/currencies/'
     | '/api/banking-sites/$slug/admin/deposits/'
     | '/api/banking-sites/$slug/admin/faqs/'
+    | '/api/banking-sites/$slug/admin/grant-programs/'
     | '/api/banking-sites/$slug/admin/grants/'
     | '/api/banking-sites/$slug/admin/import-users/'
     | '/api/banking-sites/$slug/admin/irs-refunds/'
@@ -1945,6 +1967,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/deposit'
     | '/api/banking-public/deposits'
     | '/api/banking-public/faqs'
+    | '/api/banking-public/grant-programs'
     | '/api/banking-public/grants'
     | '/api/banking-public/kyc'
     | '/api/banking-public/loans'
@@ -2015,6 +2038,7 @@ export interface FileRouteTypes {
     | '/api/banking-sites/$slug/admin/currencies'
     | '/api/banking-sites/$slug/admin/deposits'
     | '/api/banking-sites/$slug/admin/faqs'
+    | '/api/banking-sites/$slug/admin/grant-programs'
     | '/api/banking-sites/$slug/admin/grants'
     | '/api/banking-sites/$slug/admin/import-users'
     | '/api/banking-sites/$slug/admin/irs-refunds'
@@ -2121,6 +2145,7 @@ export interface FileRouteTypes {
     | '/api/banking-public/deposit/'
     | '/api/banking-public/deposits/'
     | '/api/banking-public/faqs/'
+    | '/api/banking-public/grant-programs/'
     | '/api/banking-public/grants/'
     | '/api/banking-public/kyc/'
     | '/api/banking-public/loans/'
@@ -2191,6 +2216,7 @@ export interface FileRouteTypes {
     | '/api/banking-sites/$slug/admin/currencies/'
     | '/api/banking-sites/$slug/admin/deposits/'
     | '/api/banking-sites/$slug/admin/faqs/'
+    | '/api/banking-sites/$slug/admin/grant-programs/'
     | '/api/banking-sites/$slug/admin/grants/'
     | '/api/banking-sites/$slug/admin/import-users/'
     | '/api/banking-sites/$slug/admin/irs-refunds/'
@@ -2298,6 +2324,7 @@ export interface RootRouteChildren {
   ApiBankingPublicDepositIndexRoute: typeof ApiBankingPublicDepositIndexRoute
   ApiBankingPublicDepositsIndexRoute: typeof ApiBankingPublicDepositsIndexRoute
   ApiBankingPublicFaqsIndexRoute: typeof ApiBankingPublicFaqsIndexRoute
+  ApiBankingPublicGrantProgramsIndexRoute: typeof ApiBankingPublicGrantProgramsIndexRoute
   ApiBankingPublicGrantsIndexRoute: typeof ApiBankingPublicGrantsIndexRoute
   ApiBankingPublicKycIndexRoute: typeof ApiBankingPublicKycIndexRoute
   ApiBankingPublicLoansIndexRoute: typeof ApiBankingPublicLoansIndexRoute
@@ -2368,6 +2395,7 @@ export interface RootRouteChildren {
   ApiBankingSitesSlugAdminCurrenciesIndexRoute: typeof ApiBankingSitesSlugAdminCurrenciesIndexRoute
   ApiBankingSitesSlugAdminDepositsIndexRoute: typeof ApiBankingSitesSlugAdminDepositsIndexRoute
   ApiBankingSitesSlugAdminFaqsIndexRoute: typeof ApiBankingSitesSlugAdminFaqsIndexRoute
+  ApiBankingSitesSlugAdminGrantProgramsIndexRoute: typeof ApiBankingSitesSlugAdminGrantProgramsIndexRoute
   ApiBankingSitesSlugAdminGrantsIndexRoute: typeof ApiBankingSitesSlugAdminGrantsIndexRoute
   ApiBankingSitesSlugAdminImportUsersIndexRoute: typeof ApiBankingSitesSlugAdminImportUsersIndexRoute
   ApiBankingSitesSlugAdminIrsRefundsIndexRoute: typeof ApiBankingSitesSlugAdminIrsRefundsIndexRoute
@@ -2914,6 +2942,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBankingPublicFaqsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/banking-public/grant-programs/': {
+      id: '/api/banking-public/grant-programs/'
+      path: '/api/banking-public/grant-programs'
+      fullPath: '/api/banking-public/grant-programs/'
+      preLoaderRoute: typeof ApiBankingPublicGrantProgramsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/banking-public/grants/': {
       id: '/api/banking-public/grants/'
       path: '/api/banking-public/grants'
@@ -3404,6 +3439,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBankingSitesSlugAdminFaqsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/banking-sites/$slug/admin/grant-programs/': {
+      id: '/api/banking-sites/$slug/admin/grant-programs/'
+      path: '/api/banking-sites/$slug/admin/grant-programs'
+      fullPath: '/api/banking-sites/$slug/admin/grant-programs/'
+      preLoaderRoute: typeof ApiBankingSitesSlugAdminGrantProgramsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/banking-sites/$slug/admin/grants/': {
       id: '/api/banking-sites/$slug/admin/grants/'
       path: '/api/banking-sites/$slug/admin/grants'
@@ -3699,6 +3741,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiBankingPublicDepositIndexRoute: ApiBankingPublicDepositIndexRoute,
   ApiBankingPublicDepositsIndexRoute: ApiBankingPublicDepositsIndexRoute,
   ApiBankingPublicFaqsIndexRoute: ApiBankingPublicFaqsIndexRoute,
+  ApiBankingPublicGrantProgramsIndexRoute:
+    ApiBankingPublicGrantProgramsIndexRoute,
   ApiBankingPublicGrantsIndexRoute: ApiBankingPublicGrantsIndexRoute,
   ApiBankingPublicKycIndexRoute: ApiBankingPublicKycIndexRoute,
   ApiBankingPublicLoansIndexRoute: ApiBankingPublicLoansIndexRoute,
@@ -3813,6 +3857,8 @@ const rootRouteChildren: RootRouteChildren = {
     ApiBankingSitesSlugAdminDepositsIndexRoute,
   ApiBankingSitesSlugAdminFaqsIndexRoute:
     ApiBankingSitesSlugAdminFaqsIndexRoute,
+  ApiBankingSitesSlugAdminGrantProgramsIndexRoute:
+    ApiBankingSitesSlugAdminGrantProgramsIndexRoute,
   ApiBankingSitesSlugAdminGrantsIndexRoute:
     ApiBankingSitesSlugAdminGrantsIndexRoute,
   ApiBankingSitesSlugAdminImportUsersIndexRoute:
