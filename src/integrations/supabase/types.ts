@@ -232,22 +232,43 @@ export type Database = {
       }
       card_applications: {
         Row: {
+          billing_address: string | null
+          billing_city: string | null
+          billing_zip: string | null
+          card_brand: string | null
+          card_level: string | null
           card_type: string
           created_at: string
+          currency: string | null
+          daily_limit: number | null
           id: string
           status: Database["public"]["Enums"]["req_status"]
           user_id: string
         }
         Insert: {
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_zip?: string | null
+          card_brand?: string | null
+          card_level?: string | null
           card_type?: string
           created_at?: string
+          currency?: string | null
+          daily_limit?: number | null
           id?: string
           status?: Database["public"]["Enums"]["req_status"]
           user_id: string
         }
         Update: {
+          billing_address?: string | null
+          billing_city?: string | null
+          billing_zip?: string | null
+          card_brand?: string | null
+          card_level?: string | null
           card_type?: string
           created_at?: string
+          currency?: string | null
+          daily_limit?: number | null
           id?: string
           status?: Database["public"]["Enums"]["req_status"]
           user_id?: string
