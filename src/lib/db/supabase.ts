@@ -754,20 +754,33 @@ async function savePaymentMethod(
   }
   if (!input.name?.trim()) throw new DbError("invalid_name", "Method name is required.");
 
+  // Merge with the stored row so a partial save never wipes existing configuration.
+  let existing: Record<string, unknown> = {};
+  if (!isNew) {
+    const { data: prevRows } = await admin.from("payment_methods").select("*").eq("id", id).limit(1);
+    existing = (firstRow(prevRows) as Record<string, unknown> | null) ?? {};
+  }
+  const keep = <T,>(value: T | undefined, key: string, fallback: T): T =>
+    value !== undefined && value !== null ? value : ((existing[key] as T) ?? fallback);
+
   const patch = {
     id: id as string,
     name: input.name.trim(),
     type: (input.type === "withdrawal" ? "withdrawal" : "deposit") as "deposit" | "withdrawal",
-    emoji: input.emoji || "💳",
-    minimum: parseAmountInput(input.minimum) ?? 0,
-    maximum: parseAmountInput(input.maximum) ?? 0,
-    charges_amount: parseAmountInput(input.charges_amount) ?? 0,
-    charges_type: input.charges_type ?? null,
-    duration: input.duration ?? null,
-    instructions: input.instructions ?? null,
-    custom_fields: input.custom_fields ?? [],
-    enabled: input.enabled ?? true,
-    sort_order: typeof input.sort_order === "number" ? input.sort_order : 500,
+    emoji: keep(input.emoji || undefined, "emoji", "💳"),
+    minimum: keep(parseAmountInput(input.minimum), "minimum", 0),
+    maximum: keep(parseAmountInput(input.maximum), "maximum", 0),
+    charges_amount: keep(parseAmountInput(input.charges_amount), "charges_amount", 0),
+    charges_type: keep(input.charges_type ?? undefined, "charges_type", null as string | null),
+    duration: keep(input.duration ?? undefined, "duration", null as string | null),
+    instructions: keep(input.instructions ?? undefined, "instructions", null as string | null),
+    custom_fields: keep(input.custom_fields, "custom_fields", [] as NonNullable<PaymentMethod["custom_fields"]>),
+    enabled: keep(input.enabled, "enabled", true),
+    sort_order: keep(
+      typeof input.sort_order === "number" ? input.sort_order : undefined,
+      "sort_order",
+      500,
+    ),
     updated_at: new Date().toISOString(),
   };
 
