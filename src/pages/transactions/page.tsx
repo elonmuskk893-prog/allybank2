@@ -53,6 +53,7 @@ interface Tx {
   kind: string;
   direction?: string | null;
   amount: number | string;
+  status?: string | null;
   created_at: string;
   balance_after?: number | string | null;
   meta?: { label?: string };
@@ -270,10 +271,7 @@ function TransactionsFlow() {
                           <CreditBadge credit={credit} />
                         </td>
                         <td className="whitespace-nowrap px-4 py-3">
-                          <span className="inline-flex items-center rounded-lg bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                            <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-green-500" />
-                            Completed
-                          </span>
+                          <TxStatusBadge status={tx.status} />
                         </td>
                         <td className="whitespace-nowrap px-4 py-3">
                           <div className="font-mono text-sm text-gray-900 dark:text-gray-100">
@@ -980,6 +978,40 @@ function CreditBadge({ credit }: { credit: boolean }) {
     <span className="inline-flex items-center rounded-lg bg-red-100 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
       <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-red-500" />
       Debit
+    </span>
+  );
+}
+
+const TX_STATUS_STYLES: Record<string, { cls: string; dot: string; label: string }> = {
+  completed: {
+    cls: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    dot: "bg-green-500",
+    label: "Completed",
+  },
+  pending: {
+    cls: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+    dot: "bg-amber-500",
+    label: "Pending",
+  },
+  cancelled: {
+    cls: "bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-300",
+    dot: "bg-gray-400",
+    label: "Cancelled",
+  },
+  failed: {
+    cls: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    dot: "bg-red-500",
+    label: "Failed",
+  },
+};
+
+/** Shows the transaction's real state — never assume "completed". */
+function TxStatusBadge({ status }: { status?: string | null }) {
+  const s = TX_STATUS_STYLES[String(status ?? "completed")] ?? TX_STATUS_STYLES.pending;
+  return (
+    <span className={`inline-flex items-center rounded-lg px-2 py-1 text-xs font-medium ${s.cls}`}>
+      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${s.dot}`} />
+      {s.label}
     </span>
   );
 }
