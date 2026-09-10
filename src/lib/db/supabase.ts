@@ -21,6 +21,7 @@ import {
   verificationCodeEmail,
   depositApprovedEmail,
   withdrawalStatusEmail,
+  broadcastEmail,
   testEmail,
   resolveEmailConfig,
   isEmailConfigured,
@@ -2238,12 +2239,16 @@ async function forgotPassword(input: { email: string }) {
   });
 
   const sent = await deliver(email, passwordResetCodeEmail(code, await siteNameForEmail()));
-  let dev_code: string | undefined;
   if (!sent) {
-    dev_code = code;
-    logUndeliveredCode("password reset", email, code);
+    // The code is never surfaced to the browser — it must arrive by email.
+    logUndeliveredCode("password reset (delivery failed)", email, code);
+    throw new DbError(
+      "email_unavailable",
+      "We couldn't send the reset email right now. Please contact support.",
+      503,
+    );
   }
-  return { ok: true, dev_code };
+  return { ok: true };
 }
 
 async function resetPassword(input: { email: string; code: string; password: string }) {
@@ -4014,6 +4019,7 @@ async function readConfigGroups(admin: ReturnType<typeof createAdminClient>): Pr
       welcome_message: "Hi! How can we help you today?",
       title: "Live support",
       dashboard_only: true,
+      custom_code: "",
       ...((map.get("live_chat") as Record<string, unknown>) ?? {}),
     },
     security: (map.get("security") as Record<string, unknown>) ?? {},
@@ -4094,6 +4100,7 @@ async function publicSiteSettings() {
       welcome_message: String(chat.welcome_message ?? "Hi! How can we help you today?"),
       title: String(chat.title ?? "Live support"),
       dashboard_only: chat.dashboard_only !== false,
+      custom_code: String(chat.custom_code ?? ""),
     },
     features: groups.features,
   };
