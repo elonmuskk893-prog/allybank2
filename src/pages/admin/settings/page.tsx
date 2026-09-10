@@ -21,6 +21,7 @@ interface Settings {
     key?: string;
     position?: string;
     offset_bottom?: number;
+    custom_code?: string;
     welcome_message?: string;
     title?: string;
     dashboard_only?: boolean;
@@ -91,6 +92,7 @@ function SettingsAdmin() {
     welcome_message: "Hi! How can we help you today?",
     title: "Live support",
     dashboard_only: true,
+    custom_code: "",
   });
   const [email, setEmail] = useState({ ...EMPTY_EMAIL });
   const [testTo, setTestTo] = useState("");
@@ -120,6 +122,7 @@ function SettingsAdmin() {
       welcome_message: String(s.live_chat?.welcome_message ?? "Hi! How can we help you today?"),
       title: String(s.live_chat?.title ?? "Live support"),
       dashboard_only: s.live_chat?.dashboard_only !== false,
+      custom_code: String(s.live_chat?.custom_code ?? ""),
     });
     setEmail({
       ...EMPTY_EMAIL,
@@ -241,6 +244,7 @@ function SettingsAdmin() {
             <select value={chat.provider} onChange={(e) => setChat({ ...chat, provider: e.target.value })} className={inputCls}>
               <option value="builtin">Built-in chat (messages go to Tickets)</option>
               <option value="smartsupp">Smartsupp</option>
+              <option value="custom">Other provider (paste embed code)</option>
             </select>
           </Field>
           <Field label="Bubble position">
@@ -269,6 +273,22 @@ function SettingsAdmin() {
             className={inputCls}
           />
         </Field>
+        {chat.provider === "custom" && (
+          <Field label="Embed code">
+            <textarea
+              rows={7}
+              value={chat.custom_code}
+              onChange={(e) => setChat({ ...chat, custom_code: e.target.value })}
+              className={`${inputCls} font-mono text-xs`}
+              placeholder="Paste the full snippet from Tawk.to, Crisp, Intercom, Zendesk, Chatway…"
+            />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Pasted exactly as your provider gives it. It loads once per page, is removed again when
+              you disable chat, and is lifted above the mobile bottom navigation.
+            </p>
+          </Field>
+        )}
+
         {chat.provider === "smartsupp" && (
           <Field label="Smartsupp key or install code">
             <textarea
