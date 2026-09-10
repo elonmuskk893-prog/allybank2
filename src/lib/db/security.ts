@@ -36,8 +36,10 @@ export function generateAccountNumber(): string {
  * is the service-role JWT — never exposed to the client.
  */
 export function signImpersonationValue(value: string): string {
-  const secret =
-    process.env.SUPABASE_SERVICE_ROLE_KEY || "insecure-mock-secret";
+  const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY is required for impersonation sessions");
+  }
   return `${value}.${createHmac("sha256", secret).update(value).digest("hex").slice(0, 32)}`;
 }
 
