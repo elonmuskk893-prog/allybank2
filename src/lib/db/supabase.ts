@@ -2829,7 +2829,7 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
   if (input.status === "approved" && app.status !== "approved") {
     const last4 = String(Math.floor(1000 + Math.random() * 9000));
     const { data: ownerRows } = await admin
-      .from("profiles")
+      .from("users")
       .select("first_name,last_name,full_name")
       .eq("id", app.user_id)
       .limit(1);
