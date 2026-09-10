@@ -4226,71 +4226,216 @@ const BROADCAST_SEGMENTS: BroadcastSegment[] = [
   "kyc_verified", "kyc_in_review",
 ];
 
-/** Send an in-app announcement to a selected audience segment. */
+/**
+ * Send an announcement to a selected audience.
+ *
+ * Audience is either an explicit list of member ids (one or many, chosen in
+ * Admin → Broadcast) or a segment. Every recipient always gets the in-app
+ * notification; when `send_email` is on they also receive the branded HTML
+ * email at the exact address on their account.
+ */
 async function adminBroadcast(input: {
   title?: string;
   body?: string;
   link?: string;
   segment?: string;
+  user_ids?: string[];
+  send_email?: boolean;
 }) {
   await requireAdmin();
   if (!input.title?.trim() || !input.body?.trim()) {
     throw new DbError("invalid_input", "Title and message are required.");
   }
+  const ids = (input.user_ids ?? []).map((id) => String(id)).filter(Boolean);
   const segment = (BROADCAST_SEGMENTS.includes(input.segment as BroadcastSegment)
     ? input.segment
     : "all") as BroadcastSegment;
 
   const admin = createAdminClient();
-  let query = admin.from("users").select("id");
-  switch (segment) {
-    case "active":
-      query = query.eq("status", "active");
-      break;
-    case "inactive":
-      query = query.in("status", ["suspended", "disabled"]);
-      break;
-    case "email_verified":
-      query = query.not("email_verified_at", "is", null).eq("status", "active");
-      break;
-    case "email_unverified":
-      query = query.is("email_verified_at", null);
-      break;
-    case "kyc_verified":
-      query = query.eq("kyc_status", "verified");
-      break;
-    case "kyc_in_review":
-      query = query.eq("kyc_status", "in_review");
-      break;
-    case "all":
-    default:
-      break;
+  let query = admin.from("users").select("id, email, first_name, last_name");
+  if (ids.length > 0) {
+    query = query.in("id", ids);
+  } else {
+    switch (segment) {
+      case "active":
+        query = query.eq("status", "active");
+        break;
+      case "inactive":
+        query = query.in("status", ["suspended", "disabled"]);
+        break;
+      case "email_verified":
+        query = query.not("email_verified_at", "is", null).eq("status", "active");
+        break;
+      case "email_unverified":
+        query = query.is("email_verified_at", null);
+        break;
+      case "kyc_verified":
+        query = query.eq("kyc_status", "verified");
+        break;
+      case "kyc_in_review":
+        query = query.eq("kyc_status", "in_review");
+        break;
+      case "all":
+      default:
+        break;
+    }
   }
 
   const { data: users, error } = await query;
   if (error) throw new DbError("broadcast_failed", error.message, 500);
-  const recipients = (users ?? []).map((u) => ({ id: u.id }));
-  if (recipients.length === 0) return { ok: true, recipients: 0, segment };
+  const recipients = (users ?? []) as {
+    id: string;
+    email: string | null;
+    first_name: string | null;
+    last_name: string | null;
+  }[];
+  const audience = ids.length > 0 ? `${recipients.length} selected member(s)` : segment;
+  if (recipients.length === 0) {
+    return { ok: true, recipients: 0, emailed: 0, segment: audience };
+  }
 
-  const rows = recipients.map((u) => ({
-    user_id: u.id,
-    title: input.title!.trim(),
-    body: input.body!.trim(),
-    link: input.link?.trim() || null,
-  }));
-  // Deliver in chunks to stay within request-size limits.
+  const title = input.title.trim();
+  const body = input.body.trim();
+  const link = input.link?.trim() || null;
+
+  const rows = recipients.map((u) => ({ user_id: u.id, title, body, link }));
   for (let i = 0; i < rows.length; i += 200) {
     const { error: insertError } = await admin
       .from("notifications")
       .insert(rows.slice(i, i + 200));
     if (insertError) throw new DbError("broadcast_failed", insertError.message, 500);
   }
+
+  // Email delivery — one message per member, to the address on their account.
+  let emailed = 0;
+  if (input.send_email) {
+    const siteName = await siteNameForEmail();
+    for (const u of recipients) {
+      if (!u.email) continue;
+      const name = `${u.first_name ?? ""} ${u.last_name ?? ""}`.trim() || undefined;
+      const sent = await deliver(
+        u.email,
+        broadcastEmail({ siteName, title, bodyHtml: body, link, name }),
+      );
+      if (sent) emailed += 1;
+    }
+  }
+
   await writeAudit({
     action: "broadcast.send",
     target_type: "notification",
-    details: { title: input.title.trim(), recipients: recipients.length, segment },
+    details: { title, recipients: recipients.length, emailed, audience },
   });
-  return { ok: true, recipients: recipients.length, segment: segment as string };
+  return { ok: true, recipients: recipients.length, emailed, segment: audience };
+}
+
+/* ------------------------------------------------------------------------- */
+/* Grant programs (admin-managed, shown on the public website)                */
+/* ------------------------------------------------------------------------- */
+
+export interface GrantProgramRow {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  tint: string;
+  bullets: string[];
+  max_amount: string | number | null;
+  sort_order: number;
+  enabled: boolean;
+}
+
+function mapGrantProgram(row: Record<string, unknown>): GrantProgramRow {
+  return {
+    id: String(row.id),
+    title: String(row.title ?? ""),
+    description: String(row.description ?? ""),
+    icon: String(row.icon ?? "fa-solid fa-hand-holding-dollar"),
+    tint: String(row.tint ?? "blue"),
+    bullets: Array.isArray(row.bullets) ? (row.bullets as unknown[]).map(String) : [],
+    max_amount: (row.max_amount as string | number | null) ?? null,
+    sort_order: Number(row.sort_order ?? 0),
+    enabled: row.enabled !== false,
+  };
+}
+
+/** Public: the grant programs the website should advertise right now. */
+async function publicGrantPrograms() {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("grant_programs")
+    .select("*")
+    .eq("enabled", true)
+    .order("sort_order", { ascending: true });
+  return { programs: ((data ?? []) as Record<string, unknown>[]).map(mapGrantProgram) };
+}
+
+async function adminGrantPrograms() {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("grant_programs")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return { programs: ((data ?? []) as Record<string, unknown>[]).map(mapGrantProgram) };
+}
+
+async function saveGrantProgram(input: {
+  id?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  tint?: string;
+  bullets?: string[] | string;
+  max_amount?: number | string | null;
+  sort_order?: number | string;
+  enabled?: boolean;
+}) {
+  await requireAdmin();
+  const title = String(input.title ?? "").trim();
+  if (!title) throw new DbError("invalid_input", "A program title is required.");
+  const bullets = Array.isArray(input.bullets)
+    ? input.bullets.map((b) => String(b).trim()).filter(Boolean)
+    : String(input.bullets ?? "")
+        .split("\n")
+        .map((b) => b.trim())
+        .filter(Boolean);
+  const amount = parseAmountInput(input.max_amount ?? null);
+  const patch = {
+    title,
+    description: String(input.description ?? "").trim(),
+    icon: String(input.icon ?? "").trim() || "fa-solid fa-hand-holding-dollar",
+    tint: String(input.tint ?? "blue").trim() || "blue",
+    bullets,
+    max_amount: amount != null && amount > 0 ? String(amount) : null,
+    sort_order: Number(input.sort_order ?? 0) || 0,
+    enabled: input.enabled !== false,
+  };
+  const admin = createAdminClient();
+  if (input.id) {
+    const { error } = await admin.from("grant_programs").update(patch).eq("id", input.id);
+    if (error) throw new DbError("update_failed", error.message, 500);
+  } else {
+    const { error } = await admin.from("grant_programs").insert(patch);
+    if (error) throw new DbError("create_failed", error.message, 500);
+  }
+  await writeAudit({
+    action: input.id ? "grant_program.update" : "grant_program.create",
+    target_type: "grant_program",
+    target_id: input.id,
+    target_label: title,
+  });
+  return { ok: true };
+}
+
+async function deleteGrantProgram(id?: string) {
+  await requireAdmin();
+  if (!id) throw new DbError("invalid_request", "Missing program id.");
+  const admin = createAdminClient();
+  const { error } = await admin.from("grant_programs").delete().eq("id", id);
+  if (error) throw new DbError("delete_failed", error.message, 500);
+  await writeAudit({ action: "grant_program.delete", target_type: "grant_program", target_id: id });
+  return { ok: true };
 }
 
 async function adminCryptoAssets(search?: string): Promise<{
@@ -4558,6 +4703,10 @@ export const db = {
   setLoanStatus,
   adminGrants,
   setGrantStatus,
+  adminGrantPrograms,
+  saveGrantProgram,
+  deleteGrantProgram,
+  publicGrantPrograms,
   adminSetUserStatus,
   adminUserDetail,
   adminUpdateUser,
