@@ -228,6 +228,29 @@ function WithdrawFlow() {
     setWithdrawalId(res.data.withdrawal_id);
   }
 
+  // Cancelling before the code is entered releases the reserved money and
+  // marks the request cancelled — it never becomes a completed debit.
+  async function handleCancel(id?: string) {
+    const target = id ?? withdrawalId;
+    if (!target) return;
+    setError(null);
+    setBusy(true);
+    const res = await bankFetch("/withdrawal/cancel", {
+      method: "POST",
+      body: { withdrawal_id: target },
+    });
+    setBusy(false);
+    if (!res.ok) {
+      setError(res.error ?? "Could not cancel this withdrawal.");
+      return;
+    }
+    if (target === withdrawalId) {
+      setWithdrawalId(null);
+      setCode("");
+    }
+    loadWithdrawals();
+  }
+
   async function handleVerify(e?: { preventDefault?: () => void }) {
     if (e?.preventDefault) e.preventDefault();
     if (!withdrawalId) return;
