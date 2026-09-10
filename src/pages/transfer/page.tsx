@@ -84,6 +84,9 @@ interface Beneficiary {
 interface BalanceItem {
   currency: string;
   amount: string | number;
+  /** Spendable balance: total minus money reserved by pending requests. */
+  available?: string | number;
+  reserved?: string | number;
 }
 
 interface TransferConfig {
@@ -191,7 +194,8 @@ function TransferFlow() {
         const found =
           balanceRes.data.balances.find((b) => b.currency === currency) ??
           balanceRes.data.balances[0];
-        setBalance(Number(found?.amount ?? 0));
+        // Spend against the available balance so pending requests are excluded.
+        setBalance(Number(found?.available ?? found?.amount ?? 0));
       }
       if (benRes.ok && benRes.data?.beneficiaries) {
         setBeneficiaries(benRes.data.beneficiaries);
