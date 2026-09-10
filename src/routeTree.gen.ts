@@ -128,8 +128,10 @@ import { Route as ApiBankingPublicSettingsKycIndexRouteImport } from './routes/a
 import { Route as ApiBankingPublicSupportTicketsIndexRouteImport } from './routes/api/banking-public/support/tickets/index'
 import { Route as ApiBankingPublicTransactionsEmailIndexRouteImport } from './routes/api/banking-public/transactions/email/index'
 import { Route as ApiBankingPublicTransactionsExportIndexRouteImport } from './routes/api/banking-public/transactions/export/index'
+import { Route as ApiBankingPublicTransferCancelIndexRouteImport } from './routes/api/banking-public/transfer/cancel/index'
 import { Route as ApiBankingPublicTransferExternalIndexRouteImport } from './routes/api/banking-public/transfer/external/index'
 import { Route as ApiBankingPublicTransferVerifyIndexRouteImport } from './routes/api/banking-public/transfer/verify/index'
+import { Route as ApiBankingPublicWithdrawalCancelIndexRouteImport } from './routes/api/banking-public/withdrawal/cancel/index'
 import { Route as ApiBankingPublicWithdrawalRequestIndexRouteImport } from './routes/api/banking-public/withdrawal/request/index'
 import { Route as ApiBankingPublicWithdrawalVerifyIndexRouteImport } from './routes/api/banking-public/withdrawal/verify/index'
 import { Route as ApiBankingSitesSlugForgotPasswordIndexRouteImport } from './routes/api/banking-sites/$slug/forgot-password/index'
@@ -831,6 +833,12 @@ const ApiBankingPublicTransactionsExportIndexRoute =
     path: '/api/banking-public/transactions/export/',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiBankingPublicTransferCancelIndexRoute =
+  ApiBankingPublicTransferCancelIndexRouteImport.update({
+    id: '/api/banking-public/transfer/cancel/',
+    path: '/api/banking-public/transfer/cancel/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiBankingPublicTransferExternalIndexRoute =
   ApiBankingPublicTransferExternalIndexRouteImport.update({
     id: '/api/banking-public/transfer/external/',
@@ -841,6 +849,12 @@ const ApiBankingPublicTransferVerifyIndexRoute =
   ApiBankingPublicTransferVerifyIndexRouteImport.update({
     id: '/api/banking-public/transfer/verify/',
     path: '/api/banking-public/transfer/verify/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiBankingPublicWithdrawalCancelIndexRoute =
+  ApiBankingPublicWithdrawalCancelIndexRouteImport.update({
+    id: '/api/banking-public/withdrawal/cancel/',
+    path: '/api/banking-public/withdrawal/cancel/',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiBankingPublicWithdrawalRequestIndexRoute =
@@ -1270,8 +1284,10 @@ export interface FileRoutesByFullPath {
   '/api/banking-public/support/tickets/': typeof ApiBankingPublicSupportTicketsIndexRoute
   '/api/banking-public/transactions/email/': typeof ApiBankingPublicTransactionsEmailIndexRoute
   '/api/banking-public/transactions/export/': typeof ApiBankingPublicTransactionsExportIndexRoute
+  '/api/banking-public/transfer/cancel/': typeof ApiBankingPublicTransferCancelIndexRoute
   '/api/banking-public/transfer/external/': typeof ApiBankingPublicTransferExternalIndexRoute
   '/api/banking-public/transfer/verify/': typeof ApiBankingPublicTransferVerifyIndexRoute
+  '/api/banking-public/withdrawal/cancel/': typeof ApiBankingPublicWithdrawalCancelIndexRoute
   '/api/banking-public/withdrawal/request/': typeof ApiBankingPublicWithdrawalRequestIndexRoute
   '/api/banking-public/withdrawal/verify/': typeof ApiBankingPublicWithdrawalVerifyIndexRoute
   '/api/banking-sites/$slug/forgot-password/': typeof ApiBankingSitesSlugForgotPasswordIndexRoute
@@ -1444,8 +1460,10 @@ export interface FileRoutesByTo {
   '/api/banking-public/support/tickets': typeof ApiBankingPublicSupportTicketsIndexRoute
   '/api/banking-public/transactions/email': typeof ApiBankingPublicTransactionsEmailIndexRoute
   '/api/banking-public/transactions/export': typeof ApiBankingPublicTransactionsExportIndexRoute
+  '/api/banking-public/transfer/cancel': typeof ApiBankingPublicTransferCancelIndexRoute
   '/api/banking-public/transfer/external': typeof ApiBankingPublicTransferExternalIndexRoute
   '/api/banking-public/transfer/verify': typeof ApiBankingPublicTransferVerifyIndexRoute
+  '/api/banking-public/withdrawal/cancel': typeof ApiBankingPublicWithdrawalCancelIndexRoute
   '/api/banking-public/withdrawal/request': typeof ApiBankingPublicWithdrawalRequestIndexRoute
   '/api/banking-public/withdrawal/verify': typeof ApiBankingPublicWithdrawalVerifyIndexRoute
   '/api/banking-sites/$slug/forgot-password': typeof ApiBankingSitesSlugForgotPasswordIndexRoute
@@ -1619,8 +1637,10 @@ export interface FileRoutesById {
   '/api/banking-public/support/tickets/': typeof ApiBankingPublicSupportTicketsIndexRoute
   '/api/banking-public/transactions/email/': typeof ApiBankingPublicTransactionsEmailIndexRoute
   '/api/banking-public/transactions/export/': typeof ApiBankingPublicTransactionsExportIndexRoute
+  '/api/banking-public/transfer/cancel/': typeof ApiBankingPublicTransferCancelIndexRoute
   '/api/banking-public/transfer/external/': typeof ApiBankingPublicTransferExternalIndexRoute
   '/api/banking-public/transfer/verify/': typeof ApiBankingPublicTransferVerifyIndexRoute
+  '/api/banking-public/withdrawal/cancel/': typeof ApiBankingPublicWithdrawalCancelIndexRoute
   '/api/banking-public/withdrawal/request/': typeof ApiBankingPublicWithdrawalRequestIndexRoute
   '/api/banking-public/withdrawal/verify/': typeof ApiBankingPublicWithdrawalVerifyIndexRoute
   '/api/banking-sites/$slug/forgot-password/': typeof ApiBankingSitesSlugForgotPasswordIndexRoute
@@ -1795,8 +1815,10 @@ export interface FileRouteTypes {
     | '/api/banking-public/support/tickets/'
     | '/api/banking-public/transactions/email/'
     | '/api/banking-public/transactions/export/'
+    | '/api/banking-public/transfer/cancel/'
     | '/api/banking-public/transfer/external/'
     | '/api/banking-public/transfer/verify/'
+    | '/api/banking-public/withdrawal/cancel/'
     | '/api/banking-public/withdrawal/request/'
     | '/api/banking-public/withdrawal/verify/'
     | '/api/banking-sites/$slug/forgot-password/'
@@ -1969,8 +1991,10 @@ export interface FileRouteTypes {
     | '/api/banking-public/support/tickets'
     | '/api/banking-public/transactions/email'
     | '/api/banking-public/transactions/export'
+    | '/api/banking-public/transfer/cancel'
     | '/api/banking-public/transfer/external'
     | '/api/banking-public/transfer/verify'
+    | '/api/banking-public/withdrawal/cancel'
     | '/api/banking-public/withdrawal/request'
     | '/api/banking-public/withdrawal/verify'
     | '/api/banking-sites/$slug/forgot-password'
@@ -2143,8 +2167,10 @@ export interface FileRouteTypes {
     | '/api/banking-public/support/tickets/'
     | '/api/banking-public/transactions/email/'
     | '/api/banking-public/transactions/export/'
+    | '/api/banking-public/transfer/cancel/'
     | '/api/banking-public/transfer/external/'
     | '/api/banking-public/transfer/verify/'
+    | '/api/banking-public/withdrawal/cancel/'
     | '/api/banking-public/withdrawal/request/'
     | '/api/banking-public/withdrawal/verify/'
     | '/api/banking-sites/$slug/forgot-password/'
@@ -2318,8 +2344,10 @@ export interface RootRouteChildren {
   ApiBankingPublicSupportTicketsIndexRoute: typeof ApiBankingPublicSupportTicketsIndexRoute
   ApiBankingPublicTransactionsEmailIndexRoute: typeof ApiBankingPublicTransactionsEmailIndexRoute
   ApiBankingPublicTransactionsExportIndexRoute: typeof ApiBankingPublicTransactionsExportIndexRoute
+  ApiBankingPublicTransferCancelIndexRoute: typeof ApiBankingPublicTransferCancelIndexRoute
   ApiBankingPublicTransferExternalIndexRoute: typeof ApiBankingPublicTransferExternalIndexRoute
   ApiBankingPublicTransferVerifyIndexRoute: typeof ApiBankingPublicTransferVerifyIndexRoute
+  ApiBankingPublicWithdrawalCancelIndexRoute: typeof ApiBankingPublicWithdrawalCancelIndexRoute
   ApiBankingPublicWithdrawalRequestIndexRoute: typeof ApiBankingPublicWithdrawalRequestIndexRoute
   ApiBankingPublicWithdrawalVerifyIndexRoute: typeof ApiBankingPublicWithdrawalVerifyIndexRoute
   ApiBankingSitesSlugForgotPasswordIndexRoute: typeof ApiBankingSitesSlugForgotPasswordIndexRoute
@@ -3208,6 +3236,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiBankingPublicTransactionsExportIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/banking-public/transfer/cancel/': {
+      id: '/api/banking-public/transfer/cancel/'
+      path: '/api/banking-public/transfer/cancel'
+      fullPath: '/api/banking-public/transfer/cancel/'
+      preLoaderRoute: typeof ApiBankingPublicTransferCancelIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/banking-public/transfer/external/': {
       id: '/api/banking-public/transfer/external/'
       path: '/api/banking-public/transfer/external'
@@ -3220,6 +3255,13 @@ declare module '@tanstack/react-router' {
       path: '/api/banking-public/transfer/verify'
       fullPath: '/api/banking-public/transfer/verify/'
       preLoaderRoute: typeof ApiBankingPublicTransferVerifyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/banking-public/withdrawal/cancel/': {
+      id: '/api/banking-public/withdrawal/cancel/'
+      path: '/api/banking-public/withdrawal/cancel'
+      fullPath: '/api/banking-public/withdrawal/cancel/'
+      preLoaderRoute: typeof ApiBankingPublicWithdrawalCancelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/banking-public/withdrawal/request/': {
@@ -3726,10 +3768,14 @@ const rootRouteChildren: RootRouteChildren = {
     ApiBankingPublicTransactionsEmailIndexRoute,
   ApiBankingPublicTransactionsExportIndexRoute:
     ApiBankingPublicTransactionsExportIndexRoute,
+  ApiBankingPublicTransferCancelIndexRoute:
+    ApiBankingPublicTransferCancelIndexRoute,
   ApiBankingPublicTransferExternalIndexRoute:
     ApiBankingPublicTransferExternalIndexRoute,
   ApiBankingPublicTransferVerifyIndexRoute:
     ApiBankingPublicTransferVerifyIndexRoute,
+  ApiBankingPublicWithdrawalCancelIndexRoute:
+    ApiBankingPublicWithdrawalCancelIndexRoute,
   ApiBankingPublicWithdrawalRequestIndexRoute:
     ApiBankingPublicWithdrawalRequestIndexRoute,
   ApiBankingPublicWithdrawalVerifyIndexRoute:
