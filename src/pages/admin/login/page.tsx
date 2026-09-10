@@ -93,14 +93,9 @@ function AdminLoginPage() {
     setError(null);
     setLoading(true);
 
-    const credentials =
-      loginMethod === "email_password"
-        ? { email, password }
-        : { code };
-
     const result = await adminFetch<LoginResponse>(slug, "/login", {
       method: "POST",
-      body: credentials,
+      body: { email, password },
     });
 
     setLoading(false);
@@ -152,15 +147,12 @@ function AdminLoginPage() {
     router.replace("/admin");
   };
 
-  const methodUnknown = loginMethod === null && !error;
   const formHeading = siteName ? `${siteName} admin` : "Admin sign-in";
   const formSubtitle = challenge
     ? challenge.via === "totp"
       ? "Enter the 6-digit code from your authenticator app."
       : "Enter the 6-digit code we just emailed you."
-    : loginMethod === "email_password"
-      ? "Sign in with your admin email and password."
-      : "Paste the master auth code from your dashboard.";
+    : "Sign in with your admin email and password.";
 
   return (
     <AuthLayout left={ADMIN_PANEL} brand={siteName}>
@@ -201,7 +193,7 @@ function AdminLoginPage() {
               Back
             </button>
           </form>
-        ) : loginMethod === "email_password" ? (
+        ) : (
           <form onSubmit={handleLogin}>
             <AuthInput
               label="Admin email"
@@ -219,21 +211,6 @@ function AdminLoginPage() {
               onChange={setPassword}
               disabled={loading}
               autoComplete="current-password"
-              error={error ?? undefined}
-            />
-            <SubmitButton loading={loading} disabled={!slug}>
-              <i className="fas fa-sign-in-alt text-sm" />
-              {" Sign in"}
-            </SubmitButton>
-          </form>
-        ) : (
-          <form onSubmit={handleLogin}>
-            <AuthInput
-              label="Admin auth code"
-              value={code}
-              onChange={setCode}
-              disabled={loading || methodUnknown}
-              placeholder="48-char hex"
               error={error ?? undefined}
             />
             <SubmitButton loading={loading} disabled={!slug}>
