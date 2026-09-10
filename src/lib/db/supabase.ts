@@ -2750,9 +2750,9 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     .update({ status: txnStatus })
     .eq("user_id", withdrawal.user_id)
     .eq("kind", "withdrawal")
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(1);
+    .eq("reference", withdrawal.id)
+    .eq("status", "pending");
+
 
   const titles: Record<string, string> = {
     completed: "Withdrawal approved",
