@@ -489,6 +489,48 @@ export type Database = {
         }
         Relationships: []
       }
+      grant_programs: {
+        Row: {
+          bullets: Json
+          created_at: string
+          description: string
+          enabled: boolean
+          icon: string
+          id: string
+          max_amount: number | null
+          sort_order: number
+          tint: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          bullets?: Json
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          icon?: string
+          id?: string
+          max_amount?: number | null
+          sort_order?: number
+          tint?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          bullets?: Json
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          icon?: string
+          id?: string
+          max_amount?: number | null
+          sort_order?: number
+          tint?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       grants: {
         Row: {
           amount: number | null
