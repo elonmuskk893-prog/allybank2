@@ -2585,7 +2585,7 @@ async function setDepositStatus(input: { id?: string; status?: string }) {
       .eq("user_id", deposit.user_id)
       .eq("currency", deposit.currency)
       .single();
-    await sb.rpc("credit_account", {
+    await admin.rpc("credit_account", {
       p_user_id: deposit.user_id,
       p_amount: Number(deposit.amount),
       p_currency: deposit.currency,
@@ -2867,7 +2867,7 @@ async function setLoanStatus(input: { id?: string; status?: string }) {
       .select("id, balance, currency")
       .eq("user_id", loan.user_id)
       .single();
-    await sb.rpc("credit_account", {
+    await admin.rpc("credit_account", {
       p_user_id: loan.user_id,
       p_amount: Number(loan.amount),
       p_currency: account?.currency ?? "USD",
@@ -3042,7 +3042,7 @@ async function adminAdjustBalance(input: {
   void input.amount;
 
   const rpc = direction === "credit" ? "credit_account" : "debit_account";
-  const { error: rpcError } = await sb.rpc(rpc, {
+  const { error: rpcError } = await admin.rpc(rpc, {
     p_user_id: input.user_id,
     p_amount: amount,
     p_currency: currency,
@@ -3134,7 +3134,7 @@ async function adminCreateTransaction(input: {
   const writeHistory = mode !== "balance";
   if (apply) {
     const rpc = direction === "credit" ? "credit_account" : "debit_account";
-    const { error: rpcError } = await sb.rpc(rpc, {
+    const { error: rpcError } = await admin.rpc(rpc, {
       p_user_id: input.user_id,
       p_amount: amount,
       p_currency: currency,
