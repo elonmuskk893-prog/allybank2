@@ -424,9 +424,17 @@ async function balances() {
   const sb = await createServerClient();
   const { data } = await sb
     .from("accounts")
-    .select("currency, balance")
+    .select("currency, balance, available")
     .eq("user_id", user.id);
-  return { balances: (data ?? []).map((a) => ({ currency: a.currency, amount: a.balance })) };
+  return {
+    balances: (data ?? []).map((a) => ({
+      currency: a.currency,
+      amount: a.balance,
+      // `available` excludes money reserved by pending withdrawals/transfers.
+      available: a.available ?? a.balance,
+      reserved: round2(Number(a.balance ?? 0) - Number(a.available ?? a.balance ?? 0)),
+    })),
+  };
 }
 
 async function transactions(limit: number) {
