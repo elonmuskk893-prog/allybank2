@@ -2682,36 +2682,15 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     details: { user_id: withdrawal.user_id, amount: withdrawal.amount, currency: withdrawal.currency, from: withdrawal.status, to: input.status, refunded: refunding },
   });
 
-  if (refunding) {
-    const sb = await createServerClient();
-    const { data: account } = await admin
-      .from("accounts")
-      .select("id, balance")
-      .eq("user_id", withdrawal.user_id)
-      .eq("currency", withdrawal.currency)
-      .single();
-    await sb.rpc("credit_account", {
-      p_user_id: withdrawal.user_id,
-      p_amount: Number(withdrawal.amount),
-      p_currency: withdrawal.currency,
-    });
-    const { error: reversalError } = await admin.from("transactions").insert({
-      user_id: withdrawal.user_id,
-      account_id: account?.id ?? null,
-      kind: "credited",
-      direction: "credit",
-      amount: withdrawal.amount,
-      currency: withdrawal.currency,
-      name: "Withdrawal reversed",
-      reference: withdrawal.reference,
-      status: "completed",
-      balance_after:
-        account != null
-          ? (Number(account.balance) + Number(withdrawal.amount)).toString()
-          : null,
-    });
-    if (reversalError) throw new DbError("update_failed", reversalError.message, 500);
+  if (input.status === "completed") {
+    // Approval is the moment the reserved money actually leaves the balance.
+    await settleWithdrawalHold(withdrawal as HoldWithdrawal);
+  } else if (refunding) {
+    // Rejected/failed: simply give the reservation back — no extra "reversal"
+    // credit row, because the money never left the balance.
+    await releaseWithdrawalHold(withdrawal as HoldWithdrawal);
   }
+
 
   if (["completed", "rejected", "failed"].includes(input.status)) {
     const { data: wUser } = await admin
@@ -2750,9 +2729,9 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     .update({ status: txnStatus })
     .eq("user_id", withdrawal.user_id)
     .eq("kind", "withdrawal")
-    .eq("status", "pending")
-    .order("created_at", { ascending: false })
-    .limit(1);
+    .eq("reference", withdrawal.id)
+    .eq("status", "pending");
+
 
   const titles: Record<string, string> = {
     completed: "Withdrawal approved",
@@ -3428,11 +3407,95 @@ async function setTransferStatus(input: { id?: string; status?: string }) {
     throw new DbError("invalid_status", "Unsupported status.");
   }
   const admin = createAdminClient();
+  const { data: rows } = await admin.from("transactions").select("*").eq("id", input.id).limit(1);
+  const tx = firstRow(rows) as (TransactionRow & {
+    hold_settled_at?: string | null;
+    hold_released_at?: string | null;
+  }) | null;
+  if (!tx) throw new DbError("not_found", "Transfer not found.", 404);
+
   const { error } = await admin.from("transactions").update({ status: input.status }).eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
+
+  // Money only moves for the sender's (debit) side, and only once — the
+  // hold timestamps guarantee no double settle / double refund.
+  const now = new Date().toISOString();
+  const total = round2(Number(tx.amount) + Number(tx.fee ?? 0));
+  if (tx.direction === "debit" && !tx.hold_settled_at && !tx.hold_released_at) {
+    if (input.status === "completed") {
+      const { data: claimed } = await admin
+        .from("transactions")
+        .update({ hold_settled_at: now })
+        .eq("id", tx.id)
+        .is("hold_settled_at", null)
+        .is("hold_released_at", null)
+        .select("id");
+      if (claimed && claimed.length > 0) {
+        await admin.rpc("settle_hold", {
+          p_user_id: tx.user_id,
+          p_amount: total,
+          p_currency: tx.currency,
+        });
+        // Release the matching pending credit to the recipient, once.
+        const { data: counterparts } = await admin
+          .from("transactions")
+          .select("id, user_id, amount, currency")
+          .eq("reference", tx.reference)
+          .eq("kind", tx.kind)
+          .eq("direction", "credit")
+          .eq("status", "pending")
+          .neq("id", tx.id)
+          .limit(1);
+        const counter = firstRow(counterparts) as
+          | { id: string; user_id: string; amount: string | number; currency: string }
+          | null;
+        if (counter) {
+          const { data: claimedCredit } = await admin
+            .from("transactions")
+            .update({ status: "completed" })
+            .eq("id", counter.id)
+            .eq("status", "pending")
+            .select("id");
+          if (claimedCredit && claimedCredit.length > 0) {
+            await admin.rpc("credit_account", {
+              p_user_id: counter.user_id,
+              p_amount: Number(counter.amount),
+              p_currency: counter.currency,
+            });
+          }
+        }
+      }
+    } else if (input.status === "failed" || input.status === "cancelled") {
+      const { data: claimed } = await admin
+        .from("transactions")
+        .update({ hold_released_at: now })
+        .eq("id", tx.id)
+        .is("hold_settled_at", null)
+        .is("hold_released_at", null)
+        .select("id");
+      if (claimed && claimed.length > 0) {
+        await admin.rpc("release_hold", {
+          p_user_id: tx.user_id,
+          p_amount: total,
+          p_currency: tx.currency,
+        });
+        // Drop the recipient's matching pending credit.
+        await admin
+          .from("transactions")
+          .update({ status: input.status })
+          .eq("reference", tx.reference)
+          .eq("kind", tx.kind)
+          .eq("direction", "credit")
+          .eq("status", "pending")
+          .neq("id", tx.id);
+      }
+    }
+  }
+
   await writeAudit({ action: `transfer.${input.status}`, target_type: "transaction", target_id: input.id });
   return { ok: true };
 }
+
 
 /* ------------------------------------------------------------------------- */
 /* Admin: referrals                                                          */
