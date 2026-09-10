@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LiveChat } from "@/components/live-chat";
 import { renderErrorPage } from "@/lib/error-page";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
-import appCss from "@/styles.css?url";
+import "@/styles.css";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
