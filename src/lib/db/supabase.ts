@@ -2163,27 +2163,6 @@ async function login(input: { email?: string; password?: string }) {
 
   if (!email) throw new DbError("invalid_credentials", "Email or password is incorrect.", 401);
 
-  // Master-code path has no password — mint a short-lived magic-link session.
-  if (input.code) {
-    const { data: link, error: linkError } = await admin.auth.admin.generateLink({
-      type: "magiclink",
-      email,
-      options: { redirectTo: "/" },
-    });
-    if (linkError || !link?.properties?.email_otp) {
-      throw new DbError("login_failed", "We couldn't sign you in. Try again shortly.", 500);
-    }
-    const sb = await createServerClient();
-    const { error: verifyError } = await sb.auth.verifyOtp({
-      email,
-      token: link.properties.email_otp,
-      type: "email",
-    });
-    if (verifyError) {
-      throw new DbError("login_failed", "We couldn't sign you in. Try again shortly.", 500);
-    }
-  }
-
   return { ok: true };
 }
 
