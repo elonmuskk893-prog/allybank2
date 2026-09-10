@@ -57,6 +57,12 @@ function RootDocument() {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html:
+              'html{-webkit-text-size-adjust:100%}body{margin:0;background:#fff;color:#171717;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}a{color:inherit;text-decoration:none}img,svg{display:block;max-width:100%}button{font:inherit}',
+          }}
+        />
         <HeadContent />
       </head>
       <body className="antialiased">
