@@ -2682,36 +2682,15 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     details: { user_id: withdrawal.user_id, amount: withdrawal.amount, currency: withdrawal.currency, from: withdrawal.status, to: input.status, refunded: refunding },
   });
 
-  if (refunding) {
-    const sb = await createServerClient();
-    const { data: account } = await admin
-      .from("accounts")
-      .select("id, balance")
-      .eq("user_id", withdrawal.user_id)
-      .eq("currency", withdrawal.currency)
-      .single();
-    await sb.rpc("credit_account", {
-      p_user_id: withdrawal.user_id,
-      p_amount: Number(withdrawal.amount),
-      p_currency: withdrawal.currency,
-    });
-    const { error: reversalError } = await admin.from("transactions").insert({
-      user_id: withdrawal.user_id,
-      account_id: account?.id ?? null,
-      kind: "credited",
-      direction: "credit",
-      amount: withdrawal.amount,
-      currency: withdrawal.currency,
-      name: "Withdrawal reversed",
-      reference: withdrawal.reference,
-      status: "completed",
-      balance_after:
-        account != null
-          ? (Number(account.balance) + Number(withdrawal.amount)).toString()
-          : null,
-    });
-    if (reversalError) throw new DbError("update_failed", reversalError.message, 500);
+  if (input.status === "completed") {
+    // Approval is the moment the reserved money actually leaves the balance.
+    await settleWithdrawalHold(withdrawal as HoldWithdrawal);
+  } else if (refunding) {
+    // Rejected/failed: simply give the reservation back — no extra "reversal"
+    // credit row, because the money never left the balance.
+    await releaseWithdrawalHold(withdrawal as HoldWithdrawal);
   }
+
 
   if (["completed", "rejected", "failed"].includes(input.status)) {
     const { data: wUser } = await admin
