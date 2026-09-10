@@ -929,14 +929,16 @@ async function createTransfer(input: {
   const sb = await createServerClient();
   const admin = createAdminClient();
 
-  // Debit the sender's account (real check against DB balance).
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // A transfer starts as PENDING and only reserves the money: `available`
+  // drops so it can't be spent twice, while `balance` moves only once the
+  // transfer is completed (admin approval / confirmation).
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: input.amount,
     p_currency: input.currency ?? "USD",
   });
-  if (debitError) {
-    const msg = debitError.message;
+  if (holdError) {
+    const msg = holdError.message;
     throw new DbError(
       msg.includes("insufficient_funds") ? "insufficient_funds" : "transfer_failed",
       msg.includes("insufficient_funds")
@@ -974,14 +976,15 @@ async function createTransfer(input: {
       currency: input.currency ?? "USD",
       name: beneficiaryName ?? input.name ?? "Transfer sent",
       reference: input.note ?? null,
-      status: "completed",
-      balance_after: account?.balance ?? null,
+      status: "pending",
+      balance_after: null,
     })
     .select()
     .single();
 
   return { transaction: tx ? mapTransaction(tx as TransactionRow) : null };
 }
+
 
 async function memberTransfer(
   user: UserRow,
@@ -2582,7 +2585,7 @@ async function setDepositStatus(input: { id?: string; status?: string }) {
       .eq("user_id", deposit.user_id)
       .eq("currency", deposit.currency)
       .single();
-    await sb.rpc("credit_account", {
+    await admin.rpc("credit_account", {
       p_user_id: deposit.user_id,
       p_amount: Number(deposit.amount),
       p_currency: deposit.currency,
@@ -2864,7 +2867,7 @@ async function setLoanStatus(input: { id?: string; status?: string }) {
       .select("id, balance, currency")
       .eq("user_id", loan.user_id)
       .single();
-    await sb.rpc("credit_account", {
+    await admin.rpc("credit_account", {
       p_user_id: loan.user_id,
       p_amount: Number(loan.amount),
       p_currency: account?.currency ?? "USD",
@@ -3039,7 +3042,7 @@ async function adminAdjustBalance(input: {
   void input.amount;
 
   const rpc = direction === "credit" ? "credit_account" : "debit_account";
-  const { error: rpcError } = await sb.rpc(rpc, {
+  const { error: rpcError } = await admin.rpc(rpc, {
     p_user_id: input.user_id,
     p_amount: amount,
     p_currency: currency,
@@ -3131,7 +3134,7 @@ async function adminCreateTransaction(input: {
   const writeHistory = mode !== "balance";
   if (apply) {
     const rpc = direction === "credit" ? "credit_account" : "debit_account";
-    const { error: rpcError } = await sb.rpc(rpc, {
+    const { error: rpcError } = await admin.rpc(rpc, {
       p_user_id: input.user_id,
       p_amount: amount,
       p_currency: currency,
