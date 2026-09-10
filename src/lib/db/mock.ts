@@ -1796,7 +1796,8 @@ async function forgotPassword(input: { email: string }) {
   if (!state.passwords.has(email)) throw new DbError("invalid_email", "Enter your email address.");
   const code = generateNumericCode();
   state.resetCodes.set(email, { code, expires_at: Date.now() + 15 * 60 * 1000 });
-  return { ok: true, dev_code: code };
+  console.warn(`[mailer] password reset code for ${email}: ${code}`);
+  return { ok: true };
 }
 
 async function resetPassword(input: { email: string; code: string; password: string }) {
@@ -3074,6 +3075,7 @@ async function publicSiteSettings() {
       welcome_message: "Hi! How can we help you today?",
       title: "Live support",
       dashboard_only: true,
+      custom_code: "",
       ...(state.siteSettings.get("live_chat") ?? {}),
     } as {
       provider: string;
@@ -3084,9 +3086,73 @@ async function publicSiteSettings() {
       welcome_message: string;
       title: string;
       dashboard_only: boolean;
+      custom_code: string;
     },
     features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
   };
+}
+
+interface MockGrantProgram {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  tint: string;
+  bullets: string[];
+  max_amount: string | number | null;
+  sort_order: number;
+  enabled: boolean;
+}
+
+const mockGrantPrograms: MockGrantProgram[] = [];
+
+async function publicGrantPrograms() {
+  return { programs: mockGrantPrograms.filter((p) => p.enabled) };
+}
+
+async function adminGrantPrograms() {
+  await requireAdmin();
+  return { programs: [...mockGrantPrograms].sort((a, b) => a.sort_order - b.sort_order) };
+}
+
+async function saveGrantProgram(input: {
+  id?: string;
+  title?: string;
+  description?: string;
+  icon?: string;
+  tint?: string;
+  bullets?: string[] | string;
+  max_amount?: number | string | null;
+  sort_order?: number | string;
+  enabled?: boolean;
+}) {
+  await requireAdmin();
+  const title = String(input.title ?? "").trim();
+  if (!title) throw new DbError("invalid_input", "A program title is required.");
+  const bullets = Array.isArray(input.bullets)
+    ? input.bullets.map(String)
+    : String(input.bullets ?? "").split("\n").map((b) => b.trim()).filter(Boolean);
+  const patch = {
+    title,
+    description: String(input.description ?? ""),
+    icon: String(input.icon ?? "fa-solid fa-hand-holding-dollar"),
+    tint: String(input.tint ?? "blue"),
+    bullets,
+    max_amount: input.max_amount ?? null,
+    sort_order: Number(input.sort_order ?? 0) || 0,
+    enabled: input.enabled !== false,
+  };
+  const existing = input.id ? mockGrantPrograms.find((p) => p.id === input.id) : null;
+  if (existing) Object.assign(existing, patch);
+  else mockGrantPrograms.push({ id: `gp-${Date.now()}`, ...patch });
+  return { ok: true };
+}
+
+async function deleteGrantProgram(id?: string) {
+  await requireAdmin();
+  const index = mockGrantPrograms.findIndex((p) => p.id === id);
+  if (index >= 0) mockGrantPrograms.splice(index, 1);
+  return { ok: true };
 }
 
 async function adminFaqs() {
@@ -3179,20 +3245,24 @@ async function adminBroadcast(input: {
   body?: string;
   link?: string;
   segment?: string;
+  user_ids?: string[];
+  send_email?: boolean;
 }) {
   await requireAdmin();
   if (!input.title?.trim() || !input.body?.trim()) {
     throw new DbError("invalid_input", "Title and message are required.");
   }
   const segment = input.segment ?? "all";
+  const ids = (input.user_ids ?? []).map(String).filter(Boolean);
   let count = 0;
   for (const u of state.users.values()) {
-    if (segment === "active" && u.status !== "active") continue;
-    if (segment === "inactive" && !["suspended", "disabled"].includes(u.status)) continue;
-    if (segment === "email_verified" && !u.email_verified_at) continue;
-    if (segment === "email_unverified" && u.email_verified_at) continue;
-    if (segment === "kyc_verified" && u.kyc_status !== "verified") continue;
-    if (segment === "kyc_in_review" && u.kyc_status !== "in_review") continue;
+    if (ids.length > 0 && !ids.includes(u.id)) continue;
+    if (ids.length === 0 && segment === "active" && u.status !== "active") continue;
+    if (ids.length === 0 && segment === "inactive" && !["suspended", "disabled"].includes(u.status)) continue;
+    if (ids.length === 0 && segment === "email_verified" && !u.email_verified_at) continue;
+    if (ids.length === 0 && segment === "email_unverified" && u.email_verified_at) continue;
+    if (ids.length === 0 && segment === "kyc_verified" && u.kyc_status !== "verified") continue;
+    if (ids.length === 0 && segment === "kyc_in_review" && u.kyc_status !== "in_review") continue;
     state.notifications.push({
       id: `n-${Date.now()}-${count}`,
       user_id: u.id,
@@ -3210,7 +3280,12 @@ async function adminBroadcast(input: {
     target_type: "notification",
     details: { recipients: count, segment },
   });
-  return { ok: true, recipients: count, segment: segment as string };
+  return {
+    ok: true,
+    recipients: count,
+    emailed: 0,
+    segment: (ids.length > 0 ? `${count} selected member(s)` : segment) as string,
+  };
 }
 
 async function adminCryptoAssets(search?: string) {
@@ -3416,6 +3491,10 @@ export const db = {
   adminLoans,
   setLoanStatus,
   adminGrants,
+  adminGrantPrograms,
+  saveGrantProgram,
+  deleteGrantProgram,
+  publicGrantPrograms,
   setGrantStatus,
   adminSetUserStatus,
   adminUserDetail,
