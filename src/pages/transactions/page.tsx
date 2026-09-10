@@ -659,10 +659,7 @@ function ReceiptModal({
             </div>
             <div className="divide-y divide-gray-100 px-6 dark:divide-gray-700/50">
               <Row label="Status">
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
-                  Completed
-                </span>
+                <TxStatusBadge status={tx.status} />
               </Row>
               <Row label="Reference">
                 <span className="font-mono text-sm text-gray-800 dark:text-gray-100">
