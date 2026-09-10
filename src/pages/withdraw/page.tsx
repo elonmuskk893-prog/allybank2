@@ -829,6 +829,9 @@ const STATUS_CLASSES: Record<string, string> = {
   approved: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
   processing: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
   sent: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  completed: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  cancelled: "bg-gray-500/15 text-gray-600 dark:text-gray-300",
+  failed: "bg-red-500/15 text-red-700 dark:text-red-300",
   rejected: "bg-red-500/15 text-red-700 dark:text-red-300",
 };
 
@@ -839,7 +842,9 @@ function WithdrawalBadge({
   status: string;
   verified: boolean;
 }) {
-  if (!verified) {
+  // Only a still-pending request is "awaiting code"; finished ones show their
+  // real state (completed / cancelled / rejected / failed).
+  if (!verified && status === "pending") {
     return (
       <span className="shrink-0 rounded-md bg-gray-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
         awaiting code
@@ -848,7 +853,9 @@ function WithdrawalBadge({
   }
   return (
     <span
-      className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_CLASSES[status]}`}
+      className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+        STATUS_CLASSES[status] ?? "bg-gray-500/15 text-gray-600 dark:text-gray-300"
+      }`}
     >
       {status.replace("_", " ")}
     </span>
