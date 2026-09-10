@@ -1309,6 +1309,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accounts_self_update_allowed: {
+        Args: {
+          p_available: number
+          p_balance: number
+          p_currency: string
+          p_id: string
+          p_status: Database["public"]["Enums"]["account_status"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      cards_self_update_allowed: {
+        Args: {
+          p_id: string
+          p_limit: number
+          p_spent: number
+          p_status: Database["public"]["Enums"]["card_status"]
+          p_user_id: string
+        }
+        Returns: boolean
+      }
       credit_account: {
         Args: { p_amount: number; p_currency?: string; p_user_id: string }
         Returns: {
@@ -1434,6 +1455,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      settings_self_update_allowed: {
+        Args: { p_security: Json; p_user_id: string }
+        Returns: boolean
+      }
       settle_hold: {
         Args: { p_amount: number; p_currency?: string; p_user_id: string }
         Returns: {
@@ -1453,6 +1478,21 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      users_self_update_allowed: {
+        Args: {
+          p_account_number: string
+          p_email: string
+          p_id: string
+          p_kyc_required: boolean
+          p_kyc_status: Database["public"]["Enums"]["kyc_status"]
+          p_pin_gate: boolean
+          p_pin_hash: string
+          p_role: Database["public"]["Enums"]["user_role"]
+          p_status: Database["public"]["Enums"]["user_status"]
+          p_twofa: boolean
+        }
+        Returns: boolean
       }
     }
     Enums: {
