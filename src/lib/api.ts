@@ -43,10 +43,23 @@ async function request<T = unknown>(
     });
 
     let payload: Record<string, unknown> | null = null;
+    const contentType = response.headers.get("content-type") ?? "";
+    const isJson = contentType.includes("json");
     try {
       payload = await response.json();
     } catch {
       // Non-JSON response (e.g. empty body) is fine.
+    }
+
+    // An HTML body means the request fell through to the SPA shell: never a success.
+    if (response.ok && !isJson && contentType.includes("html")) {
+      return {
+        ok: false,
+        status: response.status,
+        data: null,
+        errorCode: "not_found",
+        error: "That request could not be completed.",
+      };
     }
 
     return {

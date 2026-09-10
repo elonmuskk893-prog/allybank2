@@ -754,20 +754,33 @@ async function savePaymentMethod(
   }
   if (!input.name?.trim()) throw new DbError("invalid_name", "Method name is required.");
 
+  // Merge with the stored row so a partial save never wipes existing configuration.
+  let existing: Record<string, unknown> = {};
+  if (!isNew) {
+    const { data: prevRows } = await admin.from("payment_methods").select("*").eq("id", id).limit(1);
+    existing = (firstRow(prevRows) as Record<string, unknown> | null) ?? {};
+  }
+  const keep = <T,>(value: T | undefined, key: string, fallback: T): T =>
+    value !== undefined && value !== null ? value : ((existing[key] as T) ?? fallback);
+
   const patch = {
     id: id as string,
     name: input.name.trim(),
     type: (input.type === "withdrawal" ? "withdrawal" : "deposit") as "deposit" | "withdrawal",
-    emoji: input.emoji || "💳",
-    minimum: parseAmountInput(input.minimum) ?? 0,
-    maximum: parseAmountInput(input.maximum) ?? 0,
-    charges_amount: parseAmountInput(input.charges_amount) ?? 0,
-    charges_type: input.charges_type ?? null,
-    duration: input.duration ?? null,
-    instructions: input.instructions ?? null,
-    custom_fields: input.custom_fields ?? [],
-    enabled: input.enabled ?? true,
-    sort_order: typeof input.sort_order === "number" ? input.sort_order : 500,
+    emoji: keep(input.emoji || undefined, "emoji", "💳"),
+    minimum: keep(parseAmountInput(input.minimum), "minimum", 0),
+    maximum: keep(parseAmountInput(input.maximum), "maximum", 0),
+    charges_amount: keep(parseAmountInput(input.charges_amount), "charges_amount", 0),
+    charges_type: keep(input.charges_type ?? undefined, "charges_type", null as string | null),
+    duration: keep(input.duration ?? undefined, "duration", null as string | null),
+    instructions: keep(input.instructions ?? undefined, "instructions", null as string | null),
+    custom_fields: keep(input.custom_fields, "custom_fields", [] as NonNullable<PaymentMethod["custom_fields"]>),
+    enabled: keep(input.enabled, "enabled", true),
+    sort_order: keep(
+      typeof input.sort_order === "number" ? input.sort_order : undefined,
+      "sort_order",
+      500,
+    ),
     updated_at: new Date().toISOString(),
   };
 
@@ -1962,10 +1975,11 @@ async function applyCard(input: {
 }) {
   const user = await requireUser();
   const sb = await createServerClient();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("card_applications")
     .insert({
       user_id: user.id,
+      card_type: input.card_level ?? "credit",
       card_brand: input.card_brand ?? "visa",
       currency: input.currency ?? "USD",
       card_level: input.card_level ?? "standard",
@@ -1976,6 +1990,7 @@ async function applyCard(input: {
     })
     .select()
     .single();
+  if (error) throw new DbError("application_failed", error.message, 500);
   return { application: data };
 }
 
@@ -2826,16 +2841,31 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
 
   if (input.status === "approved" && app.status !== "approved") {
     const last4 = String(Math.floor(1000 + Math.random() * 9000));
+    const { data: ownerRows } = await admin
+      .from("users")
+      .select("first_name,last_name,full_name")
+      .eq("id", app.user_id)
+      .limit(1);
+    const owner = firstRow(ownerRows) as
+      | { first_name?: string | null; last_name?: string | null; full_name?: string | null }
+      | null;
+    const holder =
+      (owner?.full_name?.trim() ||
+        `${owner?.first_name ?? ""} ${owner?.last_name ?? ""}`.trim() ||
+        "Card Holder").toUpperCase();
+    const brandRaw = String((app as { card_brand?: string }).card_brand ?? "visa");
+    const brand = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1);
     await admin.from("cards").insert({
       user_id: app.user_id,
-      brand: "Visa",
+      brand,
       card_type: app.card_type,
       last4,
-      holder: "Card Holder",
+      holder,
       expiry: `${String(new Date().getMonth() + 1).padStart(2, "0")}/${String(new Date().getFullYear() % 100 + 3).padStart(2, "0")}`,
       status: "active",
       spent: "0",
       frozen: false,
+      limit_amount: (app as { daily_limit?: number | null }).daily_limit ?? null,
     });
     await admin.from("notifications").insert({
       user_id: app.user_id,
