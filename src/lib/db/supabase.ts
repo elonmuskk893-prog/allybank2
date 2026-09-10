@@ -1962,10 +1962,11 @@ async function applyCard(input: {
 }) {
   const user = await requireUser();
   const sb = await createServerClient();
-  const { data } = await sb
+  const { data, error } = await sb
     .from("card_applications")
     .insert({
       user_id: user.id,
+      card_type: input.card_level ?? "credit",
       card_brand: input.card_brand ?? "visa",
       currency: input.currency ?? "USD",
       card_level: input.card_level ?? "standard",
@@ -1976,6 +1977,7 @@ async function applyCard(input: {
     })
     .select()
     .single();
+  if (error) throw new DbError("application_failed", error.message, 500);
   return { application: data };
 }
 

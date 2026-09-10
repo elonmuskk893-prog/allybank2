@@ -59,7 +59,7 @@ export default function PinPage() {
     event.preventDefault();
     setError(null);
     setLoading(true);
-    const result = await bankFetch("/me/pin/gate-clear", {
+    const result = await bankFetch("/pin/gate-clear", {
       method: "POST",
       body: { pin },
     });
