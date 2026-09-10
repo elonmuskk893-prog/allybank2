@@ -772,6 +772,11 @@ async function grants() {
   return { grants: state.grants.filter((g) => g.user_id === user.id) };
 }
 
+async function irsRefunds() {
+  const user = await requireSession();
+  return { refunds: state.irsRefunds.filter((r) => r.user_id === user.id) };
+}
+
 
 
 
@@ -3432,6 +3437,7 @@ export const db = {
   settings,
   loans,
   grants,
+  irsRefunds,
   paymentMethods,
   transferConfig,
   getKyc,

@@ -575,6 +575,18 @@ async function grants() {
   return { grants: data ?? [] };
 }
 
+/** Member-facing: only the signed-in member's own tax refund records. */
+async function irsRefunds() {
+  const user = await requireUser();
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("irs_refunds")
+    .select("id, tax_year, amount, status, notes, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  return { refunds: data ?? [] };
+}
+
 async function getDisabledPaymentMethodIds(): Promise<string[]> {
   const admin = createAdminClient();
   const { data } = await admin
@@ -4675,6 +4687,7 @@ export const db = {
   settings,
   loans,
   grants,
+  irsRefunds,
   paymentMethods,
   transferConfig,
   getKyc,
