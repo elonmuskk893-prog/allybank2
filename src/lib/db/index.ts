@@ -6,14 +6,22 @@ import type * as schema from "@/lib/db/schema";
 /**
  * Unified data-access layer.
  *
- * When Supabase env vars are configured, every call goes to Postgres behind
- * row-level security. Otherwise an in-memory store backs the same interface so
- * the app is browsable/usable locally without a database.
+ * Mock data is deliberately opt-in. A deployed app with missing credentials
+ * must fail closed instead of appearing healthy while serving fake balances.
  */
-export const db: typeof supabaseDb = isSupabaseConfigured() ? supabaseDb : mockDb;
+const allowMockDatabase = process.env["ALLOW_MOCK_DB"] === "true";
+const hasDatabase = isSupabaseConfigured();
+
+if (!hasDatabase && !allowMockDatabase) {
+  throw new Error(
+    "Backend configuration is missing. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.",
+  );
+}
+
+export const db: typeof supabaseDb = hasDatabase ? supabaseDb : mockDb;
 
 export type { schema };
 
 export function usingMock() {
-  return !isSupabaseConfigured();
+  return !hasDatabase;
 }

@@ -1,38 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AllyBank
 
-## Getting Started
+TanStack Start application with a Supabase backend and a Vercel-compatible Nitro server build.
 
-First, run the development server:
+## Local development
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Create `.env.local` using the variable list below.
+2. Fill in the public and server Supabase values from a project you control.
+3. Run `bun install` and `bun run dev`.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Mock data is disabled by default. It can be enabled only for isolated local UI work with
+`ALLOW_MOCK_DB=true`; never enable it in a deployed environment.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Vercel deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Connect Vercel to this repository and use `main` as the Production Branch. The checked-in
+`vercel.json` runs `bun run build`, and Nitro emits Vercel's server output.
 
-## Learn More
+Add these variables to **Production, Preview, and Development** in Vercel:
 
-To learn more about Next.js, take a look at the following resources:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server-only)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Optional email variables are `RESEND_API_KEY` or `MAILERSEND_API_KEY`, plus
+`EMAIL_FROM_NAME` and `EMAIL_FROM_ADDRESS`. SMTP can instead be configured in the admin
+settings. If scheduled endpoints are used, add a strong `LOVABLE_CRON_SECRET` to Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Never create a `VITE_SUPABASE_SERVICE_ROLE_KEY`; any `VITE_` value is bundled for browsers.
+Never set `ALLOW_MOCK_DB=true` on Vercel.
 
-## Deploy on Vercel
+## Independent backend migration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# allybnk
-# allyonlinebanking git init git add README.md git commit -m first commit git branch -M main git remote add origin https://github.com/elonmuskk893-prog/allyonlinebanking.git git push -u origin main
+The existing live backend is Lovable-managed. For independent hosting, create a new project
+in your own Supabase account, restore the schema and data, migrate authentication users with
+their IDs intact, and copy the private `uploads` bucket. Validate the migration in a Vercel
+Preview deployment before changing Production variables or the custom domain.
