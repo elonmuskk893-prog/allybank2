@@ -19,7 +19,7 @@ const ADMIN_PANEL: AuthPanelContent = {
   ],
 };
 
-type LoginMethod = "auth_code" | "email_password";
+type LoginMethod = "email_password";
 
 interface Challenge {
   challenge: string;
@@ -44,8 +44,7 @@ function AdminLoginPage() {
 
   const [slug, setSlug] = useState<string | null>(null);
   const [siteName, setSiteName] = useState("");
-  const [loginMethod, setLoginMethod] = useState<LoginMethod | null>(null);
-  const [code, setCode] = useState("");
+  const [loginMethod] = useState<LoginMethod>("email_password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [challenge, setChallenge] = useState<Challenge | null>(null);
