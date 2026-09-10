@@ -708,17 +708,26 @@ function WithdrawFlow() {
                     />
                   </div>
                   {withdrawal.status === "pending" && !withdrawal.otp_verified_at && (
-                    <button
-                      onClick={() => {
-                        setCode("");
-                        setError(null);
-                        setWithdrawalId(String(withdrawal.id));
-                      }}
-                      className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white shadow"
-                      style={{ background: brand }}
-                    >
-                      Enter confirmation code
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          setCode("");
+                          setError(null);
+                          setWithdrawalId(String(withdrawal.id));
+                        }}
+                        className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white shadow"
+                        style={{ background: brand }}
+                      >
+                        Enter confirmation code
+                      </button>
+                      <button
+                        onClick={() => void handleCancel(String(withdrawal.id))}
+                        disabled={busy}
+                        className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   )}
                 </li>
               ))}
