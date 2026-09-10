@@ -366,6 +366,7 @@ function TransactionsFlow() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
+                      <TxStatusBadge status={tx.status} />
                       <CreditBadge credit={credit} />
                       <button
                         type="button"
