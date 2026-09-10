@@ -3369,6 +3369,8 @@ export const db = {
   verifyWithdrawal,
   createExternalTransfer,
   verifyTransfer,
+  cancelWithdrawal,
+  cancelTransfer,
   createBeneficiary,
   updateBeneficiary,
   deleteBeneficiary,
