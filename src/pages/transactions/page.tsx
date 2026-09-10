@@ -12,12 +12,14 @@ const INPUT_CLS =
 const DEBIT_KINDS = [
   "admin-debit",
   "withdrawal",
+  "transfer",
   "transfer-out",
   "plan-debit",
   "card-spend",
   "fee",
   "loan-repay",
 ];
+
 
 const KIND_LABELS: Record<string, string> = {
   "admin-credit": "Credited",
