@@ -929,14 +929,16 @@ async function createTransfer(input: {
   const sb = await createServerClient();
   const admin = createAdminClient();
 
-  // Debit the sender's account (real check against DB balance).
-  const { error: debitError } = await sb.rpc("debit_account", {
+  // A transfer starts as PENDING and only reserves the money: `available`
+  // drops so it can't be spent twice, while `balance` moves only once the
+  // transfer is completed (admin approval / confirmation).
+  const { error: holdError } = await admin.rpc("hold_funds", {
     p_user_id: user.id,
     p_amount: input.amount,
     p_currency: input.currency ?? "USD",
   });
-  if (debitError) {
-    const msg = debitError.message;
+  if (holdError) {
+    const msg = holdError.message;
     throw new DbError(
       msg.includes("insufficient_funds") ? "insufficient_funds" : "transfer_failed",
       msg.includes("insufficient_funds")
@@ -974,14 +976,15 @@ async function createTransfer(input: {
       currency: input.currency ?? "USD",
       name: beneficiaryName ?? input.name ?? "Transfer sent",
       reference: input.note ?? null,
-      status: "completed",
-      balance_after: account?.balance ?? null,
+      status: "pending",
+      balance_after: null,
     })
     .select()
     .single();
 
   return { transaction: tx ? mapTransaction(tx as TransactionRow) : null };
 }
+
 
 async function memberTransfer(
   user: UserRow,
