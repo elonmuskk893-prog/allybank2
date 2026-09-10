@@ -751,7 +751,7 @@ function WithdrawFlow() {
             {error && (
               <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
-            <div className="mt-5 flex justify-center gap-3">
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -761,6 +761,14 @@ function WithdrawFlow() {
                 className="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Enter later
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleCancel()}
+                disabled={busy}
+                className="rounded-xl border border-red-300 bg-white px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:border-red-500/40 dark:bg-gray-800 dark:text-red-300 dark:hover:bg-red-500/10"
+              >
+                Cancel withdrawal
               </button>
               <button
                 type="button"
