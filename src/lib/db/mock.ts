@@ -632,8 +632,45 @@ async function balances() {
   return {
     balances: state.accounts
       .filter((a) => a.user_id === user.id)
-      .map((a) => ({ currency: a.currency, amount: String(a.balance) })),
+      .map((a) => ({
+        currency: a.currency,
+        amount: String(a.balance),
+        available: String(a.balance),
+        reserved: 0,
+      })),
   };
+}
+
+async function cancelWithdrawal(input: { withdrawal_id: string }) {
+  const user = await requireSession();
+  const w = state.withdrawals.find(
+    (row) => row.id === input.withdrawal_id && row.user_id === user.id && row.status === "pending",
+  );
+  if (!w) throw new DbError("not_found", "That withdrawal can no longer be cancelled.", 404);
+  w.status = "cancelled";
+  const acc = state.accounts.find((a) => a.user_id === user.id);
+  if (acc) acc.balance = round2(acc.balance + Number(w.amount));
+  const tx = state.transactions.find(
+    (t) => t.user_id === user.id && t.reference === w.reference && t.status === "pending",
+  );
+  if (tx) tx.status = "cancelled";
+  return { ok: true };
+}
+
+async function cancelTransfer(input: { transfer_id: string }) {
+  const user = await requireSession();
+  const tx = state.transactions.find(
+    (t) =>
+      t.id === input.transfer_id &&
+      t.user_id === user.id &&
+      t.kind === "transfer" &&
+      t.status === "pending",
+  );
+  if (!tx) throw new DbError("not_found", "That transfer can no longer be cancelled.", 404);
+  tx.status = "cancelled";
+  const acc = state.accounts.find((a) => a.user_id === user.id);
+  if (acc) acc.balance = round2(acc.balance + Number(tx.amount) + Number(tx.fee ?? 0));
+  return { ok: true };
 }
 
 async function transactions(limit = 50) {
@@ -3332,6 +3369,8 @@ export const db = {
   verifyWithdrawal,
   createExternalTransfer,
   verifyTransfer,
+  cancelWithdrawal,
+  cancelTransfer,
   createBeneficiary,
   updateBeneficiary,
   deleteBeneficiary,

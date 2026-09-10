@@ -228,6 +228,29 @@ function WithdrawFlow() {
     setWithdrawalId(res.data.withdrawal_id);
   }
 
+  // Cancelling before the code is entered releases the reserved money and
+  // marks the request cancelled — it never becomes a completed debit.
+  async function handleCancel(id?: string) {
+    const target = id ?? withdrawalId;
+    if (!target) return;
+    setError(null);
+    setBusy(true);
+    const res = await bankFetch("/withdrawal/cancel", {
+      method: "POST",
+      body: { withdrawal_id: target },
+    });
+    setBusy(false);
+    if (!res.ok) {
+      setError(res.error ?? "Could not cancel this withdrawal.");
+      return;
+    }
+    if (target === withdrawalId) {
+      setWithdrawalId(null);
+      setCode("");
+    }
+    loadWithdrawals();
+  }
+
   async function handleVerify(e?: { preventDefault?: () => void }) {
     if (e?.preventDefault) e.preventDefault();
     if (!withdrawalId) return;
@@ -685,17 +708,26 @@ function WithdrawFlow() {
                     />
                   </div>
                   {withdrawal.status === "pending" && !withdrawal.otp_verified_at && (
-                    <button
-                      onClick={() => {
-                        setCode("");
-                        setError(null);
-                        setWithdrawalId(String(withdrawal.id));
-                      }}
-                      className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white shadow"
-                      style={{ background: brand }}
-                    >
-                      Enter confirmation code
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          setCode("");
+                          setError(null);
+                          setWithdrawalId(String(withdrawal.id));
+                        }}
+                        className="rounded-lg px-3 py-1.5 text-xs font-semibold text-white shadow"
+                        style={{ background: brand }}
+                      >
+                        Enter confirmation code
+                      </button>
+                      <button
+                        onClick={() => void handleCancel(String(withdrawal.id))}
+                        disabled={busy}
+                        className="rounded-lg border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:border-red-500/40 dark:text-red-300 dark:hover:bg-red-500/10"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   )}
                 </li>
               ))}
@@ -751,7 +783,7 @@ function WithdrawFlow() {
             {error && (
               <p className="mt-3 text-sm text-red-600 dark:text-red-400">{error}</p>
             )}
-            <div className="mt-5 flex justify-center gap-3">
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -761,6 +793,14 @@ function WithdrawFlow() {
                 className="rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
               >
                 Enter later
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleCancel()}
+                disabled={busy}
+                className="rounded-xl border border-red-300 bg-white px-5 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-60 dark:border-red-500/40 dark:bg-gray-800 dark:text-red-300 dark:hover:bg-red-500/10"
+              >
+                Cancel withdrawal
               </button>
               <button
                 type="button"
@@ -789,6 +829,9 @@ const STATUS_CLASSES: Record<string, string> = {
   approved: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
   processing: "bg-blue-500/15 text-blue-600 dark:text-blue-300",
   sent: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  completed: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+  cancelled: "bg-gray-500/15 text-gray-600 dark:text-gray-300",
+  failed: "bg-red-500/15 text-red-700 dark:text-red-300",
   rejected: "bg-red-500/15 text-red-700 dark:text-red-300",
 };
 
@@ -799,7 +842,9 @@ function WithdrawalBadge({
   status: string;
   verified: boolean;
 }) {
-  if (!verified) {
+  // Only a still-pending request is "awaiting code"; finished ones show their
+  // real state (completed / cancelled / rejected / failed).
+  if (!verified && status === "pending") {
     return (
       <span className="shrink-0 rounded-md bg-gray-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
         awaiting code
@@ -808,7 +853,9 @@ function WithdrawalBadge({
   }
   return (
     <span
-      className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_CLASSES[status]}`}
+      className={`shrink-0 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+        STATUS_CLASSES[status] ?? "bg-gray-500/15 text-gray-600 dark:text-gray-300"
+      }`}
     >
       {status.replace("_", " ")}
     </span>

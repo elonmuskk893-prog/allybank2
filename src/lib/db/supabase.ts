@@ -424,9 +424,17 @@ async function balances() {
   const sb = await createServerClient();
   const { data } = await sb
     .from("accounts")
-    .select("currency, balance")
+    .select("currency, balance, available")
     .eq("user_id", user.id);
-  return { balances: (data ?? []).map((a) => ({ currency: a.currency, amount: a.balance })) };
+  return {
+    balances: (data ?? []).map((a) => ({
+      currency: a.currency,
+      amount: a.balance,
+      // `available` excludes money reserved by pending withdrawals/transfers.
+      available: a.available ?? a.balance,
+      reserved: round2(Number(a.balance ?? 0) - Number(a.available ?? a.balance ?? 0)),
+    })),
+  };
 }
 
 async function transactions(limit: number) {
@@ -4374,7 +4382,104 @@ async function deleteStorageAsset(path?: string) {
   return { ok: true };
 }
 
+/**
+ * Cancel a pending withdrawal the member never confirmed.
+ * Releases the reserved money, marks the withdrawal + its history row
+ * `cancelled`, and can never touch an already settled/released hold.
+ */
+async function cancelWithdrawal(input: { withdrawal_id: string }) {
+  const user = await requireUser();
+  const admin = createAdminClient();
+  const { data: rows } = await admin
+    .from("withdrawals")
+    .select("*")
+    .eq("id", String(input.withdrawal_id ?? ""))
+    .eq("user_id", user.id)
+    .eq("status", "pending")
+    .limit(1);
+  const w = firstRow(rows) as HoldWithdrawal | null;
+  if (!w) throw new DbError("not_found", "That withdrawal can no longer be cancelled.", 404);
+
+  const released = await releaseWithdrawalHold(w);
+  if (!released) {
+    throw new DbError("already_processed", "That withdrawal was already processed.");
+  }
+  await admin.from("withdrawals").update({ status: "cancelled" }).eq("id", w.id);
+  await admin
+    .from("transactions")
+    .update({ status: "cancelled" })
+    .eq("user_id", user.id)
+    .eq("kind", "withdrawal")
+    .eq("status", "pending")
+    .eq("reference", w.id);
+  await admin.from("notifications").insert({
+    user_id: user.id,
+    title: "Withdrawal cancelled",
+    body: `Your withdrawal of ${w.currency} ${Number(w.amount).toLocaleString()} was cancelled and the funds are available again.`,
+    link: "/withdraw",
+  });
+  return { ok: true };
+}
+
+/**
+ * Cancel a pending transfer that was never confirmed with its code.
+ * Releases the reserved amount + fee and cancels both sides of the pair.
+ */
+async function cancelTransfer(input: { transfer_id: string }) {
+  const user = await requireUser();
+  const admin = createAdminClient();
+  const { data: rows } = await admin
+    .from("transactions")
+    .select("*")
+    .eq("id", String(input.transfer_id ?? ""))
+    .eq("user_id", user.id)
+    .eq("kind", "transfer")
+    .eq("direction", "debit")
+    .eq("status", "pending")
+    .limit(1);
+  const tx = firstRow(rows) as TransactionRow | null;
+  if (!tx) throw new DbError("not_found", "That transfer can no longer be cancelled.", 404);
+
+  const now = new Date().toISOString();
+  // Claim the row first so a cancel and a confirm can never both move money.
+  const { data: claimed } = await admin
+    .from("transactions")
+    .update({ status: "cancelled", hold_released_at: now })
+    .eq("id", tx.id)
+    .eq("status", "pending")
+    .is("hold_settled_at", null)
+    .is("hold_released_at", null)
+    .select("id");
+  if (!claimed || claimed.length === 0) {
+    throw new DbError("already_processed", "That transfer was already processed.");
+  }
+  await admin.rpc("release_hold", {
+    p_user_id: tx.user_id,
+    p_amount: round2(Number(tx.amount) + Number(tx.fee ?? 0)),
+    p_currency: tx.currency,
+  });
+  // Drop the matching pending credit row for member transfers.
+  if (tx.reference) {
+    await admin
+      .from("transactions")
+      .update({ status: "cancelled" })
+      .eq("reference", tx.reference)
+      .eq("kind", "transfer")
+      .eq("direction", "credit")
+      .eq("status", "pending");
+  }
+  await admin.from("notifications").insert({
+    user_id: user.id,
+    title: "Transfer cancelled",
+    body: `Your transfer of ${tx.currency} ${Number(tx.amount).toLocaleString()} was cancelled and the funds are available again.`,
+    link: "/transactions",
+  });
+  return { ok: true };
+}
+
 export const db = {
+  cancelWithdrawal,
+  cancelTransfer,
   siteInfo,
   me,
   balances,
