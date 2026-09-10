@@ -9,7 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { LiveChat } from "@/components/live-chat";
 import { renderErrorPage } from "@/lib/error-page";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
-import appCss from "@/styles.css?url";
+import "@/styles.css";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
@@ -32,8 +32,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
-      { rel: "preload", as: "style", href: appCss },
-      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
