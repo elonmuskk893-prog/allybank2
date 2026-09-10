@@ -83,8 +83,6 @@ function AdminLoginPage() {
         return;
       }
 
-      const method = await adminFetch<{ method: LoginMethod }>(siteSlug, "/login-method");
-      setLoginMethod(method.ok && method.data ? method.data.method : "auth_code");
     })();
   }, [router]);
 
