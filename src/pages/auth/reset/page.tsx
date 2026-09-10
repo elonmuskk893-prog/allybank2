@@ -24,10 +24,8 @@ function ResetForm() {
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState(searchParams.get("email") ?? "");
-  // When email delivery is unavailable the forgot screen forwards the code
-  // here directly so recovery still completes.
-  const [code, setCode] = useState(searchParams.get("code") ?? "");
-  const codeFromLink = Boolean(searchParams.get("code"));
+  const [code, setCode] = useState("");
+  const justSent = searchParams.get("sent") === "1";
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,12 +103,12 @@ function ResetForm() {
           </p>
         </div>
         <form onSubmit={updatePassword} className="space-y-4 px-6 pb-6 pt-4">
-          {codeFromLink && (
+          {justSent && (
           <div className="mb-4 flex items-start gap-2 rounded-xl border border-sky-200/60 bg-sky-50 p-3 text-xs text-sky-800 dark:border-sky-800/50 dark:bg-sky-950/40 dark:text-sky-300">
             <i className="fa-solid fa-circle-info mt-0.5" />
             <span>
-              Your reset code has been filled in below (email delivery is currently unavailable).
-              Set your new password to continue.
+              We&apos;ve emailed a 6-digit reset code to your address. Enter it below with your new
+              password. The code expires in 15 minutes and can only be used once.
             </span>
           </div>
         )}
