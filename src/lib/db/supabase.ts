@@ -2828,16 +2828,31 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
 
   if (input.status === "approved" && app.status !== "approved") {
     const last4 = String(Math.floor(1000 + Math.random() * 9000));
+    const { data: ownerRows } = await admin
+      .from("profiles")
+      .select("first_name,last_name,full_name")
+      .eq("id", app.user_id)
+      .limit(1);
+    const owner = firstRow(ownerRows) as
+      | { first_name?: string | null; last_name?: string | null; full_name?: string | null }
+      | null;
+    const holder =
+      (owner?.full_name?.trim() ||
+        `${owner?.first_name ?? ""} ${owner?.last_name ?? ""}`.trim() ||
+        "Card Holder").toUpperCase();
+    const brandRaw = String((app as { card_brand?: string }).card_brand ?? "visa");
+    const brand = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1);
     await admin.from("cards").insert({
       user_id: app.user_id,
-      brand: "Visa",
+      brand,
       card_type: app.card_type,
       last4,
-      holder: "Card Holder",
+      holder,
       expiry: `${String(new Date().getMonth() + 1).padStart(2, "0")}/${String(new Date().getFullYear() % 100 + 3).padStart(2, "0")}`,
       status: "active",
       spent: "0",
       frozen: false,
+      limit_amount: (app as { daily_limit?: number | null }).daily_limit ?? null,
     });
     await admin.from("notifications").insert({
       user_id: app.user_id,
