@@ -63,6 +63,10 @@ export interface MailInput {
   subject: string;
   text: string;
   html: string;
+  /** Address humans can reply to. Defaults to the configured from address. */
+  replyTo?: string;
+  /** Set for bulk/marketing style mail so inbox providers see an opt-out. */
+  listUnsubscribe?: boolean;
 }
 
 export interface MailResult {
@@ -178,11 +182,21 @@ async function sendViaSmtp(cfg: EmailConfig, input: MailInput): Promise<MailResu
     expect(await sock.read(), ["354"]);
 
     const boundary = `b${Date.now().toString(36)}`;
+    const domain = from.split("@")[1] ?? "localhost";
+    const replyTo = input.replyTo || from;
     const body = [
       `From: ${cfg.from_name} <${from}>`,
       `To: ${input.to}`,
+      `Reply-To: ${replyTo}`,
       `Subject: ${input.subject}`,
+      // Date and Message-ID are required by RFC 5322; missing them is a strong
+      // spam signal with Gmail/Outlook.
+      `Date: ${new Date().toUTCString()}`,
+      `Message-ID: <${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@${domain}>`,
       "MIME-Version: 1.0",
+      ...(input.listUnsubscribe
+        ? [`List-Unsubscribe: <mailto:${replyTo}?subject=unsubscribe>`, "List-Unsubscribe-Post: List-Unsubscribe=One-Click"]
+        : []),
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
       "",
       `--${boundary}`,
@@ -218,6 +232,13 @@ async function sendViaSmtp(cfg: EmailConfig, input: MailInput): Promise<MailResu
 /* -------------------------------------------------------------------------- */
 
 async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResult> {
+  const replyTo = input.replyTo || String(cfg.from_email ?? "");
+  const unsubHeaders = input.listUnsubscribe
+    ? {
+        "List-Unsubscribe": `<mailto:${replyTo}?subject=unsubscribe>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      }
+    : undefined;
   try {
     if (cfg.provider === "mailersend") {
       const response = await fetch("https://api.mailersend.com/v1/email", {
@@ -226,9 +247,13 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
         body: JSON.stringify({
           from: { email: cfg.from_email, name: cfg.from_name },
           to: [{ email: input.to }],
+          reply_to: { email: replyTo },
           subject: input.subject,
           text: input.text,
           html: input.html,
+          ...(unsubHeaders
+            ? { headers: Object.entries(unsubHeaders).map(([name, value]) => ({ name, value })) }
+            : {}),
         }),
       });
       if (!response.ok) return { sent: false, error: `${response.status} ${await response.text()}` };
@@ -240,9 +265,11 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
       body: JSON.stringify({
         from: `${cfg.from_name} <${cfg.from_email}>`,
         to: [input.to],
+        reply_to: replyTo,
         subject: input.subject,
         text: input.text,
         html: input.html,
+        ...(unsubHeaders ? { headers: unsubHeaders } : {}),
       }),
     });
     if (!response.ok) return { sent: false, error: `${response.status} ${await response.text()}` };
@@ -448,5 +475,6 @@ export function broadcastEmail(input: {
     subject: input.title,
     text: input.bodyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
     html,
+    listUnsubscribe: true,
   };
 }
