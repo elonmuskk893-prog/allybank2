@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.__migrate_export_auth() TO sandbox_exec;
