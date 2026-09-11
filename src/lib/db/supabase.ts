@@ -1785,8 +1785,15 @@ async function uploadFile(input: { filename?: string; contentType?: string; data
     .from("uploads")
     .upload(path, body, { contentType, upsert: false });
   if (error) throw new DbError("upload_failed", error.message, 500);
-  const { data } = admin.storage.from("uploads").getPublicUrl(path);
-  return { url: data.publicUrl, publicUrl: data.publicUrl, path };
+  // The uploads bucket is private, so a plain public URL would 403 (broken image).
+  // Issue a long-lived signed URL instead.
+  const TEN_YEARS = 60 * 60 * 24 * 365 * 10;
+  const signed = await admin.storage.from("uploads").createSignedUrl(path, TEN_YEARS);
+  const url = signed.data?.signedUrl;
+  if (!url) {
+    throw new DbError("upload_failed", signed.error?.message ?? "Could not create file URL.", 500);
+  }
+  return { url, publicUrl: url, path };
 }
 
 async function submitContact(input: {
