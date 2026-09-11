@@ -63,6 +63,10 @@ export interface MailInput {
   subject: string;
   text: string;
   html: string;
+  /** Address humans can reply to. Defaults to the configured from address. */
+  replyTo?: string;
+  /** Set for bulk/marketing style mail so inbox providers see an opt-out. */
+  listUnsubscribe?: boolean;
 }
 
 export interface MailResult {
