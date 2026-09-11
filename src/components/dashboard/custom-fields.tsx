@@ -343,16 +343,7 @@ export function CustomFieldsEditor({
                   }}
                 />
               ) : (
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: palette.text,
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {value}
-                </div>
+                <CopyableValue value={value} palette={palette} />
               )}
             </div>
           );
