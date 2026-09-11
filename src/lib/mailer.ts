@@ -182,11 +182,21 @@ async function sendViaSmtp(cfg: EmailConfig, input: MailInput): Promise<MailResu
     expect(await sock.read(), ["354"]);
 
     const boundary = `b${Date.now().toString(36)}`;
+    const domain = from.split("@")[1] ?? "localhost";
+    const replyTo = input.replyTo || from;
     const body = [
       `From: ${cfg.from_name} <${from}>`,
       `To: ${input.to}`,
+      `Reply-To: ${replyTo}`,
       `Subject: ${input.subject}`,
+      // Date and Message-ID are required by RFC 5322; missing them is a strong
+      // spam signal with Gmail/Outlook.
+      `Date: ${new Date().toUTCString()}`,
+      `Message-ID: <${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@${domain}>`,
       "MIME-Version: 1.0",
+      ...(input.listUnsubscribe
+        ? [`List-Unsubscribe: <mailto:${replyTo}?subject=unsubscribe>`, "List-Unsubscribe-Post: List-Unsubscribe=One-Click"]
+        : []),
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
       "",
       `--${boundary}`,
