@@ -117,6 +117,13 @@ function mapMethod(raw: RawMethod): DepositMethod {
   };
 }
 
+/** A deposit method that has guidance text but no payment details to copy —
+ *  e.g. PayPal and Cash Deposit, which require contacting support. */
+function isContactSupport(method: DepositMethod | null): boolean {
+  if (!method) return false;
+  return method.details.length === 0 && !!method.instructions?.trim();
+}
+
 function methodLabel(value?: string | null): string {
   const key = (value ?? "").trim();
   return key ? (METHOD_LABELS[key.toLowerCase()] ?? key) : "—";
