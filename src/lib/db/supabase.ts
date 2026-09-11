@@ -350,11 +350,31 @@ async function endImpersonation() {
       details: { admin_email: actor?.role === "admin" ? actor.email : null },
     });
   }
-  const store = await cookies();
-  jar.getAll()
-    .filter((c) => c.name.startsWith("bimp_"))
-    .forEach((c) => store.delete(c.name));
+  await clearImpersonationCookies();
   return { ok: true };
+}
+
+/**
+ * Remove every impersonation cookie. The cookie is set with
+ * SameSite=None; Secure; Partitioned, so the expiry must repeat the exact same
+ * attributes — otherwise the browser keeps the original cookie and the admin
+ * stays "stuck" as the impersonated member after exiting.
+ */
+async function clearImpersonationCookies() {
+  const store = await cookies();
+  for (const c of store.getAll()) {
+    if (!c.name.startsWith("bimp_")) continue;
+    store.set(c.name, "", {
+      httpOnly: true,
+      path: "/",
+      sameSite: "none",
+      secure: true,
+      partitioned: true,
+      maxAge: 0,
+      expires: new Date(0),
+    });
+    store.delete(c.name);
+  }
 }
 
 function mapTransaction(tx: TransactionRow) {
