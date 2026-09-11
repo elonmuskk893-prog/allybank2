@@ -350,11 +350,30 @@ async function endImpersonation() {
       details: { admin_email: actor?.role === "admin" ? actor.email : null },
     });
   }
-  const store = await cookies();
-  jar.getAll()
-    .filter((c) => c.name.startsWith("bimp_"))
-    .forEach((c) => store.delete(c.name));
+  await clearImpersonationCookies();
   return { ok: true };
+}
+
+/**
+ * Remove every impersonation cookie. The cookie is set with
+ * SameSite=None; Secure; Partitioned, so the expiry must repeat the exact same
+ * attributes — otherwise the browser keeps the original cookie and the admin
+ * stays "stuck" as the impersonated member after exiting.
+ */
+async function clearImpersonationCookies() {
+  const store = await cookies();
+  for (const c of store.getAll()) {
+    if (!c.name.startsWith("bimp_")) continue;
+    store.set(c.name, "", {
+      httpOnly: true,
+      path: "/",
+      sameSite: "none",
+      secure: true,
+      partitioned: true,
+      maxAge: 0,
+      expires: new Date(0),
+    });
+  }
 }
 
 function mapTransaction(tx: TransactionRow) {
@@ -2145,6 +2164,9 @@ async function register(input: {
 
 async function login(input: { email?: string; password?: string }) {
   const admin = createAdminClient();
+  // A leftover impersonation cookie would otherwise outrank the new session
+  // and bounce the signed-in admin straight back to the login page.
+  await clearImpersonationCookies();
 
   let email: string | null = null;
 
@@ -2271,6 +2293,7 @@ async function resetPassword(input: { email: string; code: string; password: str
 }
 
 async function logout() {
+  await clearImpersonationCookies();
   const sb = await createServerClient();
   await sb.auth.signOut();
   return { ok: true };
