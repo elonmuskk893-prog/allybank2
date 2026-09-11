@@ -475,5 +475,6 @@ export function broadcastEmail(input: {
     subject: input.title,
     text: input.bodyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
     html,
+    listUnsubscribe: true,
   };
 }
