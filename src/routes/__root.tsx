@@ -29,6 +29,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Open an account, move money worldwide and manage cards, loans and deposits in one secure place.",
       },
       { property: "og:type", content: "website" },
+      { name: "theme-color", content: "#640b65" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-title", content: "AllyBank" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
