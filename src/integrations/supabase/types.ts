@@ -1309,6 +1309,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      __migrate_export_auth: {
+        Args: never
+        Returns: {
+          kind: string
+          row_json: Json
+        }[]
+      }
       accounts_self_update_allowed: {
         Args: {
           p_available: number
