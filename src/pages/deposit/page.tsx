@@ -359,80 +359,116 @@ function DepositFlow() {
                 <MethodInfo method={selected} cur={currency} amount={amountNum} />
               )}
 
-              <div className="mt-6 rounded-xl border border-gray-200/50 bg-gradient-to-br from-gray-50/80 to-white/80 p-5 shadow-sm dark:border-gray-700/50 dark:from-gray-800/80 dark:to-gray-700/80">
-                <label
-                  htmlFor="amount"
-                  className="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300"
-                >
-                  Deposit Amount
-                </label>
-                <div className="relative">
-                  <span className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-lg font-bold text-gray-500 dark:text-gray-400">
-                    {currencySymbol(currency)}
-                  </span>
-                  <input
-                    id="amount"
-                    inputMode="decimal"
-                    value={amount}
-                    onChange={(e) => setAmount(sanitizeAmount(e.target.value))}
-                    disabled={busy}
-                    placeholder="0.00"
-                    className="relative block w-full rounded-xl border-2 bg-white/90 py-4 pl-12 pr-12 text-2xl font-bold text-gray-900 outline-none transition focus:ring-2 dark:bg-gray-800/90 dark:text-white"
-                    style={{
-                      borderColor:
-                        "color-mix(in srgb, var(--brand) 35%, transparent)",
-                    }}
-                  />
-                  <span className="pointer-events-none absolute right-3 top-1/2 z-10 -translate-y-1/2 text-lg font-bold text-gray-400 dark:text-gray-500">
-                    .00
-                  </span>
-                </div>
-                {validation ? (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                    {validation}
-                  </p>
-                ) : (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {QUICK_AMOUNTS.map((value) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => setAmount(String(value))}
-                        className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                      >
-                        {formatCurrency(currency, value)}
-                      </button>
-                    ))}
+              {selected && isContactSupport(selected) ? (
+                <div className="mt-6 rounded-2xl border border-amber-300/70 bg-amber-50 p-5 shadow-sm dark:border-amber-700/50 dark:bg-amber-900/20">
+                  <div className="flex items-start gap-3">
+                    <i className="fas fa-headset mt-0.5 text-xl text-amber-600 dark:text-amber-400" />
+                    <div className="flex-1">
+                      <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                        Contact support to use {selected.name}
+                      </h3>
+                      <p className="mt-1 text-sm font-medium text-amber-800 dark:text-amber-200">
+                        Please message the support team if you want to deposit
+                        money using this payment method.
+                      </p>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <Link
+                          href="/support"
+                          className="inline-flex items-center justify-center rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:scale-[1.02]"
+                          style={{ background: "var(--brand)" }}
+                        >
+                          <i className="fas fa-comment-dots mr-2" />
+                          Message Support
+                        </Link>
+                        <Link
+                          href="/dashboard"
+                          className="inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white/70 px-5 py-2.5 text-sm font-semibold text-gray-700 shadow-sm backdrop-blur-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700/70 dark:text-gray-300"
+                        >
+                          <i className="fas fa-arrow-left mr-2" />
+                          Back to Dashboard
+                        </Link>
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <>
+                  <div className="mt-6 rounded-xl border border-gray-200/50 bg-gradient-to-br from-gray-50/80 to-white/80 p-5 shadow-sm dark:border-gray-700/50 dark:from-gray-800/80 dark:to-gray-700/80">
+                    <label
+                      htmlFor="amount"
+                      className="mb-3 block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                    >
+                      Deposit Amount
+                    </label>
+                    <div className="relative">
+                      <span className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-lg font-bold text-gray-500 dark:text-gray-400">
+                        {currencySymbol(currency)}
+                      </span>
+                      <input
+                        id="amount"
+                        inputMode="decimal"
+                        value={amount}
+                        onChange={(e) => setAmount(sanitizeAmount(e.target.value))}
+                        disabled={busy}
+                        placeholder="0.00"
+                        className="relative block w-full rounded-xl border-2 bg-white/90 py-4 pl-12 pr-12 text-2xl font-bold text-gray-900 outline-none transition focus:ring-2 dark:bg-gray-800/90 dark:text-white"
+                        style={{
+                          borderColor:
+                            "color-mix(in srgb, var(--brand) 35%, transparent)",
+                        }}
+                      />
+                      <span className="pointer-events-none absolute right-3 top-1/2 z-10 -translate-y-1/2 text-lg font-bold text-gray-400 dark:text-gray-500">
+                        .00
+                      </span>
+                    </div>
+                    {validation ? (
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                        {validation}
+                      </p>
+                    ) : (
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {QUICK_AMOUNTS.map((value) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setAmount(String(value))}
+                            className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                          >
+                            {formatCurrency(currency, value)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-              {msg && (
-                <p
-                  className={`mt-4 text-sm ${msg.kind === "ok" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
-                >
-                  {msg.text}
-                </p>
+                  {msg && (
+                    <p
+                      className={`mt-4 text-sm ${msg.kind === "ok" ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                    >
+                      {msg.text}
+                    </p>
+                  )}
+
+                  <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <button
+                      type="submit"
+                      disabled={busy || !amount || !selected || !!validation}
+                      className="inline-flex flex-1 items-center justify-center rounded-xl px-6 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02] disabled:opacity-60"
+                      style={{ background: "var(--brand)" }}
+                    >
+                      <i className="fas fa-arrow-right mr-2" />
+                      {" Continue to Deposit"}
+                    </button>
+                    <Link
+                      href="/dashboard"
+                      className="inline-flex flex-1 items-center justify-center rounded-xl border border-gray-300 bg-white/70 px-6 py-3 font-semibold text-gray-700 shadow-sm backdrop-blur-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700/70 dark:text-gray-300 sm:flex-none"
+                    >
+                      <i className="fas fa-arrow-left mr-2" />
+                      {" Back to Dashboard"}
+                    </Link>
+                  </div>
+                </>
               )}
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <button
-                  type="submit"
-                  disabled={busy || !amount || !selected || !!validation}
-                  className="inline-flex flex-1 items-center justify-center rounded-xl px-6 py-3 font-semibold text-white shadow-lg transition hover:scale-[1.02] disabled:opacity-60"
-                  style={{ background: "var(--brand)" }}
-                >
-                  <i className="fas fa-arrow-right mr-2" />
-                  {" Continue to Deposit"}
-                </button>
-                <Link
-                  href="/dashboard"
-                  className="inline-flex flex-1 items-center justify-center rounded-xl border border-gray-300 bg-white/70 px-6 py-3 font-semibold text-gray-700 shadow-sm backdrop-blur-sm transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700/70 dark:text-gray-300 sm:flex-none"
-                >
-                  <i className="fas fa-arrow-left mr-2" />
-                  {" Back to Dashboard"}
-                </Link>
-              </div>
             </form>
           )}
 
