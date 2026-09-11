@@ -141,6 +141,7 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_amount: 2.5,
     charges_type: "percent",
     duration: "Instant",
+    instructions: "Please message the support team if you want to deposit money using this payment method.",
     custom_fields: [
       { id: "paypal_email", label: "PayPal Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
     ],
@@ -155,6 +156,7 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_amount: 0,
     charges_type: "fixed",
     duration: "Same day",
+    instructions: "Please message the support team if you want to deposit money using this payment method.",
     custom_fields: [
       { id: "branch", label: "Branch / Location", type: "text", role: "input", required: true },
       { id: "teller_note", label: "Teller Note", type: "text", role: "input", required: false },
