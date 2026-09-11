@@ -2164,6 +2164,9 @@ async function register(input: {
 
 async function login(input: { email?: string; password?: string }) {
   const admin = createAdminClient();
+  // A leftover impersonation cookie would otherwise outrank the new session
+  // and bounce the signed-in admin straight back to the login page.
+  await clearImpersonationCookies();
 
   let email: string | null = null;
 
@@ -2290,6 +2293,7 @@ async function resetPassword(input: { email: string; code: string; password: str
 }
 
 async function logout() {
+  await clearImpersonationCookies();
   const sb = await createServerClient();
   await sb.auth.signOut();
   return { ok: true };
