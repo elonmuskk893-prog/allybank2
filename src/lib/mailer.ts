@@ -232,6 +232,13 @@ async function sendViaSmtp(cfg: EmailConfig, input: MailInput): Promise<MailResu
 /* -------------------------------------------------------------------------- */
 
 async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResult> {
+  const replyTo = input.replyTo || String(cfg.from_email ?? "");
+  const unsubHeaders = input.listUnsubscribe
+    ? {
+        "List-Unsubscribe": `<mailto:${replyTo}?subject=unsubscribe>`,
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+      }
+    : undefined;
   try {
     if (cfg.provider === "mailersend") {
       const response = await fetch("https://api.mailersend.com/v1/email", {
@@ -240,9 +247,13 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
         body: JSON.stringify({
           from: { email: cfg.from_email, name: cfg.from_name },
           to: [{ email: input.to }],
+          reply_to: { email: replyTo },
           subject: input.subject,
           text: input.text,
           html: input.html,
+          ...(unsubHeaders
+            ? { headers: Object.entries(unsubHeaders).map(([name, value]) => ({ name, value })) }
+            : {}),
         }),
       });
       if (!response.ok) return { sent: false, error: `${response.status} ${await response.text()}` };
@@ -254,9 +265,11 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
       body: JSON.stringify({
         from: `${cfg.from_name} <${cfg.from_email}>`,
         to: [input.to],
+        reply_to: replyTo,
         subject: input.subject,
         text: input.text,
         html: input.html,
+        ...(unsubHeaders ? { headers: unsubHeaders } : {}),
       }),
     });
     if (!response.ok) return { sent: false, error: `${response.status} ${await response.text()}` };
