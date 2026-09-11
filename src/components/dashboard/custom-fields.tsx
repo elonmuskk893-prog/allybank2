@@ -201,6 +201,72 @@ function FieldFile({
   );
 }
 
+/** Read-only detail row with a per-value copy button. */
+function CopyableValue({
+  value,
+  palette,
+}: {
+  value: string;
+  palette: typeof LIGHT & { accent: string };
+}) {
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        const el = document.createElement("textarea");
+        el.value = value;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  }
+
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div
+        style={{
+          flex: 1,
+          fontSize: 14,
+          fontWeight: 600,
+          color: palette.text,
+          wordBreak: "break-word",
+          userSelect: "text",
+        }}
+      >
+        {value}
+      </div>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={copied ? "Copied" : "Copy"}
+        style={{
+          flexShrink: 0,
+          borderRadius: 8,
+          padding: "5px 10px",
+          fontSize: 11,
+          fontWeight: 700,
+          cursor: "pointer",
+          color: copied ? "#ffffff" : palette.accent,
+          background: copied ? palette.accent : "transparent",
+          border: `1px solid ${palette.accent}`,
+          whiteSpace: "nowrap",
+        }}
+      >
+        {copied ? "Copied!" : "Copy"}
+      </button>
+    </div>
+  );
+}
+
 interface CustomFieldsEditorProps {
   defs: CustomField[];
   values: CustomFieldValues;
@@ -277,16 +343,7 @@ export function CustomFieldsEditor({
                   }}
                 />
               ) : (
-                <div
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 600,
-                    color: palette.text,
-                    wordBreak: "break-word",
-                  }}
-                >
-                  {value}
-                </div>
+                <CopyableValue value={value} palette={palette} />
               )}
             </div>
           );
