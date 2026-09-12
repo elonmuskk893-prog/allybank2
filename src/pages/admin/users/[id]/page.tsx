@@ -627,9 +627,10 @@ function AdminUserDetail() {
                 from this member&apos;s history? It will disappear from their dashboard
                 immediately. The removal is recorded in the audit log and cannot be undone.
               </p>
+              {error && <p className="mt-3 text-xs text-red-600 dark:text-red-400">{error}</p>}
               <div className="mt-4 flex gap-2">
                 <button
-                  onClick={() => setTxnDelete(null)}
+                  onClick={() => { setError(null); setTxnDelete(null); }}
                   className="flex-1 rounded-xl bg-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
                 >
                   Cancel
