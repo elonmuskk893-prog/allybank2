@@ -669,17 +669,19 @@ function AdminUserDetail() {
                   disabled={busy}
                   onClick={() =>
                     run(async () => {
+                      setError(null);
                       const res = await adminFetch(slug, `/users/${user.id}`, { method: "DELETE" });
                       if (!res.ok) {
                         setError(res.error ?? "Deletion failed.");
                         return;
                       }
+                      setDeleteOpen(false);
                       router.replace("/admin/users");
                     })
                   }
-                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
                 >
-                  Delete permanently
+                  {busy ? "Deleting…" : "Delete permanently"}
                 </button>
               </div>
             </Modal>
