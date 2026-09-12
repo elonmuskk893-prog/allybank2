@@ -639,16 +639,21 @@ function AdminUserDetail() {
                   disabled={busy}
                   onClick={() =>
                     run(async () => {
-                      await adminFetch(slug, `/transactions?id=${txnDelete.id}`, {
+                      setError(null);
+                      const res = await adminFetch(slug, `/transactions?id=${txnDelete.id}`, {
                         method: "DELETE",
                       });
+                      if (!res.ok) {
+                        setError(res.error ?? "Could not delete the transaction.");
+                        return;
+                      }
                       setTxnDelete(null);
                       await load();
                     })
                   }
-                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
                 >
-                  Delete permanently
+                  {busy ? "Deleting…" : "Delete permanently"}
                 </button>
               </div>
             </Modal>
