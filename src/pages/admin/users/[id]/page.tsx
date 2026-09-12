@@ -627,9 +627,10 @@ function AdminUserDetail() {
                 from this member&apos;s history? It will disappear from their dashboard
                 immediately. The removal is recorded in the audit log and cannot be undone.
               </p>
+              {error && <p className="mt-3 text-xs text-red-600 dark:text-red-400">{error}</p>}
               <div className="mt-4 flex gap-2">
                 <button
-                  onClick={() => setTxnDelete(null)}
+                  onClick={() => { setError(null); setTxnDelete(null); }}
                   className="flex-1 rounded-xl bg-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200"
                 >
                   Cancel
@@ -638,16 +639,21 @@ function AdminUserDetail() {
                   disabled={busy}
                   onClick={() =>
                     run(async () => {
-                      await adminFetch(slug, `/transactions?id=${txnDelete.id}`, {
+                      setError(null);
+                      const res = await adminFetch(slug, `/transactions?id=${txnDelete.id}`, {
                         method: "DELETE",
                       });
+                      if (!res.ok) {
+                        setError(res.error ?? "Could not delete the transaction.");
+                        return;
+                      }
                       setTxnDelete(null);
                       await load();
                     })
                   }
-                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
                 >
-                  Delete permanently
+                  {busy ? "Deleting…" : "Delete permanently"}
                 </button>
               </div>
             </Modal>
@@ -660,25 +666,28 @@ function AdminUserDetail() {
                 This permanently deletes <strong>{user.email}</strong> with all balances, cards and history.
                 The action is recorded in the audit log and cannot be undone.
               </p>
+              {error && <p className="mt-3 text-xs text-red-600 dark:text-red-400">{error}</p>}
               <div className="mt-4 flex gap-2">
-                <button onClick={() => setDeleteOpen(false)} className="flex-1 rounded-xl bg-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
+                <button onClick={() => { setError(null); setDeleteOpen(false); }} className="flex-1 rounded-xl bg-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200">
                   Cancel
                 </button>
                 <button
                   disabled={busy}
                   onClick={() =>
                     run(async () => {
+                      setError(null);
                       const res = await adminFetch(slug, `/users/${user.id}`, { method: "DELETE" });
                       if (!res.ok) {
                         setError(res.error ?? "Deletion failed.");
                         return;
                       }
+                      setDeleteOpen(false);
                       router.replace("/admin/users");
                     })
                   }
-                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700"
+                  className="flex-1 rounded-xl bg-rose-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 disabled:opacity-60"
                 >
-                  Delete permanently
+                  {busy ? "Deleting…" : "Delete permanently"}
                 </button>
               </div>
             </Modal>

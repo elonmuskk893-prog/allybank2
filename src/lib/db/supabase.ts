@@ -3241,7 +3241,14 @@ async function adminDeleteUser(id?: string) {
     throw new DbError("forbidden", "You cannot delete your own account.", 403);
   }
   const { error } = await admin.auth.admin.deleteUser(id);
-  if (error) throw new DbError("delete_failed", error.message, 500);
+  if (error) {
+    // Fall back to removing the application row (cascades to all related data)
+    // so a stuck auth record cannot block the admin from deleting the member.
+    const { error: rowError } = await admin.from("users").delete().eq("id", id);
+    if (rowError) {
+      throw new DbError("delete_failed", error.message || rowError.message, 500);
+    }
+  }
   await writeAudit({
     action: "user.delete",
     target_type: "user",
