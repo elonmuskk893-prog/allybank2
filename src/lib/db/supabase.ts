@@ -3072,15 +3072,17 @@ async function adminAdjustBalance(input: {
   const direction = input.direction === "debit" ? "debit" : "credit";
   const currency = input.currency || "USD";
   const admin = createAdminClient();
-  const sb = await createServerClient();
 
-  const { data: rows } = await admin.from("users").select("email").eq("id", input.user_id).single();
+  const { data: rows, error: userError } = await admin
+    .from("users")
+    .select("email")
+    .eq("id", input.user_id)
+    .single();
+  if (userError) throw new DbError("lookup_failed", "The member account could not be loaded.", 500);
   if (!rows) throw new DbError("not_found", "User not found.", 404);
 
-  void input.amount;
-
   const rpc = direction === "credit" ? "credit_account" : "debit_account";
-  const { error: rpcError } = await admin.rpc(rpc, {
+  const { data: account, error: rpcError } = await admin.rpc(rpc, {
     p_user_id: input.user_id,
     p_amount: amount,
     p_currency: currency,
@@ -3090,30 +3092,28 @@ async function adminAdjustBalance(input: {
       rpcError.message.includes("insufficient_funds") ? "insufficient_funds" : "adjustment_failed",
       rpcError.message.includes("insufficient_funds")
         ? "The user has insufficient funds for this deduction."
-        : "The balance could not be adjusted.",
+        : rpcError.message.includes("no_active_account")
+          ? `This member does not have an active ${currency} account.`
+          : "The balance could not be adjusted. Please try again.",
       400,
     );
   }
 
-  const { data: account } = await admin
-    .from("accounts")
-    .select("id, balance, available")
-    .eq("user_id", input.user_id)
-    .eq("currency", currency)
-    .single();
-
-  await admin.from("transactions").insert({
+  const { error: transactionError } = await admin.from("transactions").insert({
     user_id: input.user_id,
     account_id: account?.id ?? null,
     kind: "adjustment",
     direction,
-    amount: input.amount,
+    amount,
     currency,
     name: direction === "credit" ? "Bank Transfer" : "Bank Debit",
     reference: input.reason ?? null,
     status: "completed",
     balance_after: account != null ? String(account.balance) : null,
   });
+  if (transactionError) {
+    throw new DbError("history_failed", "The balance changed, but its transaction record could not be saved.", 500);
+  }
 
   await admin.from("notifications").insert({
     user_id: input.user_id,
@@ -3155,9 +3155,13 @@ async function adminCreateTransaction(input: {
   const kind = allowedKinds.includes(input.kind ?? "") ? (input.kind as string) : "adjustment";
   const currency = "USD";
   const admin = createAdminClient();
-  const sb = await createServerClient();
 
-  const { data: rows } = await admin.from("users").select("email").eq("id", input.user_id).single();
+  const { data: rows, error: userError } = await admin
+    .from("users")
+    .select("email")
+    .eq("id", input.user_id)
+    .single();
+  if (userError) throw new DbError("lookup_failed", "The member account could not be loaded.", 500);
   if (!rows) throw new DbError("not_found", "User not found.", 404);
 
   let accountId: string | null = null;
@@ -3172,7 +3176,7 @@ async function adminCreateTransaction(input: {
   const writeHistory = mode !== "balance";
   if (apply) {
     const rpc = direction === "credit" ? "credit_account" : "debit_account";
-    const { error: rpcError } = await admin.rpc(rpc, {
+    const { data: account, error: rpcError } = await admin.rpc(rpc, {
       p_user_id: input.user_id,
       p_amount: amount,
       p_currency: currency,
@@ -3182,21 +3186,17 @@ async function adminCreateTransaction(input: {
         rpcError.message.includes("insufficient_funds") ? "insufficient_funds" : "transaction_failed",
         rpcError.message.includes("insufficient_funds")
           ? "The user has insufficient funds."
-          : "The transaction could not be applied.",
+          : rpcError.message.includes("no_active_account")
+            ? `This member does not have an active ${currency} account.`
+            : "The transaction could not be applied. Please try again.",
         400,
       );
     }
-    const { data: account } = await admin
-      .from("accounts")
-      .select("id, balance")
-      .eq("user_id", input.user_id)
-      .eq("currency", currency)
-      .single();
     accountId = account?.id ?? null;
     balanceAfter = account != null ? String(account.balance) : null;
   }
 
-  const { data: txn } = writeHistory
+  const transactionResult = writeHistory
     ? await admin
     .from("transactions")
     .insert({
@@ -3218,7 +3218,11 @@ async function adminCreateTransaction(input: {
     })
     .select()
     .single()
-    : { data: null };
+    : { data: null, error: null };
+  if (transactionResult.error) {
+    throw new DbError("history_failed", "The transaction history could not be saved.", 500);
+  }
+  const txn = transactionResult.data;
 
   await writeAudit({
     action: "transaction.create",
