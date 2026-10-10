@@ -2309,10 +2309,19 @@ async function logout() {
   return { ok: true };
 }
 
+/** Email awaiting verification: the pending-verify cookie, else the signed-in member. */
+async function pendingVerifyEmail(): Promise<string | null> {
+  const store = await cookies();
+  const fromCookie = store.get(PENDING_VERIFY_COOKIE)?.value?.trim().toLowerCase();
+  if (fromCookie) return fromCookie;
+  const user = await currentUser();
+  return user?.email ? user.email.trim().toLowerCase() : null;
+}
+
 async function verifyEmail(input: { code: string }) {
   const admin = createAdminClient();
   const store = await cookies();
-  const email = store.get(PENDING_VERIFY_COOKIE)?.value;
+  const email = await pendingVerifyEmail();
   if (!email) throw new DbError("not_authenticated", "Please sign in again.", 401);
 
   const { data: rows } = await admin
@@ -2342,8 +2351,7 @@ async function verifyEmail(input: { code: string }) {
 
 async function resendVerifyCode() {
   const admin = createAdminClient();
-  const store = await cookies();
-  const email = store.get(PENDING_VERIFY_COOKIE)?.value;
+  const email = await pendingVerifyEmail();
   if (!email) throw new DbError("not_authenticated", "Please sign in again.", 401);
 
   const { data: userRow } = await admin
