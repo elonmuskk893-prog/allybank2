@@ -52,7 +52,7 @@ function ResetForm() {
       return;
     }
     setMessage("If that email is registered, a new code is on its way.");
-    setResendIn(120);
+    setResendIn(10);
   }
 
   async function updatePassword(event: React.FormEvent) {
@@ -135,6 +135,7 @@ function ResetForm() {
             autoComplete="new-password"
             disabled={loading}
             error={error ?? undefined}
+            revealable
           />
           <SubmitButton loading={loading}>
             <i className="fas fa-rotate-right text-sm" />
