@@ -31,7 +31,7 @@ function ResetForm() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
-  const [resendIn, setResendIn] = useState(120);
+  const [resendIn, setResendIn] = useState(10);
 
   async function resend() {
     if (resending || resendIn > 0) return;
