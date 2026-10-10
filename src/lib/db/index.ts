@@ -8,20 +8,33 @@ import type * as schema from "@/lib/db/schema";
  *
  * Mock data is deliberately opt-in. A deployed app with missing credentials
  * must fail closed instead of appearing healthy while serving fake balances.
+ *
+ * The configuration check is lazy (evaluated on first use, not at import
+ * time) so that building the app never fails just because environment
+ * variables are only available at runtime.
  */
-const allowMockDatabase = process.env["ALLOW_MOCK_DB"] === "true";
-const hasDatabase = isSupabaseConfigured();
-
-if (!hasDatabase && !allowMockDatabase) {
-  throw new Error(
-    "Backend configuration is missing. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.",
-  );
+function resolveDb(): typeof supabaseDb {
+  const allowMockDatabase = process.env["ALLOW_MOCK_DB"] === "true";
+  const hasDatabase = isSupabaseConfigured();
+  if (!hasDatabase && !allowMockDatabase) {
+    throw new Error(
+      "Backend configuration is missing. Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY.",
+    );
+  }
+  return hasDatabase ? supabaseDb : mockDb;
 }
 
-export const db: typeof supabaseDb = hasDatabase ? supabaseDb : mockDb;
+let resolved: typeof supabaseDb | null = null;
+
+export const db: typeof supabaseDb = new Proxy({} as typeof supabaseDb, {
+  get(_target, prop, receiver) {
+    if (!resolved) resolved = resolveDb();
+    return Reflect.get(resolved, prop, receiver);
+  },
+});
 
 export type { schema };
 
 export function usingMock() {
-  return !hasDatabase;
+  return !isSupabaseConfigured();
 }
