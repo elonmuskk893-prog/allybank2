@@ -69,7 +69,7 @@ export default function VerifyEmailPage() {
     }
     setMessage("A new code is on the way. Check your inbox.");
     setResendIn(
-      typeof result.data?.resend_in === "number" ? result.data.resend_in : 120,
+      typeof result.data?.resend_in === "number" ? result.data.resend_in : 10,
     );
   }
 
