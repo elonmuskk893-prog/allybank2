@@ -1846,11 +1846,11 @@ async function resendVerifyCode() {
     sameSite: "lax",
     maxAge: 10 * 60,
   });
-  return { resend_in: 120 };
+  return { resend_in: 10 };
 }
 
 async function resendVerifyStatus() {
-  return { resend_in: 120 };
+  return { resend_in: 10 };
 }
 
 /* ------------------------------------------------------------------------- */

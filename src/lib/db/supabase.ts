@@ -2364,11 +2364,11 @@ async function resendVerifyCode() {
   });
   const sent = await deliver(email, verificationCodeEmail(code, await siteNameForEmail()));
   if (!sent) logUndeliveredCode("verification (resend)", email, code);
-  return { resend_in: 120 };
+  return { resend_in: 10 };
 }
 
 async function resendVerifyStatus() {
-  return { resend_in: 120 };
+  return { resend_in: 10 };
 }
 
 /* ------------------------------------------------------------------------- */

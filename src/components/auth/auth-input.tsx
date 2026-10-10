@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AuthInputProps {
@@ -62,7 +63,7 @@ export function AuthInput({
             onClick={() => setRevealed((v) => !v)}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-gray-500 transition hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
           >
-            <i className={`fas ${revealed ? "fa-eye-slash" : "fa-eye"} text-sm`} />
+            {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         ) : null}
       </div>
