@@ -2177,6 +2177,13 @@ async function login(input: { email?: string; password?: string }) {
       email: input.email.trim().toLowerCase(),
       password: input.password,
     });
+    if (error?.code === "email_not_confirmed") {
+      throw new DbError(
+        "email_not_confirmed",
+        "Your email isn't confirmed yet. Use “Forgot Password?” to confirm it and set a new password.",
+        401,
+      );
+    }
     if (error || !authData.user) {
       throw new DbError("invalid_credentials", "Email or password is incorrect.", 401);
     }
@@ -2283,8 +2290,11 @@ async function resetPassword(input: { email: string; code: string; password: str
   const { data: user } = await admin.from("users").select("id").eq("email", email).single();
   if (!user) throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
 
+  // The emailed code proves the member owns this address, so confirm it too —
+  // otherwise an unconfirmed account can never sign in with the new password.
   const { error } = await admin.auth.admin.updateUserById((user as { id: string }).id, {
     password: input.password,
+    email_confirm: true,
   });
   if (error) throw new DbError("reset_failed", error.message, 500);
 
