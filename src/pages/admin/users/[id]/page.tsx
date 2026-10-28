@@ -21,6 +21,7 @@ interface AdminUser {
   role?: string;
   email_verified_at: string | null;
   account_number: string | null;
+  mask_payment_details?: boolean;
   created_at: string;
 }
 
@@ -74,6 +75,12 @@ function AdminUserDetail() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [txnDelete, setTxnDelete] = useState<TxnRow | null>(null);
   const [impersonateOpen, setImpersonateOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({ password: "", confirm: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const [pinOpen, setPinOpen] = useState(false);
+  const [pinForm, setPinForm] = useState({ pin: "", confirm: "" });
+  const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
