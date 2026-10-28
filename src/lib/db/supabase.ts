@@ -15,6 +15,7 @@ import {
   generateAccountNumber,
   generateNumericCode,
 } from "@/lib/db/security";
+import { isCryptoMethod, maskPaymentMethodDetails } from "@/lib/db/masking";
 import {
   logUndeliveredCode,
   passwordResetCodeEmail,

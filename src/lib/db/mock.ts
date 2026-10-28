@@ -7,6 +7,7 @@ import {
   generateAccountNumber,
   generateNumericCode,
 } from "@/lib/db/security";
+import { isCryptoMethod, maskPaymentMethodDetails } from "@/lib/db/masking";
 import { DbError } from "@/lib/db/error";
 import { parseAmountInput } from "@/lib/utils";
 import type {
@@ -546,6 +547,7 @@ function mapUser(row: UserRow) {
     country: row.country ?? "US",
     currency: row.currency,
     twofa_enabled: row.twofa_enabled,
+    mask_payment_details: row.mask_payment_details ?? false,
     full_name: `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
     created_at: row.created_at,
   };
