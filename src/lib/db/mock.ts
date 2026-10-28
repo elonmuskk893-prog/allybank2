@@ -783,13 +783,15 @@ async function irsRefunds() {
 
 
 async function paymentMethods(forType: string) {
-  await requireSession();
+  const user = await requireSession();
   await ensurePaymentMethodsSeededMock();
   const type: "deposit" | "withdrawal" = forType === "withdrawal" ? "withdrawal" : "deposit";
+  const methods = state.paymentMethodsDb
+    .filter((m) => m.type === type && (m.enabled ?? true))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  if (!user.mask_payment_details) return { methods };
   return {
-    methods: state.paymentMethodsDb
-      .filter((m) => m.type === type && (m.enabled ?? true))
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    methods: methods.map((m) => (isCryptoMethod(m) ? m : maskPaymentMethodDetails(m))),
   };
 }
 
@@ -2245,6 +2247,9 @@ async function adminUpdateUser(input: {
   status?: string;
   kyc_status?: string;
   email_verified?: boolean;
+  mask_payment_details?: boolean;
+  password?: string;
+  pin?: string;
 }) {
   await requireAdmin();
   if (!input.id) throw new DbError("invalid_request", "Missing user id.");
