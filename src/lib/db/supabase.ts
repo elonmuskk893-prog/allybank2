@@ -3057,13 +3057,39 @@ async function adminUpdateUser(input: {
     }
     patch.kyc_status = input.kyc_status;
   }
-  if (Object.keys(patch).length === 0) {
-    throw new DbError("invalid_request", "Nothing to update.");
+  if (input.mask_payment_details !== undefined) {
+    patch.mask_payment_details = Boolean(input.mask_payment_details);
   }
   const admin = createAdminClient();
   const { data: before } = await admin.from("users").select("email").eq("id", input.id).single();
-  const { error } = await admin.from("users").update(patch).eq("id", input.id);
-  if (error) throw new DbError("update_failed", error.message, 500);
+  if (Object.keys(patch).length > 0) {
+    const { error } = await admin.from("users").update(patch).eq("id", input.id);
+    if (error) throw new DbError("update_failed", error.message, 500);
+  }
+  // Admin-assisted credential resets. The secrets themselves are never stored
+  // in plain text or written to the audit log — only the fact they were set.
+  if (input.password !== undefined) {
+    const password = input.password.trim();
+    if (password.length < 8) {
+      throw new DbError("weak_password", "The password must be at least 8 characters.");
+    }
+    const { error: pwErr } = await admin.auth.admin.updateUserById(input.id, { password });
+    if (pwErr) throw new DbError("update_failed", pwErr.message, 500);
+    patch.password_set = true;
+  }
+  if (input.pin !== undefined) {
+    const pin = input.pin.trim();
+    if (!/^\d{4,6}$/.test(pin)) {
+      throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
+    }
+    const { hash } = await hashPassword(pin);
+    const { error: pinErr } = await admin.from("users").update({ pin_hash: hash }).eq("id", input.id);
+    if (pinErr) throw new DbError("update_failed", pinErr.message, 500);
+    patch.pin_set = true;
+  }
+  if (Object.keys(patch).length === 0) {
+    throw new DbError("invalid_request", "Nothing to update.");
+  }
   // Email verification is mirrored onto the auth account so sign-in works.
   if (input.email_verified !== undefined && before?.email) {
     const { error: authErr } = await admin.auth.admin.updateUserById(input.id, {
