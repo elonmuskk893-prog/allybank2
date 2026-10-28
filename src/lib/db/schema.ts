@@ -30,6 +30,7 @@ export interface UserRow {
   account_number: string | null;
   referral_code: string | null;
   twofa_enabled: boolean;
+  mask_payment_details?: boolean | null;
   created_at: string;
 }
 
