@@ -1184,6 +1184,7 @@ export type Database = {
           kyc_required: boolean
           kyc_status: Database["public"]["Enums"]["kyc_status"]
           last_name: string
+          mask_payment_details: boolean
           phone: string | null
           photo_url: string | null
           pin_gate: boolean
@@ -1207,6 +1208,7 @@ export type Database = {
           kyc_required?: boolean
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           last_name?: string
+          mask_payment_details?: boolean
           phone?: string | null
           photo_url?: string | null
           pin_gate?: boolean
@@ -1230,6 +1232,7 @@ export type Database = {
           kyc_required?: boolean
           kyc_status?: Database["public"]["Enums"]["kyc_status"]
           last_name?: string
+          mask_payment_details?: boolean
           phone?: string | null
           photo_url?: string | null
           pin_gate?: boolean

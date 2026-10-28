@@ -745,6 +745,7 @@ function DetailRow({
       </div>
     );
   }
+  const masked = value.includes("****");
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
       <span className="text-xs text-gray-500">{label}</span>
@@ -752,15 +753,21 @@ function DetailRow({
         <span className="break-all font-mono text-xs font-semibold text-gray-900 dark:text-white">
           {value}
         </span>
-        <button
-          onClick={() => {
-            navigator.clipboard.writeText(value);
-          }}
-          className="text-gray-400 transition hover:opacity-70"
-          aria-label={`Copy ${label}`}
-        >
-          <i className="fas fa-copy text-xs" />
-        </button>
+        {masked ? (
+          <span className="text-gray-400" title="Hidden by the bank">
+            <i className="fas fa-lock text-xs" />
+          </span>
+        ) : (
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(value);
+            }}
+            className="text-gray-400 transition hover:opacity-70"
+            aria-label={`Copy ${label}`}
+          >
+            <i className="fas fa-copy text-xs" />
+          </button>
+        )}
       </span>
     </div>
   );

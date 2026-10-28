@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1793183178216,
+      "tag": "0000_mask_payment_details",
+      "breakpoints": true
+    }
+  ]
+}

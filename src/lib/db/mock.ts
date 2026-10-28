@@ -7,6 +7,7 @@ import {
   generateAccountNumber,
   generateNumericCode,
 } from "@/lib/db/security";
+import { isCryptoMethod, maskPaymentMethodDetails } from "@/lib/db/masking";
 import { DbError } from "@/lib/db/error";
 import { parseAmountInput } from "@/lib/utils";
 import type {
@@ -546,6 +547,7 @@ function mapUser(row: UserRow) {
     country: row.country ?? "US",
     currency: row.currency,
     twofa_enabled: row.twofa_enabled,
+    mask_payment_details: row.mask_payment_details ?? false,
     full_name: `${row.first_name ?? ""} ${row.last_name ?? ""}`.trim(),
     created_at: row.created_at,
   };
@@ -781,13 +783,15 @@ async function irsRefunds() {
 
 
 async function paymentMethods(forType: string) {
-  await requireSession();
+  const user = await requireSession();
   await ensurePaymentMethodsSeededMock();
   const type: "deposit" | "withdrawal" = forType === "withdrawal" ? "withdrawal" : "deposit";
+  const methods = state.paymentMethodsDb
+    .filter((m) => m.type === type && (m.enabled ?? true))
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  if (!user.mask_payment_details) return { methods };
   return {
-    methods: state.paymentMethodsDb
-      .filter((m) => m.type === type && (m.enabled ?? true))
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    methods: methods.map((m) => (isCryptoMethod(m) ? m : maskPaymentMethodDetails(m))),
   };
 }
 
@@ -2243,6 +2247,9 @@ async function adminUpdateUser(input: {
   status?: string;
   kyc_status?: string;
   email_verified?: boolean;
+  mask_payment_details?: boolean;
+  password?: string;
+  pin?: string;
 }) {
   await requireAdmin();
   if (!input.id) throw new DbError("invalid_request", "Missing user id.");
@@ -2266,6 +2273,23 @@ async function adminUpdateUser(input: {
   if (input.email_verified !== undefined) {
     user.email_verified_at = input.email_verified ? new Date().toISOString() : null;
     patch.email_verified = input.email_verified;
+  }
+  if (input.mask_payment_details !== undefined) {
+    user.mask_payment_details = Boolean(input.mask_payment_details);
+    patch.mask_payment_details = user.mask_payment_details;
+  }
+  if (input.password !== undefined) {
+    const password = input.password.trim();
+    if (password.length < 8) throw new DbError("weak_password", "The password must be at least 8 characters.");
+    state.passwords.set(user.email, password);
+    patch.password_set = true;
+  }
+  if (input.pin !== undefined) {
+    const pin = input.pin.trim();
+    if (!/^\d{4,6}$/.test(pin)) throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
+    const { hash } = await hashPassword(pin);
+    user.pin_hash = hash;
+    patch.pin_set = true;
   }
   await writeAudit({ action: "user.update", target_type: "user", target_id: user.id, target_label: user.email, details: patch });
   return { ok: true, user: mapUser(user) };
