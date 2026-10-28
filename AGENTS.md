@@ -11,3 +11,5 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - Privileged balance mutations run only through service-role RPCs; browser roles must never receive execute access.
 
 - Vercel installs with a clean `node_modules` (`installCommand` in vercel.json) — Vercel's build cache otherwise keeps stale nested packages (e.g. zod v3 instead of v4 under TanStack) and the build crashes after dependency upgrades.
+
+- Per-user payment-detail masking lives in src/lib/db/masking.ts and is applied server-side in paymentMethods (never client-side, so real values never reach a masked member's browser); admin password/PIN resets go through adminUpdateUser — credentials are only ever hashed, never stored or logged in plain text.
