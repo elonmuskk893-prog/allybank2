@@ -845,9 +845,14 @@ async function deletePaymentMethod(id?: string) {
 }
 
 async function paymentMethods(forType: string) {
-  await requireUser();
+  const user = await requireUser();
   const type: "deposit" | "withdrawal" = forType === "withdrawal" ? "withdrawal" : "deposit";
-  return { methods: await dbPaymentMethodList(type) };
+  const methods = await dbPaymentMethodList(type);
+  // Admins can hide bank details per member; crypto methods always stay visible.
+  if (!user.mask_payment_details) return { methods };
+  return {
+    methods: methods.map((m) => (isCryptoMethod(m) ? m : maskPaymentMethodDetails(m))),
+  };
 }
 
 async function transferConfig() {
@@ -3029,6 +3034,9 @@ async function adminUpdateUser(input: {
   status?: string;
   kyc_status?: string;
   email_verified?: boolean;
+  mask_payment_details?: boolean;
+  password?: string;
+  pin?: string;
 }) {
   await requireAdmin();
   if (!input.id) throw new DbError("invalid_request", "Missing user id.");
