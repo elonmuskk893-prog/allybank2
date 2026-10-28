@@ -20,6 +20,7 @@ export interface SessionUser {
   email_verified_at?: string | null;
   pin_gate?: boolean;
   role?: "admin" | "user" | string;
+  mask_payment_details?: boolean;
 }
 
 export interface Session {

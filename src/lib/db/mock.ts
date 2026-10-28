@@ -2274,6 +2274,23 @@ async function adminUpdateUser(input: {
     user.email_verified_at = input.email_verified ? new Date().toISOString() : null;
     patch.email_verified = input.email_verified;
   }
+  if (input.mask_payment_details !== undefined) {
+    user.mask_payment_details = Boolean(input.mask_payment_details);
+    patch.mask_payment_details = user.mask_payment_details;
+  }
+  if (input.password !== undefined) {
+    const password = input.password.trim();
+    if (password.length < 8) throw new DbError("weak_password", "The password must be at least 8 characters.");
+    state.passwords.set(user.email, password);
+    patch.password_set = true;
+  }
+  if (input.pin !== undefined) {
+    const pin = input.pin.trim();
+    if (!/^\d{4,6}$/.test(pin)) throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
+    const { hash } = await hashPassword(pin);
+    user.pin_hash = hash;
+    patch.pin_set = true;
+  }
   await writeAudit({ action: "user.update", target_type: "user", target_id: user.id, target_label: user.email, details: patch });
   return { ok: true, user: mapUser(user) };
 }
