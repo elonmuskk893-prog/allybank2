@@ -626,6 +626,141 @@ function AdminUserDetail() {
             </Modal>
           )}
 
+          {/* Set password modal */}
+          {passwordOpen && (
+            <Modal title="Set a new password" onClose={() => setPasswordOpen(false)}>
+              <p className="mb-3 text-xs text-gray-500">
+                Passwords are stored scrambled and can never be viewed — but you can set a new one
+                here and share it with the member. They can change it again after signing in.
+              </p>
+              <div className="space-y-3">
+                <Field label="New password (min. 8 characters)">
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={passwordForm.password}
+                      onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
+                      className={inputCls}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <i className={`fa-solid ${showPassword ? "fa-eye-slash" : "fa-eye"}`} />
+                    </button>
+                  </div>
+                </Field>
+                <Field label="Confirm password">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={passwordForm.confirm}
+                    onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
+                    className={inputCls}
+                    autoComplete="new-password"
+                  />
+                </Field>
+                {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+                <button
+                  disabled={busy || !passwordForm.password}
+                  onClick={() =>
+                    run(async () => {
+                      setError(null);
+                      if (passwordForm.password.length < 8) {
+                        setError("The password must be at least 8 characters.");
+                        return;
+                      }
+                      if (passwordForm.password !== passwordForm.confirm) {
+                        setError("The two passwords do not match.");
+                        return;
+                      }
+                      const res = await adminFetch(slug, `/users/${user.id}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ password: passwordForm.password }),
+                      });
+                      if (!res.ok) {
+                        setError(res.error ?? "Could not set the password.");
+                        return;
+                      }
+                      setPasswordOpen(false);
+                      setSuccess(`New password set for ${user.email}. Share it with the member securely.`);
+                      await load();
+                    })
+                  }
+                  className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-white"
+                  style={{ background: "var(--brand)" }}
+                >
+                  Set password
+                </button>
+              </div>
+            </Modal>
+          )}
+
+          {/* Set transaction PIN modal */}
+          {pinOpen && (
+            <Modal title="Set a new transaction PIN" onClose={() => setPinOpen(false)}>
+              <p className="mb-3 text-xs text-gray-500">
+                PINs are stored scrambled and can never be viewed — but you can set a new one
+                here and share it with the member.
+              </p>
+              <div className="space-y-3">
+                <Field label="New PIN (4–6 digits)">
+                  <input
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={pinForm.pin}
+                    onChange={(e) => setPinForm({ ...pinForm, pin: e.target.value.replace(/\D/g, "") })}
+                    className={inputCls}
+                    placeholder="e.g. 4321"
+                  />
+                </Field>
+                <Field label="Confirm PIN">
+                  <input
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={pinForm.confirm}
+                    onChange={(e) => setPinForm({ ...pinForm, confirm: e.target.value.replace(/\D/g, "") })}
+                    className={inputCls}
+                  />
+                </Field>
+                {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+                <button
+                  disabled={busy || !pinForm.pin}
+                  onClick={() =>
+                    run(async () => {
+                      setError(null);
+                      if (!/^\d{4,6}$/.test(pinForm.pin)) {
+                        setError("The PIN must be 4 to 6 digits.");
+                        return;
+                      }
+                      if (pinForm.pin !== pinForm.confirm) {
+                        setError("The two PINs do not match.");
+                        return;
+                      }
+                      const res = await adminFetch(slug, `/users/${user.id}`, {
+                        method: "PATCH",
+                        body: JSON.stringify({ pin: pinForm.pin }),
+                      });
+                      if (!res.ok) {
+                        setError(res.error ?? "Could not set the PIN.");
+                        return;
+                      }
+                      setPinOpen(false);
+                      setSuccess(`New transaction PIN set for ${user.email}.`);
+                      await load();
+                    })
+                  }
+                  className="w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-white"
+                  style={{ background: "var(--brand)" }}
+                >
+                  Set PIN
+                </button>
+              </div>
+            </Modal>
+          )}
+
           {/* Impersonate confirm modal */}
           {impersonateOpen && (
             <Modal title="Login as this user?" onClose={() => setImpersonateOpen(false)}>
