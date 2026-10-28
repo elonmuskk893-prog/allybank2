@@ -180,6 +180,18 @@ function AdminUserDetail() {
                 <button onClick={() => setTxnOpen(true)} className="rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ background: "var(--brand)" }}>
                   Create transaction
                 </button>
+                <button
+                  onClick={() => { setError(null); setSuccess(null); setPasswordForm({ password: "", confirm: "" }); setShowPassword(false); setPasswordOpen(true); }}
+                  className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700"
+                >
+                  <i className="fa-solid fa-key mr-1.5" /> Set password
+                </button>
+                <button
+                  onClick={() => { setError(null); setSuccess(null); setPinForm({ pin: "", confirm: "" }); setPinOpen(true); }}
+                  className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
+                >
+                  <i className="fa-solid fa-lock mr-1.5" /> Set PIN
+                </button>
                 {user.role !== "admin" && (
                   <button onClick={() => setDeleteOpen(true)} className="rounded-lg bg-rose-600 px-3 py-2 text-xs font-semibold text-white hover:bg-rose-700">
                     Delete account
@@ -270,7 +282,44 @@ function AdminUserDetail() {
                 <dt className="text-xs uppercase tracking-wider text-gray-400">Joined</dt>
                 <dd className="mt-0.5 font-medium text-gray-900 dark:text-gray-100">{new Date(user.created_at).toLocaleDateString()}</dd>
               </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wider text-gray-400">Bank details</dt>
+                <dd className="mt-1 flex items-center gap-2">
+                  <Pill status={user.mask_payment_details ? "hidden" : "visible"} />
+                  <button
+                    disabled={busy}
+                    onClick={() =>
+                      run(async () => {
+                        setError(null);
+                        setSuccess(null);
+                        const res = await adminFetch(slug, `/users/${user.id}`, {
+                          method: "PATCH",
+                          body: JSON.stringify({ mask_payment_details: !user.mask_payment_details }),
+                        });
+                        if (!res.ok) {
+                          setError(res.error ?? "Could not update the visibility setting.");
+                          return;
+                        }
+                        setSuccess(
+                          !user.mask_payment_details
+                            ? "Bank details are now hidden from this member's deposit page."
+                            : "Bank details are visible to this member again.",
+                        );
+                        await load();
+                      })
+                    }
+                    className="text-xs font-semibold text-sky-600 hover:underline"
+                  >
+                    {user.mask_payment_details ? "Show" : "Hide"}
+                  </button>
+                </dd>
+              </div>
             </dl>
+            {success && (
+              <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300">
+                {success}
+              </p>
+            )}
           </section>
 
           <section className="space-y-3">
