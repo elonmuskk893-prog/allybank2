@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "@/lib/next/navigation";
 import { bankFetch } from "@/lib/api";
-import { SMARTSUPP_READY_EVENT, isSmartsuppActive } from "@/lib/smartsupp";
+import type { SmartsuppStatus } from "@/lib/smartsupp";
+import { SMARTSUPP_STATUS_EVENT, smartsuppStatus } from "@/lib/smartsupp";
 
 export interface LiveChatSettings {
   enabled?: boolean;
@@ -51,13 +52,13 @@ export function LiveChat() {
   const ticketId = useRef<string | null>(null);
 
   const onDashboard = isDashboardRoute(pathname);
-  const [smartsuppActive, setSmartsuppActive] = useState(false);
+  const [smartsupp, setSmartsupp] = useState<SmartsuppStatus>("idle");
 
   useEffect(() => {
-    const sync = () => setSmartsuppActive(isSmartsuppActive());
+    const sync = () => setSmartsupp(smartsuppStatus());
     sync();
-    window.addEventListener(SMARTSUPP_READY_EVENT, sync);
-    return () => window.removeEventListener(SMARTSUPP_READY_EVENT, sync);
+    window.addEventListener(SMARTSUPP_STATUS_EVENT, sync);
+    return () => window.removeEventListener(SMARTSUPP_STATUS_EVENT, sync);
   }, []);
 
   useEffect(() => {
@@ -81,10 +82,11 @@ export function LiveChat() {
   const active = useMemo(() => {
     if (!settings?.enabled) return null;
     // Smartsupp owns the signed-in chat experience; never show a second bubble.
-    if (signedIn && smartsuppActive) return null;
+    // A blocked or failed loader leaves the built-in chat in place.
+    if (signedIn && (smartsupp === "loading" || smartsupp === "ready")) return null;
     if (settings.dashboard_only !== false && !(onDashboard && signedIn)) return null;
     return settings;
-  }, [settings, onDashboard, signedIn, smartsuppActive]);
+  }, [settings, onDashboard, signedIn, smartsupp]);
 
   const send = useCallback(async () => {
     const text = draft.trim();

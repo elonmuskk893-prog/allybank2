@@ -100,6 +100,36 @@ import type {
 
 const PENDING_VERIFY_COOKIE = "sb_pending_verify";
 const VERIFY_CODE_TTL_MS = 15 * 60 * 1000;
+/** Minimum gap between two verification emails for the same address. */
+const VERIFY_RESEND_COOLDOWN_MS = 60 * 1000;
+/** Failed code guesses allowed per address before the window resets. */
+const VERIFY_MAX_ATTEMPTS = 8;
+const VERIFY_ATTEMPT_WINDOW_MS = 10 * 60 * 1000;
+
+/**
+ * Brute-force guard for 6-digit codes. Per-process only (like the public rate
+ * limiter) but it still stops a single client from walking the keyspace.
+ */
+const verifyAttempts = new Map<string, { count: number; resetAt: number }>();
+
+function registerVerifyAttempt(email: string): void {
+  const now = Date.now();
+  const entry = verifyAttempts.get(email);
+  if (!entry || now > entry.resetAt) {
+    verifyAttempts.set(email, { count: 1, resetAt: now + VERIFY_ATTEMPT_WINDOW_MS });
+    return;
+  }
+  entry.count += 1;
+}
+
+function verifyAttemptsExceeded(email: string): boolean {
+  const entry = verifyAttempts.get(email);
+  return Boolean(entry && Date.now() <= entry.resetAt && entry.count >= VERIFY_MAX_ATTEMPTS);
+}
+
+function clearVerifyAttempts(email: string): void {
+  verifyAttempts.delete(email);
+}
 
 /* ------------------------------------------------------------------------- */
 /* Static payment methods + in-memory support-ticket state                   */
@@ -489,8 +519,11 @@ function round2(value: number) {
 }
 
 async function checkPin(user: UserRow, pin?: string) {
-  if (!pin || !/^\d{4,6}$/.test(pin) || !user.pin_hash) {
+  if (!user.pin_hash) {
     throw new DbError("pin_not_set", "You must set a transaction PIN before sending money.");
+  }
+  if (!pin || !/^\d{4,6}$/.test(pin)) {
+    throw new DbError("bad_pin", "Enter your 4–6 digit transaction PIN.");
   }
   if (!(await verifyPassword(pin, user.pin_hash))) {
     throw new DbError("bad_pin", "Incorrect PIN.");
@@ -1069,6 +1102,10 @@ async function createTransfer(input: {
       narration: input.narration,
     });
   }
+
+  // External bank transfers must prove the transaction PIN too; previously the
+  // field was collected by the UI but never checked on this path.
+  await checkPin(user, input.pin);
 
   const sb = await createServerClient();
   const admin = createAdminClient();
@@ -2218,8 +2255,10 @@ async function register(input: {
       .eq("id", data.user.id);
   }
 
-  // Email verification: issue a code and deliver it via SMTP.
-  let needs_email_verification = false;
+  // Email verification: issue a code and deliver it. The account is created
+  // unconfirmed, so verification is always required; `email_sent` only tells
+  // the UI whether to expect the message or prompt an immediate resend.
+  let email_sent = false;
   if (data.user?.id) {
     const code = generateNumericCode();
     await admin.from("email_verifications").insert({
@@ -2228,18 +2267,30 @@ async function register(input: {
       code_hash: (await hashPassword(code)).hash,
       expires_at: new Date(Date.now() + VERIFY_CODE_TTL_MS).toISOString(),
     });
-    const sent = await deliver(email, verificationCodeEmail(code, await siteNameForEmail()));
-    if (sent) {
-      needs_email_verification = true;
-    } else {
-      // Email delivery is unavailable — leave the account unconfirmed so it can
-      // be verified once SMTP is configured. The code is never exposed to the
-      // client and is never written to logs.
+    email_sent = await deliver(email, verificationCodeEmail(code, await siteNameForEmail()));
+    if (!email_sent) {
+      // Delivery is unavailable — the account stays unconfirmed so the member
+      // can retry once email is configured. The code is never logged.
       logUndeliveredCode("verification (delivery failed)", email);
     }
   }
 
-  return { user_id: data.user?.id, email, needs_email_verification };
+  // Remember who is mid-verification so the resend endpoint and the status
+  // poll work even if the member returns without the `?email=` hint.
+  const store = await cookies();
+  store.set(PENDING_VERIFY_COOKIE, email, {
+    httpOnly: true,
+    path: "/",
+    sameSite: "lax",
+    maxAge: 30 * 60,
+  });
+
+  return {
+    user_id: data.user?.id,
+    email,
+    needs_email_verification: Boolean(data.user?.id),
+    email_sent,
+  };
 }
 
 async function login(input: { email?: string; password?: string }) {
@@ -2260,8 +2311,9 @@ async function login(input: { email?: string; password?: string }) {
     if (error?.code === "email_not_confirmed") {
       throw new DbError(
         "email_not_confirmed",
-        "Your email isn't confirmed yet. Use “Forgot Password?” to confirm it and set a new password.",
+        "Your email isn't verified yet. Enter the 6-digit code we emailed you, or request a new one.",
         401,
+        { email: input.email.trim().toLowerCase() },
       );
     }
     if (error || !authData.user) {
@@ -2389,8 +2441,19 @@ async function logout() {
   return { ok: true };
 }
 
-/** Email awaiting verification: the pending-verify cookie, else the signed-in member. */
-async function pendingVerifyEmail(): Promise<string | null> {
+/**
+ * Email awaiting verification: an explicit hint from the form, the pending
+ * cookie set at registration, else the signed-in member.
+ *
+ * The explicit email matters because an unconfirmed account cannot hold a
+ * session, so a member who returns after the cookie expires would otherwise
+ * have no way to enter their code.
+ */
+async function pendingVerifyEmail(requested?: string): Promise<string | null> {
+  const explicit = String(requested ?? "")
+    .trim()
+    .toLowerCase();
+  if (explicit) return explicit;
   const store = await cookies();
   const fromCookie = store.get(PENDING_VERIFY_COOKIE)?.value?.trim().toLowerCase();
   if (fromCookie) return fromCookie;
@@ -2398,11 +2461,41 @@ async function pendingVerifyEmail(): Promise<string | null> {
   return user?.email ? user.email.trim().toLowerCase() : null;
 }
 
-async function verifyEmail(input: { code: string }) {
+async function verifyEmail(input: { code?: string; email?: string }) {
   const admin = createAdminClient();
   const store = await cookies();
-  const email = await pendingVerifyEmail();
-  if (!email) throw new DbError("not_authenticated", "Please sign in again.", 401);
+  const email = await pendingVerifyEmail(input.email);
+  if (!email) {
+    throw new DbError("not_authenticated", "Enter the email address you signed up with.", 401);
+  }
+
+  const code = String(input.code ?? "").trim();
+  if (!/^\d{6}$/.test(code)) {
+    throw new DbError(
+      "invalid_or_expired_code",
+      "Enter the 6-digit code from your verification email.",
+      410,
+    );
+  }
+  if (verifyAttemptsExceeded(email)) {
+    throw new DbError(
+      "too_many_attempts",
+      "Too many incorrect codes. Please wait a few minutes and try again.",
+      429,
+    );
+  }
+
+  const { data: userRow } = await admin
+    .from("users")
+    .select("id, email_verified_at")
+    .eq("email", email)
+    .maybeSingle();
+  const profile = userRow as { id: string; email_verified_at?: string | null } | null;
+  if (!profile) throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
+  if (profile.email_verified_at) {
+    store.delete(PENDING_VERIFY_COOKIE);
+    return { ok: true, already_verified: true, email };
+  }
 
   const { data: rows } = await admin
     .from("email_verifications")
@@ -2415,36 +2508,75 @@ async function verifyEmail(input: { code: string }) {
   if (!row || !row.code_hash || new Date(row.expires_at).getTime() < Date.now()) {
     throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
   }
-  if (!(await verifyPassword(String(input.code ?? ""), row.code_hash))) {
+  if (!(await verifyPassword(code, row.code_hash))) {
+    registerVerifyAttempt(email);
     throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
   }
 
+  clearVerifyAttempts(email);
+  const verifiedAt = new Date().toISOString();
+  // Retire every outstanding code for this address, not just the one used.
   await admin
     .from("email_verifications")
-    .update({ used_at: new Date().toISOString() })
-    .eq("id", row.id);
-  await admin.auth.admin.updateUserById(row.user_id, { email_confirm: true });
-  await admin
-    .from("users")
-    .update({ email_verified_at: new Date().toISOString() })
-    .eq("id", row.user_id);
+    .update({ used_at: verifiedAt })
+    .eq("email", email)
+    .is("used_at", null);
+
+  // Mirror the verification onto the auth account so sign-in stops returning
+  // `email_not_confirmed`.
+  const { error: confirmError } = await admin.auth.admin.updateUserById(row.user_id, {
+    email_confirm: true,
+  });
+  if (confirmError) {
+    throw new DbError("verification_failed", confirmError.message, 500);
+  }
+  await admin.from("users").update({ email_verified_at: verifiedAt }).eq("id", row.user_id);
   store.delete(PENDING_VERIFY_COOKIE);
-  return { ok: true };
+  return { ok: true, email };
 }
 
-async function resendVerifyCode() {
+async function resendVerifyCode(input?: { email?: string }) {
   const admin = createAdminClient();
-  const email = await pendingVerifyEmail();
-  if (!email) throw new DbError("not_authenticated", "Please sign in again.", 401);
+  const email = await pendingVerifyEmail(input?.email);
+  if (!email) {
+    throw new DbError("not_authenticated", "Enter the email address you signed up with.", 401);
+  }
 
   const { data: userRow } = await admin
     .from("users")
     .select("id, email_verified_at")
     .eq("email", email)
-    .single();
+    .maybeSingle();
   const row = userRow as { id: string; email_verified_at?: string | null } | null;
-  if (!row) throw new DbError("not_authenticated", "Please sign in again.", 401);
-  if (row.email_verified_at) return { already_verified: true, resend_in: 0 };
+  if (!row) throw new DbError("not_found", "We couldn't find that account.", 404);
+  if (row.email_verified_at) return { already_verified: true, resend_in: 0, sent: false };
+
+  const { data: latestRows } = await admin
+    .from("email_verifications")
+    .select("created_at")
+    .eq("email", email)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const latest = firstRow(latestRows) as { created_at?: string } | null;
+  if (latest?.created_at) {
+    const elapsed = Date.now() - new Date(latest.created_at).getTime();
+    const remaining = Math.ceil((VERIFY_RESEND_COOLDOWN_MS - elapsed) / 1000);
+    if (remaining > 0) {
+      throw new DbError(
+        "too_many_requests",
+        `Please wait ${remaining}s before requesting another code.`,
+        429,
+        { resend_in: remaining },
+      );
+    }
+  }
+
+  // Retire older codes so only the newest email can be used.
+  await admin
+    .from("email_verifications")
+    .update({ used_at: new Date().toISOString() })
+    .eq("email", email)
+    .is("used_at", null);
 
   const code = generateNumericCode();
   await admin.from("email_verifications").insert({
@@ -2453,13 +2585,46 @@ async function resendVerifyCode() {
     code_hash: (await hashPassword(code)).hash,
     expires_at: new Date(Date.now() + VERIFY_CODE_TTL_MS).toISOString(),
   });
+
   const sent = await deliver(email, verificationCodeEmail(code, await siteNameForEmail()));
-  if (!sent) logUndeliveredCode("verification (resend)", email, code);
-  return { resend_in: 10 };
+  if (!sent) {
+    logUndeliveredCode("verification (resend)", email);
+    throw new DbError(
+      "email_unavailable",
+      "We couldn't send the verification email right now. Please try again shortly or contact support.",
+      503,
+    );
+  }
+  return { resend_in: Math.ceil(VERIFY_RESEND_COOLDOWN_MS / 1000), sent: true };
 }
 
 async function resendVerifyStatus() {
-  return { resend_in: 10 };
+  const admin = createAdminClient();
+  // Only answer for the pending/signed-in address so this endpoint cannot be
+  // used to probe whether an arbitrary email exists.
+  const email = await pendingVerifyEmail();
+  if (!email) return { resend_in: 0, verified: false };
+
+  const { data: userRow } = await admin
+    .from("users")
+    .select("email_verified_at")
+    .eq("email", email)
+    .maybeSingle();
+  const row = userRow as { email_verified_at?: string | null } | null;
+  if (!row) return { resend_in: 0, verified: false };
+  if (row.email_verified_at) return { resend_in: 0, verified: true };
+
+  const { data: rows } = await admin
+    .from("email_verifications")
+    .select("created_at")
+    .eq("email", email)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const latest = firstRow(rows) as { created_at?: string } | null;
+  if (!latest?.created_at) return { resend_in: 0, verified: false };
+  const elapsed = Date.now() - new Date(latest.created_at).getTime();
+  const resendIn = Math.max(0, Math.ceil((VERIFY_RESEND_COOLDOWN_MS - elapsed) / 1000));
+  return { resend_in: resendIn, verified: false };
 }
 
 /* ------------------------------------------------------------------------- */
@@ -3163,37 +3328,58 @@ async function adminUpdateUser(input: {
     patch.mask_payment_details = Boolean(input.mask_payment_details);
   }
   const admin = createAdminClient();
-  const { data: before } = await admin.from("users").select("email").eq("id", input.id).single();
+  const { data: before } = await admin
+    .from("users")
+    .select("email")
+    .eq("id", input.id)
+    .maybeSingle();
+  if (!before) throw new DbError("not_found", "User not found.", 404);
+
+  // Validate credentials up front so a rejected password/PIN can never leave a
+  // half-applied profile update behind.
+  const password = input.password === undefined ? undefined : input.password.trim();
+  if (password !== undefined) {
+    if (password.length < 8) {
+      throw new DbError("weak_password", "The password must be at least 8 characters.");
+    }
+    if (password.length > 72) {
+      throw new DbError("weak_password", "The password must be 72 characters or fewer.");
+    }
+  }
+  const pin = input.pin === undefined ? undefined : input.pin.trim();
+  if (pin !== undefined && !/^\d{4,6}$/.test(pin)) {
+    throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
+  }
+  if (
+    Object.keys(patch).length === 0 &&
+    password === undefined &&
+    pin === undefined &&
+    input.email_verified === undefined
+  ) {
+    throw new DbError("invalid_request", "Nothing to update.");
+  }
+
   if (Object.keys(patch).length > 0) {
     const { error } = await admin.from("users").update(patch).eq("id", input.id);
     if (error) throw new DbError("update_failed", error.message, 500);
   }
   // Admin-assisted credential resets. The secrets themselves are never stored
   // in plain text or written to the audit log — only the fact they were set.
-  if (input.password !== undefined) {
-    const password = input.password.trim();
-    if (password.length < 8) {
-      throw new DbError("weak_password", "The password must be at least 8 characters.");
-    }
+  if (password !== undefined) {
     const { error: pwErr } = await admin.auth.admin.updateUserById(input.id, { password });
     if (pwErr) throw new DbError("update_failed", pwErr.message, 500);
-    patch.password_set = true;
+    patch.password_reset = true;
   }
-  if (input.pin !== undefined) {
-    const pin = input.pin.trim();
-    if (!/^\d{4,6}$/.test(pin)) {
-      throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
-    }
+  if (pin !== undefined) {
     const { hash } = await hashPassword(pin);
+    // Clear the forced-PIN gate: the member now has a PIN, so they must not be
+    // sent back to the "set your PIN" screen on their next sign-in.
     const { error: pinErr } = await admin
       .from("users")
-      .update({ pin_hash: hash })
+      .update({ pin_hash: hash, pin_gate: false })
       .eq("id", input.id);
     if (pinErr) throw new DbError("update_failed", pinErr.message, 500);
-    patch.pin_set = true;
-  }
-  if (Object.keys(patch).length === 0) {
-    throw new DbError("invalid_request", "Nothing to update.");
+    patch.pin_reset = true;
   }
   // Email verification is mirrored onto the auth account so sign-in works.
   if (input.email_verified !== undefined && before?.email) {

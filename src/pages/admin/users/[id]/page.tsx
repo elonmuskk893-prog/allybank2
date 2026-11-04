@@ -22,6 +22,7 @@ interface AdminUser {
   email_verified_at: string | null;
   account_number: string | null;
   mask_payment_details?: boolean;
+  pin_set?: boolean;
   created_at: string;
 }
 
@@ -181,14 +182,16 @@ function AdminUserDetail() {
                   Create transaction
                 </button>
                 <button
+                  disabled={busy}
                   onClick={() => { setError(null); setSuccess(null); setPasswordForm({ password: "", confirm: "" }); setShowPassword(false); setPasswordOpen(true); }}
-                  className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700"
+                  className="rounded-lg bg-amber-600 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
                 >
                   <i className="fa-solid fa-key mr-1.5" /> Set password
                 </button>
                 <button
+                  disabled={busy}
                   onClick={() => { setError(null); setSuccess(null); setPinForm({ pin: "", confirm: "" }); setPinOpen(true); }}
-                  className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700"
+                  className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-semibold text-white hover:bg-violet-700 disabled:opacity-50"
                 >
                   <i className="fa-solid fa-lock mr-1.5" /> Set PIN
                 </button>
@@ -283,6 +286,12 @@ function AdminUserDetail() {
                 <dd className="mt-0.5 font-medium text-gray-900 dark:text-gray-100">{new Date(user.created_at).toLocaleDateString()}</dd>
               </div>
               <div>
+                <dt className="text-xs uppercase tracking-wider text-gray-400">Transaction PIN</dt>
+                <dd className="mt-0.5 font-medium text-gray-900 dark:text-gray-100">
+                  {user.pin_set ? "Set" : "Not set"}
+                </dd>
+              </div>
+              <div>
                 <dt className="text-xs uppercase tracking-wider text-gray-400">Bank details</dt>
                 <dd className="mt-1 flex items-center gap-2">
                   <Pill status={user.mask_payment_details ? "hidden" : "visible"} />
@@ -320,6 +329,17 @@ function AdminUserDetail() {
                 {success}
               </p>
             )}
+            {error &&
+              !editOpen &&
+              !balanceOpen &&
+              !txnOpen &&
+              !passwordOpen &&
+              !pinOpen &&
+              !impersonateOpen && (
+                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700 dark:bg-red-900/20 dark:text-red-300">
+                  {error}
+                </p>
+              )}
           </section>
 
           <section className="space-y-3">
@@ -634,7 +654,7 @@ function AdminUserDetail() {
                 here and share it with the member. They can change it again after signing in.
               </p>
               <div className="space-y-3">
-                <Field label="New password (min. 8 characters)">
+                <Field label="New password (8–72 characters)">
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
@@ -642,6 +662,7 @@ function AdminUserDetail() {
                       onChange={(e) => setPasswordForm({ ...passwordForm, password: e.target.value })}
                       className={inputCls}
                       autoComplete="new-password"
+                      maxLength={72}
                     />
                     <button
                       type="button"
@@ -660,6 +681,7 @@ function AdminUserDetail() {
                     onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })}
                     className={inputCls}
                     autoComplete="new-password"
+                    maxLength={72}
                   />
                 </Field>
                 {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}

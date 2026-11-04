@@ -36,6 +36,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const { site } = useSite();
   const justRegistered = searchParams.get("registered") === "1";
+  const justVerified = searchParams.get("verified") === "1";
   const siteName = site?.name ?? "your account";
 
   const [email, setEmail] = useState("");
@@ -75,6 +76,11 @@ function LoginForm() {
         setError(result.error ?? "This account is blocked. Please contact support.");
         return;
       }
+      if (result.errorCode === "email_not_confirmed") {
+        const pendingEmail = String(result.errorBody?.email ?? email).trim();
+        router.replace(`/auth/verify-email?email=${encodeURIComponent(pendingEmail)}`);
+        return;
+      }
       setError(
         result.errorCode === "invalid_credentials"
           ? "Email or password is incorrect."
@@ -84,7 +90,12 @@ function LoginForm() {
     }
 
     if (result.data?.needs_2fa) return router.replace("/auth/2fa");
-    if (result.data?.needs_email_verification) return router.replace("/auth/verify-email");
+    if (result.data?.needs_email_verification) {
+      const hint = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
+        ? `?email=${encodeURIComponent(email.trim())}`
+        : "";
+      return router.replace(`/auth/verify-email${hint}`);
+    }
     if (result.data?.pin_gate) return router.replace("/pin");
     router.replace("/dashboard");
   }
@@ -156,13 +167,19 @@ function LoginForm() {
           </p>
         </div>
 
-                {justRegistered && (
+        {justRegistered && (
           <div className="mb-4 flex items-start gap-2 rounded-xl border border-emerald-200/60 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
             <i className="fa-solid fa-circle-check mt-0.5" />
             <span>Account created successfully. Sign in to get started.</span>
           </div>
         )}
-<form onSubmit={onSubmit} className="space-y-4 px-6 pb-6 pt-4">
+        {justVerified && (
+          <div className="mb-4 flex items-start gap-2 rounded-xl border border-emerald-200/60 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <i className="fa-solid fa-circle-check mt-0.5" />
+            <span>Email verified successfully. Sign in to continue.</span>
+          </div>
+        )}
+        <form onSubmit={onSubmit} className="space-y-4 px-6 pb-6 pt-4">
           <div className="space-y-1">
             <label htmlFor="email" className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
               Email Address or Username

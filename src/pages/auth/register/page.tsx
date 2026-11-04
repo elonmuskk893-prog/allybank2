@@ -43,6 +43,7 @@ const RING_STYLE = { "--tw-ring-color": "var(--brand)" } as React.CSSProperties;
 
 interface RegisterResponse {
   needs_email_verification?: boolean;
+  email_sent?: boolean;
 }
 
 function RegisterForm() {
@@ -109,9 +110,13 @@ function RegisterForm() {
       setError(result.error ?? "Something went wrong. Please try again.");
       return;
     }
-    router.replace(
-      result.data?.needs_email_verification ? "/auth/verify-email" : "/auth/login?registered=1",
-    );
+    if (result.data?.needs_email_verification) {
+      const params = new URLSearchParams({ email: form.email.trim() });
+      if (result.data.email_sent === false) params.set("sent", "0");
+      router.replace(`/auth/verify-email?${params.toString()}`);
+      return;
+    }
+    router.replace("/auth/login?registered=1");
   }
 
   function next() {

@@ -720,8 +720,11 @@ function round2(value: number) {
 }
 
 async function checkPin(user: UserRow, pin?: string) {
-  if (!pin || !/^\d{4,6}$/.test(pin) || !user.pin_hash) {
+  if (!user.pin_hash) {
     throw new DbError("pin_not_set", "You must set a transaction PIN before sending money.");
+  }
+  if (!pin || !/^\d{4,6}$/.test(pin)) {
+    throw new DbError("bad_pin", "Enter your 4–6 digit transaction PIN.");
   }
   if (!(await verifyPassword(pin, user.pin_hash))) {
     throw new DbError("bad_pin", "Incorrect PIN.");
@@ -1002,6 +1005,10 @@ async function createTransfer(input: {
       narration: input.narration,
     });
   }
+
+  // External bank transfers must prove the transaction PIN too; previously the
+  // field was collected by the UI but never checked on this path.
+  await checkPin(user, input.pin);
 
   const acc = state.accounts.find((a) => a.user_id === user.id);
   if (!acc || Number(acc.balance) < input.amount) {
@@ -1762,6 +1769,20 @@ async function applyGrant(input: { program: string; amount?: number }) {
 /* Auth                                                                      */
 /* ------------------------------------------------------------------------- */
 
+/** Mirrors public.email_verifications for the in-memory backend. */
+interface MockVerification {
+  user_id: string;
+  email: string;
+  code_hash: string;
+  expires_at: number;
+  used_at: string | null;
+  created_at: number;
+}
+
+const mockVerifications: MockVerification[] = [];
+const MOCK_VERIFY_TTL_MS = 15 * 60 * 1000;
+const MOCK_VERIFY_COOLDOWN_MS = 60 * 1000;
+
 async function loginMethod(_slug?: string) {
   return { method: "email_password" };
 }
@@ -1803,7 +1824,9 @@ async function register(input: {
     status: "active",
     kyc_status: "not_submitted",
     kyc_required: true,
-    email_verified_at: now,
+    // Mirrors Supabase: the account is created unconfirmed until the emailed
+    // code is entered.
+    email_verified_at: null,
     pin_gate: false,
     pin_hash: null,
     account_number: generateAccountNumber(),
@@ -1864,14 +1887,30 @@ async function register(input: {
     read_at: null,
     created_at: now,
   });
+  const code = generateNumericCode();
+  mockVerifications.unshift({
+    user_id: id,
+    email,
+    code_hash: (await hashPassword(code)).hash,
+    expires_at: Date.now() + MOCK_VERIFY_TTL_MS,
+    used_at: null,
+    created_at: Date.now(),
+  });
+  // Mock backend only: there is no outbound mail, so surface the code in the
+  // dev log to keep the flow testable. Never used when Supabase is configured.
+  console.info(`[mock] verification code for ${email}: ${code}`);
+
+  // Remember who is mid-verification so the resend endpoint and the status
+  // poll work even if the member returns without the `?email=` hint.
   const store = await cookies();
-  store.set(SESSION_COOKIE, id, {
+  store.set(PENDING_VERIFY_COOKIE, email, {
     httpOnly: true,
     path: "/",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 30 * 60,
   });
-  return { user_id: id, email, needs_email_verification: false, dev_code: undefined };
+
+  return { user_id: id, email, needs_email_verification: true, email_sent: true };
 }
 
 async function login(input: { email?: string; password?: string; acknowledge?: boolean }) {
@@ -1885,6 +1924,15 @@ async function login(input: { email?: string; password?: string; acknowledge?: b
     }
   } else {
     throw new DbError("invalid_credentials", "Email or password is incorrect.", 401);
+  }
+
+  if (!user.email_verified_at) {
+    throw new DbError(
+      "email_not_confirmed",
+      "Your email isn't verified yet. Enter the 6-digit code we emailed you, or request a new one.",
+      401,
+      { email: user.email },
+    );
   }
 
   if (user.status === "blocked") {
@@ -1970,34 +2018,109 @@ async function logout() {
   return { ok: true };
 }
 
-async function verifyEmail(input: { code: string }) {
-  const user = await requireSession();
+async function mockPendingVerifyEmail(requested?: string): Promise<string | null> {
+  const explicit = String(requested ?? "")
+    .trim()
+    .toLowerCase();
+  if (explicit) return explicit;
   const store = await cookies();
-  const code = store.get(PENDING_VERIFY_COOKIE)?.value;
-  if (!code || code !== input.code) {
-    throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
-  }
-  if (user.email_verified_at) return { ok: true };
-  state.users.set(user.id, { ...user, email_verified_at: now });
-  store.delete(PENDING_VERIFY_COOKIE);
-  return { ok: true };
+  const fromCookie = store.get(PENDING_VERIFY_COOKIE)?.value?.trim().toLowerCase();
+  if (fromCookie) return fromCookie;
+  const sessionId = (await cookies()).get(SESSION_COOKIE)?.value;
+  const user = sessionId ? state.users.get(sessionId) : undefined;
+  return user?.email ? user.email.trim().toLowerCase() : null;
 }
 
-async function resendVerifyCode() {
-  const user = await requireSession();
-  if (user.email_verified_at) return { already_verified: true, resend_in: 0 };
+async function verifyEmail(input: { code?: string; email?: string }) {
   const store = await cookies();
-  store.set(PENDING_VERIFY_COOKIE, generateNumericCode(), {
-    httpOnly: true,
-    path: "/",
-    sameSite: "lax",
-    maxAge: 10 * 60,
+  const email = await mockPendingVerifyEmail(input.email);
+  if (!email) {
+    throw new DbError("not_authenticated", "Enter the email address you signed up with.", 401);
+  }
+  const user = [...state.users.values()].find((u) => u.email === email);
+  if (!user) throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
+  if (user.email_verified_at) {
+    store.delete(PENDING_VERIFY_COOKIE);
+    return { ok: true, already_verified: true, email };
+  }
+
+  const code = String(input.code ?? "").trim();
+  if (!/^\d{6}$/.test(code)) {
+    throw new DbError(
+      "invalid_or_expired_code",
+      "Enter the 6-digit code from your verification email.",
+      410,
+    );
+  }
+  const row = mockVerifications.find((v) => v.email === email && !v.used_at);
+  if (!row || row.expires_at < Date.now() || !(await verifyPassword(code, row.code_hash))) {
+    throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
+  }
+
+  const verifiedAt = new Date().toISOString();
+  for (const v of mockVerifications) {
+    if (v.email === email && !v.used_at) v.used_at = verifiedAt;
+  }
+  state.users.set(user.id, { ...user, email_verified_at: verifiedAt });
+  store.delete(PENDING_VERIFY_COOKIE);
+  return { ok: true, email };
+}
+
+async function resendVerifyCode(input?: { email?: string }) {
+  const email = await mockPendingVerifyEmail(input?.email);
+  if (!email) {
+    throw new DbError("not_authenticated", "Enter the email address you signed up with.", 401);
+  }
+  const user = [...state.users.values()].find((u) => u.email === email);
+  if (!user) throw new DbError("not_found", "We couldn't find that account.", 404);
+  if (user.email_verified_at) return { already_verified: true, resend_in: 0, sent: false };
+
+  const latest = mockVerifications.find((v) => v.email === email);
+  if (latest) {
+    const remaining = Math.ceil(
+      (MOCK_VERIFY_COOLDOWN_MS - (Date.now() - latest.created_at)) / 1000,
+    );
+    if (remaining > 0) {
+      throw new DbError(
+        "too_many_requests",
+        `Please wait ${remaining}s before requesting another code.`,
+        429,
+        { resend_in: remaining },
+      );
+    }
+  }
+
+  for (const v of mockVerifications) {
+    if (v.email === email && !v.used_at) v.used_at = new Date().toISOString();
+  }
+
+  const code = generateNumericCode();
+  mockVerifications.unshift({
+    user_id: user.id,
+    email,
+    code_hash: (await hashPassword(code)).hash,
+    expires_at: Date.now() + MOCK_VERIFY_TTL_MS,
+    used_at: null,
+    created_at: Date.now(),
   });
-  return { resend_in: 10 };
+  // Mock backend only — see register().
+  console.info(`[mock] verification code for ${email}: ${code}`);
+  return { resend_in: Math.ceil(MOCK_VERIFY_COOLDOWN_MS / 1000), sent: true };
 }
 
 async function resendVerifyStatus() {
-  return { resend_in: 10 };
+  const email = await mockPendingVerifyEmail();
+  if (!email) return { resend_in: 0, verified: false };
+  const user = [...state.users.values()].find((u) => u.email === email);
+  if (!user) return { resend_in: 0, verified: false };
+  if (user.email_verified_at) return { resend_in: 0, verified: true };
+  const latest = mockVerifications.find((v) => v.email === email);
+  if (!latest) return { resend_in: 0, verified: false };
+  const resendIn = Math.max(
+    0,
+    Math.ceil((MOCK_VERIFY_COOLDOWN_MS - (Date.now() - latest.created_at)) / 1000),
+  );
+  return { resend_in: resendIn, verified: false };
 }
 
 /* ------------------------------------------------------------------------- */
@@ -2460,6 +2583,21 @@ async function adminUpdateUser(input: {
   if (!input.id) throw new DbError("invalid_request", "Missing user id.");
   const user = state.users.get(input.id);
   if (!user) throw new DbError("not_found", "User not found.", 404);
+
+  // Validate credentials before touching state so a rejected value cannot leave
+  // a half-applied profile update behind.
+  const password = input.password === undefined ? undefined : input.password.trim();
+  if (password !== undefined) {
+    if (password.length < 8)
+      throw new DbError("weak_password", "The password must be at least 8 characters.");
+    if (password.length > 72)
+      throw new DbError("weak_password", "The password must be 72 characters or fewer.");
+  }
+  const pin = input.pin === undefined ? undefined : input.pin.trim();
+  if (pin !== undefined && !/^\d{4,6}$/.test(pin)) {
+    throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
+  }
+
   const patch: Record<string, unknown> = {};
   if (input.first_name !== undefined) {
     user.first_name = input.first_name.trim();
@@ -2497,19 +2635,15 @@ async function adminUpdateUser(input: {
     user.mask_payment_details = Boolean(input.mask_payment_details);
     patch.mask_payment_details = user.mask_payment_details;
   }
-  if (input.password !== undefined) {
-    const password = input.password.trim();
-    if (password.length < 8)
-      throw new DbError("weak_password", "The password must be at least 8 characters.");
+  if (password !== undefined) {
     state.passwords.set(user.email, password);
-    patch.password_set = true;
+    patch.password_reset = true;
   }
-  if (input.pin !== undefined) {
-    const pin = input.pin.trim();
-    if (!/^\d{4,6}$/.test(pin)) throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
+  if (pin !== undefined) {
     const { hash } = await hashPassword(pin);
     user.pin_hash = hash;
-    patch.pin_set = true;
+    user.pin_gate = false;
+    patch.pin_reset = true;
   }
   await writeAudit({
     action: "user.update",

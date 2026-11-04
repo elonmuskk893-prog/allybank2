@@ -253,6 +253,10 @@ function TransferFlow() {
         res.errorCode === "insufficient_balance"
       ) {
         message = "Not enough balance to cover the amount and fee.";
+      } else if (res.errorCode === "bad_pin") {
+        message = res.error ?? "Incorrect PIN.";
+      } else if (res.errorCode === "pin_not_set") {
+        message = "You must set a transaction PIN before sending money.";
       }
       setStep("form");
       setMsg({ kind: "err", text: message });

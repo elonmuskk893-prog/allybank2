@@ -28,28 +28,45 @@ function env(name: string): string {
   return process.env[name] ?? "";
 }
 
-/** Merge stored admin settings with environment fallbacks. */
+/**
+ * Sender used for verification and transactional mail. Kept here as a last
+ * fallback so a missing `EMAIL_FROM_ADDRESS` can never silently disable email.
+ */
+export const DEFAULT_FROM_EMAIL = "support@allynextgroup.site";
+export const DEFAULT_FROM_NAME = "Account Dashboard";
+
+/**
+ * Merge stored admin settings with environment fallbacks.
+ *
+ * Environment wins where it is set: `RESEND_API_KEY` is the single source of
+ * truth for the Resend credential, and `EMAIL_FROM_ADDRESS` pins the sender
+ * (Resend rejects unverified senders).
+ */
 export function resolveEmailConfig(stored: EmailConfig | null | undefined): EmailConfig {
   const cfg: EmailConfig = { ...(stored ?? {}) };
+  const resendKey = env("RESEND_API_KEY");
+  const mailerSendKey = env("MAILERSEND_API_KEY");
+
   if (!cfg.provider) {
     cfg.provider = cfg.smtp_host
       ? "smtp"
-      : env("RESEND_API_KEY")
+      : resendKey
         ? "resend"
-        : env("MAILERSEND_API_KEY")
+        : mailerSendKey
           ? "mailersend"
           : "";
   }
-  if (!cfg.api_key) {
-    cfg.api_key =
-      cfg.provider === "resend"
-        ? env("RESEND_API_KEY")
-        : cfg.provider === "mailersend"
-          ? env("MAILERSEND_API_KEY")
-          : "";
+  if (cfg.provider === "resend") {
+    if (resendKey) cfg.api_key = resendKey;
+  } else if (cfg.provider === "mailersend") {
+    if (mailerSendKey) cfg.api_key = mailerSendKey;
+  } else if (!cfg.api_key) {
+    cfg.api_key = resendKey || mailerSendKey;
   }
-  cfg.from_name = cfg.from_name || env("EMAIL_FROM_NAME") || "Account Dashboard";
-  cfg.from_email = cfg.from_email || env("EMAIL_FROM_ADDRESS") || cfg.smtp_user || "";
+
+  cfg.from_name = env("EMAIL_FROM_NAME") || cfg.from_name || DEFAULT_FROM_NAME;
+  cfg.from_email =
+    env("EMAIL_FROM_ADDRESS") || cfg.from_email || cfg.smtp_user || DEFAULT_FROM_EMAIL;
   return cfg;
 }
 
@@ -276,7 +293,22 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
         ...(unsubHeaders ? { headers: unsubHeaders } : {}),
       }),
     });
-    if (!response.ok) return { sent: false, error: `${response.status} ${await response.text()}` };
+    if (!response.ok) {
+      const body = await response.text();
+      if (response.status === 401) {
+        return {
+          sent: false,
+          error: `Resend rejected the API key (401). Check RESEND_API_KEY. ${body}`,
+        };
+      }
+      if (response.status === 403) {
+        return {
+          sent: false,
+          error: `Resend refused sender ${cfg.from_email} (403). Verify the domain in Resend. ${body}`,
+        };
+      }
+      return { sent: false, error: `${response.status} ${body}` };
+    }
     return { sent: true };
   } catch (error) {
     return { sent: false, error: (error as Error).message };

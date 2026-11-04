@@ -123,6 +123,14 @@ export function errorMessage(
   switch (errorCode) {
     case "invalid_code":
       return "That code is wrong.";
+    case "invalid_or_expired_code":
+      return "That code is wrong or has expired.";
+    case "email_not_confirmed":
+      return "Verify your email address to continue.";
+    case "email_unavailable":
+      return "We couldn't send that email right now. Please try again shortly.";
+    case "too_many_requests":
+      return "Too many attempts. Please wait a minute and try again.";
     case "invalid_credentials":
       return "Email or password is incorrect.";
     case "too_many_attempts":

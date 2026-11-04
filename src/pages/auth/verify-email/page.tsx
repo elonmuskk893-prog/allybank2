@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "@/lib/next/navigation";
+import Link from "@/lib/next/link";
+import { useRouter, useSearchParams } from "@/lib/next/navigation";
 import { AuthLayout, type AuthPanelContent } from "@/components/auth/auth-layout";
 import { AuthInput } from "@/components/auth/auth-input";
 import { SubmitButton } from "@/components/auth/submit-button";
@@ -21,32 +22,49 @@ const VERIFY_PANEL: AuthPanelContent = {
 
 export default function VerifyEmailPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const sentFailed = searchParams.get("sent") === "0";
+
+  const [email, setEmail] = useState(searchParams.get("email")?.trim() ?? "");
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(
+    sentFailed ? "We couldn't send the first code — press “Resend code” below." : null,
+  );
   const [resendIn, setResendIn] = useState(0);
+  const [verified, setVerified] = useState(false);
 
   async function handleVerify(event: React.FormEvent) {
     event.preventDefault();
     setError(null);
     setMessage(null);
+    if (!/^\d{6}$/.test(code.trim())) {
+      setError("Enter the 6-digit code from your verification email.");
+      return;
+    }
     setLoading(true);
-    const result = await bankFetch("/auth/verify-email", {
+    const result = await bankFetch<{ already_verified?: boolean }>("/auth/verify-email", {
       method: "POST",
-      body: { code },
+      body: { code: code.trim(), email: email.trim() || undefined },
     });
     setLoading(false);
     if (!result.ok) {
+      if (result.errorCode === "too_many_attempts") {
+        setError("Too many incorrect codes. Please wait a few minutes and try again.");
+        return;
+      }
       setError(
         result.errorCode === "invalid_or_expired_code"
-          ? "Code is wrong or expired."
-          : (result.error ?? "Failed"),
+          ? "That code is wrong or has expired. Request a new one below."
+          : (result.error ?? "We couldn't verify that code. Please try again."),
       );
       return;
     }
-    router.replace("/dashboard");
+    setVerified(true);
+    setMessage("Email verified. Taking you to sign in…");
+    window.setTimeout(() => router.replace("/auth/login?verified=1"), 1200);
   }
 
   async function handleResend() {
@@ -56,21 +74,30 @@ export default function VerifyEmailPage() {
     setMessage(null);
     const result = await bankFetch<{ already_verified?: boolean; resend_in?: number }>(
       "/auth/resend-verify",
-      { method: "POST" },
+      { method: "POST", body: { email: email.trim() || undefined } },
     );
     setResending(false);
     if (!result.ok) {
-      setError(result.error ?? "Failed");
+      const wait = Number(result.errorBody?.resend_in ?? 0);
+      if (result.errorCode === "too_many_requests") {
+        if (wait > 0) setResendIn(wait);
+        setError(result.error ?? "Please wait before requesting another code.");
+        return;
+      }
+      setError(
+        result.errorCode === "email_unavailable"
+          ? "We couldn't send the email right now. Please try again shortly or contact support."
+          : (result.error ?? "We couldn't send another code. Please try again."),
+      );
       return;
     }
     if (result.data?.already_verified) {
-      router.replace("/dashboard");
+      setMessage("This email is already verified. Taking you to sign in…");
+      window.setTimeout(() => router.replace("/auth/login?verified=1"), 1200);
       return;
     }
-    setMessage("A new code is on the way. Check your inbox.");
-    setResendIn(
-      typeof result.data?.resend_in === "number" ? result.data.resend_in : 10,
-    );
+    setMessage("A new code is on the way. Check your inbox and spam folder.");
+    setResendIn(typeof result.data?.resend_in === "number" ? result.data.resend_in : 60);
   }
 
   useEffect(() => {
@@ -81,18 +108,17 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     (async () => {
-      const status = await bankFetch<{ resend_in?: number }>("/auth/resend-verify-status");
-      if (status.ok && typeof status.data?.resend_in === "number") {
-        setResendIn(status.data.resend_in);
+      const status = await bankFetch<{ resend_in?: number; verified?: boolean }>(
+        "/auth/resend-verify-status",
+      );
+      if (!status.ok) return;
+      if (status.data?.verified) {
+        setMessage("This email is already verified. Taking you to sign in…");
+        window.setTimeout(() => router.replace("/auth/login?verified=1"), 1200);
+        return;
       }
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      const me = await bankFetch<{ user?: { email_verified_at?: string | null } }>("/me");
-      if (me.ok && me.data?.user?.email_verified_at) {
-        router.replace("/dashboard");
+      if (typeof status.data?.resend_in === "number" && status.data.resend_in > 0) {
+        setResendIn(status.data.resend_in);
       }
     })();
   }, [router]);
@@ -108,27 +134,37 @@ export default function VerifyEmailPage() {
             style={{ background: "color-mix(in srgb, var(--brand) 14%, transparent)" }}
           >
             <i
-              className="fas fa-envelope-open-text text-2xl"
+              className={`fas ${verified ? "fa-circle-check" : "fa-envelope-open-text"} text-2xl`}
               style={{ color: "var(--brand)" }}
             />
           </div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Verify your email</h2>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            Enter the 6-digit code we just emailed you.
+            {email
+              ? `Enter the 6-digit code we emailed to ${email}.`
+              : "Enter your email address and the 6-digit code we sent you."}
           </p>
         </div>
         <form onSubmit={handleVerify}>
           <AuthInput
+            label="Email address"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            disabled={loading || verified}
+            placeholder="you@example.com"
+            autoComplete="email"
+          />
+          <AuthInput
             label="Verification code"
             value={code}
-            onChange={setCode}
-            disabled={loading}
+            onChange={(value) => setCode(value.replace(/\D/g, "").slice(0, 6))}
+            disabled={loading || verified}
             placeholder="123456"
+            autoComplete="one-time-code"
             error={error ?? undefined}
           />
-          {message && (
-            <p className="mb-3 text-xs text-green-600 dark:text-green-400">{message}</p>
-          )}
+          {message && <p className="mb-3 text-xs text-green-600 dark:text-green-400">{message}</p>}
           <SubmitButton loading={loading}>
             <i className="fas fa-check text-sm" />
             Verify
@@ -136,7 +172,7 @@ export default function VerifyEmailPage() {
           <button
             type="button"
             onClick={handleResend}
-            disabled={resending || resendIn > 0}
+            disabled={resending || resendIn > 0 || verified}
             className="mt-4 w-full text-center text-xs text-gray-600 transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400"
           >
             {resending
@@ -145,6 +181,12 @@ export default function VerifyEmailPage() {
                 ? `Resend code in ${countdown}`
                 : "Didn't get it? Resend code"}
           </button>
+          <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+            Already verified?{" "}
+            <Link href="/auth/login" className="font-semibold text-[var(--brand)] hover:underline">
+              Sign in
+            </Link>
+          </p>
         </form>
       </div>
     </AuthLayout>

@@ -11,5 +11,6 @@ export async function POST(request: Request) {
       headers: { "content-type": "application/json" },
     });
   }
-  return route(() => db.resendVerifyCode());
+  const body = await request.json().catch(() => ({}));
+  return route(() => db.resendVerifyCode({ email: body?.email ? String(body.email) : undefined }));
 }
