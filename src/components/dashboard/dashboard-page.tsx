@@ -136,10 +136,7 @@ export function DashboardPage() {
     const pendingWithdrawals = withdrawals
       .filter((w) => !["sent", "rejected"].includes(w.status))
       .reduce((sum, w) => sum + Number(w.amount), 0);
-    const volume = transactions.reduce(
-      (sum, tx) => sum + Math.abs(Number(tx.amount)),
-      0,
-    );
+    const volume = transactions.reduce((sum, tx) => sum + Math.abs(Number(tx.amount)), 0);
     return {
       pending: pendingDeposits + pendingWithdrawals,
       volume,
@@ -148,13 +145,10 @@ export function DashboardPage() {
 
   if (balances === null) return <Loader />;
 
-  const primary =
-    balances.find((balance) => balance.currency === currency) ??
-    balances[0] ??
-    { currency, amount: "0" };
+  const primary = balances.find((balance) => balance.currency === currency) ??
+    balances[0] ?? { currency, amount: "0" };
 
-  const fullName =
-    [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
+  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ") || user.email;
 
   const accountLast4 = (user.account_number ?? String(user.id).padStart(10, "0")).slice(-4);
   const isActive = user.status === "active";
@@ -167,9 +161,7 @@ export function DashboardPage() {
     .slice(0, 8);
 
   const format = (amount: number) => formatCurrency(currency, amount);
-  const displayBalance = showBalances
-    ? format(Number(primary.amount))
-    : `${currency} ******`;
+  const displayBalance = showBalances ? format(Number(primary.amount)) : `${currency} ******`;
 
   const assetBalance = (symbol: string) =>
     Number(balances.find((balance) => balance.currency === symbol)?.amount ?? 0);
@@ -212,11 +204,7 @@ export function DashboardPage() {
           </div>
 
           <div className="space-y-4">
-            <AccountStatistics
-              pending={stats.pending}
-              volume={stats.volume}
-              format={format}
-            />
+            <AccountStatistics pending={stats.pending} volume={stats.volume} format={format} />
             <SupportCard />
           </div>
         </div>
@@ -321,12 +309,18 @@ function HeroCard({
             <p className="text-xl font-semibold leading-tight">{fullName}</p>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-3">
-                <span className={`h-2.5 w-2.5 rounded-full ${isActive ? "bg-lime-300" : "bg-red-300"}`} />
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${isActive ? "bg-lime-300" : "bg-red-300"}`}
+                />
                 <span className="font-semibold">{isActive ? "Active" : "Inactive"}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className={`h-2.5 w-2.5 rounded-full ${isVerified ? "bg-emerald-300" : "bg-amber-300"}`} />
-                <span className="font-semibold">{isVerified ? "Verified & Secured" : "Verification Pending"}</span>
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${isVerified ? "bg-emerald-300" : "bg-amber-300"}`}
+                />
+                <span className="font-semibold">
+                  {isVerified ? "Verified & Secured" : "Verification Pending"}
+                </span>
               </div>
             </div>
           </div>
@@ -360,8 +354,8 @@ function HeroCard({
                         {asset.name}
                       </span>
                       <span className="text-xs text-white/75">
-                        <span className="mr-1 inline-block h-2 w-2 rounded-full bg-orange-300" />
-                        1 {asset.symbol} = {format(assetRate(asset))}
+                        <span className="mr-1 inline-block h-2 w-2 rounded-full bg-orange-300" />1{" "}
+                        {asset.symbol} = {format(assetRate(asset))}
                       </span>
                     </div>
                     <div className="mt-1 flex items-center justify-between">
@@ -421,13 +415,7 @@ function HeroCard({
 /* Cards                                                               */
 /* ------------------------------------------------------------------ */
 
-function PanelCard({
-  children,
-  pad = true,
-}: {
-  children: React.ReactNode;
-  pad?: boolean;
-}) {
+function PanelCard({ children, pad = true }: { children: React.ReactNode; pad?: boolean }) {
   return (
     <div
       className={`rounded-xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800 ${
@@ -451,11 +439,7 @@ interface TransactionRow {
   amount: string;
 }
 
-function RecentTransactions({
-  transactions,
-}: {
-  transactions: TransactionRow[];
-}) {
+function RecentTransactions({ transactions }: { transactions: TransactionRow[] }) {
   return (
     <PanelCard>
       <div className="mb-4 flex items-center justify-between">
@@ -473,9 +457,7 @@ function RecentTransactions({
       {transactions.length === 0 ? (
         <div className="py-6 text-center">
           <i className="fa-solid fa-receipt mb-2 text-2xl text-gray-300 dark:text-gray-600" />
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            No recent transactions
-          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">No recent transactions</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -551,14 +533,32 @@ function QuickActionLink({
 function QuickActions() {
   return (
     <PanelCard>
-      <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
-        Quick Actions
-      </h3>
+      <h3 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">Quick Actions</h3>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <QuickActionLink href="/transfer" icon="fa-solid fa-exchange-alt" label="Transfer" color="bg-blue-500" />
-        <QuickActionLink href="/transfer#international" icon="fa-solid fa-file-invoice" label="Pay Bills" color="bg-green-500" />
-        <QuickActionLink href="/deposit" icon="fa-solid fa-building-columns" label="Bank Details" color="bg-[var(--brand)]" />
-        <QuickActionLink href="/cards" icon="fa-solid fa-credit-card" label="Cards" color="bg-purple-500" />
+        <QuickActionLink
+          href="/transfer"
+          icon="fa-solid fa-exchange-alt"
+          label="Transfer"
+          color="bg-blue-500"
+        />
+        <QuickActionLink
+          href="/transfer#international"
+          icon="fa-solid fa-file-invoice"
+          label="Pay Bills"
+          color="bg-green-500"
+        />
+        <QuickActionLink
+          href="/deposit"
+          icon="fa-solid fa-building-columns"
+          label="Bank Details"
+          color="bg-[var(--brand)]"
+        />
+        <QuickActionLink
+          href="/cards"
+          icon="fa-solid fa-credit-card"
+          label="Cards"
+          color="bg-purple-500"
+        />
       </div>
     </PanelCard>
   );
@@ -572,9 +572,7 @@ function QuickTransfer({ beneficiaries }: { beneficiaries: Beneficiary[] }) {
   return (
     <PanelCard>
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-          Quick Transfer
-        </h3>
+        <h3 className="text-base font-semibold text-gray-900 dark:text-white">Quick Transfer</h3>
         <Link
           href="/beneficiaries"
           className="flex items-center text-xs font-medium hover:opacity-80"
@@ -591,9 +589,7 @@ function QuickTransfer({ beneficiaries }: { beneficiaries: Beneficiary[] }) {
           <div className="mb-2 grid h-16 w-16 place-items-center rounded-full border-2 border-dashed border-gray-300 bg-gray-50 transition group-hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-800 dark:group-hover:bg-gray-700">
             <i className="fa-solid fa-plus text-lg text-gray-400 dark:text-gray-500" />
           </div>
-          <span className="text-center text-xs text-gray-500 dark:text-gray-400">
-            Add New
-          </span>
+          <span className="text-center text-xs text-gray-500 dark:text-gray-400">Add New</span>
         </Link>
 
         {beneficiaries.map((beneficiary) => (
@@ -602,7 +598,10 @@ function QuickTransfer({ beneficiaries }: { beneficiaries: Beneficiary[] }) {
             href="/transfer"
             className="group flex flex-shrink-0 flex-col items-center justify-center"
           >
-            <div className="relative mb-2 grid h-16 w-16 place-items-center rounded-full border-2 border-white text-base font-semibold text-white shadow-sm transition hover:scale-105 dark:border-gray-800" style={{ background: "var(--brand)" }}>
+            <div
+              className="relative mb-2 grid h-16 w-16 place-items-center rounded-full border-2 border-white text-base font-semibold text-white shadow-sm transition hover:scale-105 dark:border-gray-800"
+              style={{ background: "var(--brand)" }}
+            >
               {beneficiary.name.slice(0, 2).toUpperCase()}
               {beneficiary.favorite && (
                 <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-yellow-400">
@@ -651,12 +650,13 @@ function ActiveCards({
     <PanelCard pad={false}>
       <div className="flex items-center justify-between border-b border-gray-200/70 px-4 py-2 dark:border-gray-700/50">
         <div className="flex items-center">
-          <div className="mr-2 grid h-6 w-6 place-items-center rounded-lg text-white" style={{ background: "var(--brand)" }}>
+          <div
+            className="mr-2 grid h-6 w-6 place-items-center rounded-lg text-white"
+            style={{ background: "var(--brand)" }}
+          >
             <i className="fa-solid fa-credit-card text-xs" />
           </div>
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-            Your Active Cards
-          </h3>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Your Active Cards</h3>
         </div>
         {cards.length > 0 && (
           <Link
@@ -681,10 +681,7 @@ function ActiveCards({
                   <div
                     className="relative h-32 w-full overflow-hidden rounded-xl text-white"
                     style={{
-                      background:
-                        card.card_brand === "mastercard"
-                          ? "linear-gradient(135deg,#f59e0b,#b91c1c)"
-                          : "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.55))",
+                      background: "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.55))",
                     }}
                   >
                     <div className="absolute inset-0 flex flex-col justify-between p-3">
@@ -693,9 +690,11 @@ function ActiveCards({
                           <div className="text-xs font-semibold tracking-wide">{siteName}</div>
                           <div className="text-xs opacity-70">Virtual Card</div>
                         </div>
-                        <i className={`fa-brands ${card.card_brand === "mastercard" ? "fa-cc-mastercard" : "fa-cc-visa"} text-lg`} />
+                        <i className="fa-solid fa-credit-card text-lg" />
                       </div>
-                      <div className="font-mono text-sm tracking-widest">{card.card_number_masked}</div>
+                      <div className="font-mono text-sm tracking-widest">
+                        {card.card_number_masked}
+                      </div>
                       <div className="flex items-end justify-between">
                         <div>
                           <div className="text-xs opacity-70">Card Holder</div>
@@ -719,7 +718,10 @@ function ActiveCards({
                 <div className="px-3 pb-3">
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium capitalize" style={{ color: "var(--brand)" }}>
+                      <span
+                        className="text-xs font-medium capitalize"
+                        style={{ color: "var(--brand)" }}
+                      >
                         {card.card_brand} Card
                       </span>
                       <span className="inline-flex items-center rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
@@ -788,7 +790,9 @@ function StatRow({
   return (
     <div className="rounded-xl border border-gray-100/50 bg-gradient-to-br from-gray-50/50 to-white/50 p-2 dark:border-gray-600/50 dark:from-gray-700/50 dark:to-gray-800/50">
       <div className="flex items-center">
-        <div className={`grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br ${bg} shadow-md`}>
+        <div
+          className={`grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br ${bg} shadow-md`}
+        >
           <i className={`${icon} text-xs text-white`} />
         </div>
         <div className="ml-3 min-w-0 flex-1">
@@ -818,9 +822,7 @@ function AccountStatistics({
         <div className="mr-2 grid h-6 w-6 place-items-center rounded-lg bg-slate-500">
           <i className="fa-solid fa-chart-line text-xs text-white" />
         </div>
-        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-          Account Statistics
-        </h3>
+        <h3 className="text-sm font-bold text-gray-900 dark:text-white">Account Statistics</h3>
       </div>
       <div className="space-y-2 p-3">
         <StatRow
@@ -862,20 +864,24 @@ function SupportCard() {
     <PanelCard>
       <div className="mb-3 flex items-center justify-center">
         <div className="relative">
-          <div className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg" style={{ background: "var(--brand)" }}>
+          <div
+            className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg"
+            style={{ background: "var(--brand)" }}
+          >
             <i className="fa-solid fa-headset text-sm" />
           </div>
           <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border border-white bg-green-500 dark:border-gray-800" />
         </div>
       </div>
       <div className="mb-3 text-center">
-        <h3 className="mb-1 text-sm font-bold text-gray-900 dark:text-white">
-          Need Assistance?
-        </h3>
+        <h3 className="mb-1 text-sm font-bold text-gray-900 dark:text-white">Need Assistance?</h3>
         <p className="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
           Contact support when you need help with your account
         </p>
-        <div className="flex items-center justify-center text-xs font-semibold" style={{ color: "var(--brand)" }}>
+        <div
+          className="flex items-center justify-center text-xs font-semibold"
+          style={{ color: "var(--brand)" }}
+        >
           <span className="mr-1 h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
           <span>Live Chat Support</span>
         </div>
@@ -920,7 +926,13 @@ function SupportCard() {
 
 interface MobileDashboardProps {
   site: { name: string; brand_color?: string };
-  user: { photo_url?: string; first_name?: string; account_number?: string; id: number; status: string };
+  user: {
+    photo_url?: string;
+    first_name?: string;
+    account_number?: string;
+    id: number;
+    status: string;
+  };
   fullName: string;
   currency: string;
   displayBalance: string;
@@ -995,10 +1007,14 @@ function MobileDashboard({
           />
           <div className="relative z-10 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">Fiat Balance</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Fiat Balance
+              </p>
               <p className="mt-0.5 text-sm font-bold text-white">{currency} Account</p>
             </div>
-            <div className="rounded-lg bg-white/5 px-2 py-1 text-xs text-slate-400">**** {accountLast4}</div>
+            <div className="rounded-lg bg-white/5 px-2 py-1 text-xs text-slate-400">
+              **** {accountLast4}
+            </div>
           </div>
           <div className="relative z-10 mt-4">
             <p className="text-xs text-slate-400">Available Funds</p>
@@ -1014,7 +1030,9 @@ function MobileDashboard({
             <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4 text-xs text-slate-400">
               <span className="font-medium">Account Status</span>
               <span className="inline-flex items-center rounded-full bg-green-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-green-400">
-                <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isActive ? "bg-green-400" : "bg-red-400"}`} />
+                <span
+                  className={`mr-1.5 h-1.5 w-1.5 rounded-full ${isActive ? "bg-green-400" : "bg-red-400"}`}
+                />
                 {isActive ? "Active" : "Inactive"}
               </span>
             </div>
@@ -1040,10 +1058,14 @@ function MobileDashboard({
                 >
                   <div className="flex items-center gap-3">
                     <div className="grid h-9 w-9 place-items-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-                      <i className={`${cryptoIcon(asset.symbol)} text-amber-600 dark:text-amber-400`} />
+                      <i
+                        className={`${cryptoIcon(asset.symbol)} text-amber-600 dark:text-amber-400`}
+                      />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{asset.name}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {asset.name}
+                      </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         1 {asset.symbol} = {format(assetRate(asset))}
                       </p>
@@ -1143,7 +1165,9 @@ function MobileThemeToggle() {
       aria-label="Toggle theme"
       className="grid h-10 w-10 place-items-center rounded-full bg-white/10 backdrop-blur-sm transition hover:bg-white/20"
     >
-      <i className={`fa-solid ${isDark ? "fa-sun text-yellow-400" : "fa-moon text-white"} text-base`} />
+      <i
+        className={`fa-solid ${isDark ? "fa-sun text-yellow-400" : "fa-moon text-white"} text-base`}
+      />
     </button>
   );
 }

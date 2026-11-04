@@ -71,9 +71,22 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "fixed",
     duration: "0-2 hours",
     custom_fields: [
-      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "Online Banking" },
-      { id: "account_number", label: "Account Number", type: "text", role: "display", value: "4023391234" },
-      { id: "reference", label: "Deposit Reference", type: "text", role: "input", required: false, placeholder: "Optional note" },
+      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "" },
+      {
+        id: "account_number",
+        label: "Account Number",
+        type: "text",
+        role: "display",
+        value: "4023391234",
+      },
+      {
+        id: "reference",
+        label: "Deposit Reference",
+        type: "text",
+        role: "input",
+        required: false,
+        placeholder: "Optional note",
+      },
     ],
   },
   {
@@ -87,22 +100,43 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "percent",
     duration: "Network confirmations",
     custom_fields: [
-      { id: "network", label: "Network", type: "select", role: "input", required: true, options: ["TRC20", "ERC20", "BEP20"] },
-      { id: "coin", label: "Coin", type: "select", role: "input", required: true, options: ["BTC", "USDT", "ETH"] },
+      {
+        id: "network",
+        label: "Network",
+        type: "select",
+        role: "input",
+        required: true,
+        options: ["TRC20", "ERC20", "BEP20"],
+      },
+      {
+        id: "coin",
+        label: "Coin",
+        type: "select",
+        role: "input",
+        required: true,
+        options: ["BTC", "USDT", "ETH"],
+      },
     ],
   },
   {
-    id: "deposit_paypal",
-    name: "PayPal",
+    id: "deposit_wallet",
+    name: "Digital Wallet",
     type: "deposit",
-    emoji: "🅿",
+    emoji: "💳",
     minimum: 20,
     maximum: 20000,
     charges_amount: 2.5,
     charges_type: "percent",
     duration: "Instant",
     custom_fields: [
-      { id: "paypal_email", label: "PayPal Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
+      {
+        id: "wallet_email",
+        label: "Wallet email",
+        type: "text",
+        role: "input",
+        required: true,
+        placeholder: "you@example.com",
+      },
     ],
   },
   {
@@ -131,7 +165,13 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "percent",
     duration: "1-2 business days",
     custom_fields: [
-      { id: "account_number", label: "Account Number / IBAN", type: "text", role: "input", required: true },
+      {
+        id: "account_number",
+        label: "Account Number / IBAN",
+        type: "text",
+        role: "input",
+        required: true,
+      },
       { id: "bank_name", label: "Bank Name", type: "text", role: "input", required: true },
     ],
   },
@@ -146,36 +186,63 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "percent",
     duration: "Network confirmations",
     custom_fields: [
-      { id: "network", label: "Network", type: "select", role: "input", required: true, options: ["TRC20", "ERC20", "BEP20"] },
-      { id: "wallet_address", label: "Wallet Address", type: "text", role: "input", required: true },
+      {
+        id: "network",
+        label: "Network",
+        type: "select",
+        role: "input",
+        required: true,
+        options: ["TRC20", "ERC20", "BEP20"],
+      },
+      {
+        id: "wallet_address",
+        label: "Wallet Address",
+        type: "text",
+        role: "input",
+        required: true,
+      },
     ],
   },
   {
-    id: "withdraw_paypal",
-    name: "PayPal",
+    id: "withdraw_wallet",
+    name: "Digital Wallet",
     type: "withdrawal",
-    emoji: "🅿",
+    emoji: "💳",
     minimum: 20,
     maximum: 20000,
     charges_amount: 2.5,
     charges_type: "percent",
     duration: "Instant",
     custom_fields: [
-      { id: "paypal_email", label: "PayPal Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
+      {
+        id: "wallet_email",
+        label: "Wallet email",
+        type: "text",
+        role: "input",
+        required: true,
+        placeholder: "you@example.com",
+      },
     ],
   },
   {
-    id: "withdraw_wise",
-    name: "Wise",
+    id: "withdraw_external",
+    name: "External Transfer",
     type: "withdrawal",
-    emoji: "💸",
+    emoji: "🏦",
     minimum: 20,
     maximum: 25000,
     charges_amount: 1,
     charges_type: "percent",
     duration: "1-2 business days",
     custom_fields: [
-      { id: "wise_email", label: "Wise Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
+      {
+        id: "external_email",
+        label: "Recipient email",
+        type: "text",
+        role: "input",
+        required: true,
+        placeholder: "you@example.com",
+      },
     ],
   },
 ];
@@ -183,8 +250,8 @@ const paymentMethodsList: PaymentMethod[] = [
 const state = {
   site: {
     id: 1,
-    slug: "online-banking",
-    name: "Online Banking",
+    slug: "account-dashboard",
+    name: "Account Dashboard",
     brand_color: "#0ea5e9",
     primary_currency: "USD",
     kyc_required: true,
@@ -394,7 +461,7 @@ function seed() {
     {
       id: "c-1",
       user_id: "u-demo",
-      brand: "visa",
+      brand: "standard",
       card_type: "credit",
       last4: "4128",
       holder: "Alex Morgan",
@@ -408,7 +475,7 @@ function seed() {
     {
       id: "c-2",
       user_id: "u-demo",
-      brand: "mastercard",
+      brand: "premium",
       card_type: "credit",
       last4: "7761",
       holder: "Alex Morgan",
@@ -426,8 +493,8 @@ function seed() {
       id: `b-${i + 1}`,
       user_id: "u-demo",
       name,
-      bank: "Chase",
-      bank_name: "Chase",
+      bank: "External bank",
+      bank_name: "External bank",
       account_number: generateAccountNumber(),
       routing: null,
       email: null,
@@ -456,7 +523,7 @@ function seed() {
       id: "n-2",
       user_id: "u-demo",
       title: "New card issued",
-      body: "Your new Visa card is ready to use.",
+      body: "Your new card is ready to use.",
       link: "/cards",
       icon: null,
       read_at: now,
@@ -475,17 +542,61 @@ function seed() {
   ];
 
   state.deposits = [
-    { id: "d-1", user_id: "u-demo", method: "bank_transfer", amount: "2500.00", currency: "USD", reference: "DEP-001", status: "completed", created_at: daysAgo(0, 6) },
-    { id: "d-2", user_id: "u-demo", method: "card", amount: "800.00", currency: "USD", reference: "DEP-002", status: "processing", created_at: daysAgo(0, 7) },
+    {
+      id: "d-1",
+      user_id: "u-demo",
+      method: "bank_transfer",
+      amount: "2500.00",
+      currency: "USD",
+      reference: "DEP-001",
+      status: "completed",
+      created_at: daysAgo(0, 6),
+    },
+    {
+      id: "d-2",
+      user_id: "u-demo",
+      method: "card",
+      amount: "800.00",
+      currency: "USD",
+      reference: "DEP-002",
+      status: "processing",
+      created_at: daysAgo(0, 7),
+    },
   ];
 
   state.withdrawals = [
-    { id: "w-1", user_id: "u-demo", method: "bank_transfer", amount: "900.00", currency: "USD", account_number: "4023391234", reference: "WDR-001", status: "pending", created_at: daysAgo(1, 18) },
+    {
+      id: "w-1",
+      user_id: "u-demo",
+      method: "bank_transfer",
+      amount: "900.00",
+      currency: "USD",
+      account_number: "4023391234",
+      reference: "WDR-001",
+      status: "pending",
+      created_at: daysAgo(1, 18),
+    },
   ];
 
   state.crypto = [
-    { id: "cr-1", user_id: "u-demo", symbol: "BTC", name: "Bitcoin", balance: "0", price_usd: "61500", created_at: daysAgo(120) },
-    { id: "cr-2", user_id: "u-demo", symbol: "ETH", name: "Ethereum", balance: "0", price_usd: "3400", created_at: daysAgo(120) },
+    {
+      id: "cr-1",
+      user_id: "u-demo",
+      symbol: "BTC",
+      name: "Bitcoin",
+      balance: "0",
+      price_usd: "61500",
+      created_at: daysAgo(120),
+    },
+    {
+      id: "cr-2",
+      user_id: "u-demo",
+      symbol: "ETH",
+      name: "Ethereum",
+      balance: "0",
+      price_usd: "3400",
+      created_at: daysAgo(120),
+    },
   ];
 
   state.settings.set("u-demo", {
@@ -571,11 +682,10 @@ function mapTransaction(tx: TransactionRow) {
   };
 }
 
-
 function mapCard(card: CardRow) {
   return {
     id: card.id,
-    card_brand: card.brand as "visa" | "mastercard",
+    card_brand: card.brand,
     card_number_masked: `•••• ${card.last4}`,
     expires_at: card.expiry,
     balance: Number(card.limit_amount ?? 0) - Number(card.spent),
@@ -600,7 +710,10 @@ const pendingMemberCredits = new Map<
 >();
 
 /** Confirmation codes issued for pending transfers (mock stand-in for the DB columns). */
-const transferCodes = new Map<string, { code: string; expires_at: number; used_at: string | null }>();
+const transferCodes = new Map<
+  string,
+  { code: string; expires_at: number; used_at: string | null }
+>();
 
 function round2(value: number) {
   return Math.round(value * 100) / 100;
@@ -779,9 +892,6 @@ async function irsRefunds() {
   const user = await requireSession();
   return { refunds: state.irsRefunds.filter((r) => r.user_id === user.id) };
 }
-
-
-
 
 async function paymentMethods(forType: string) {
   const user = await requireSession();
@@ -1000,7 +1110,8 @@ async function memberTransfer(
 
 async function createDeposit(input: { amount: number; method: string; currency?: string }) {
   const user = await requireSession();
-  if (!input.amount || input.amount <= 0) throw new DbError("invalid_amount", "Enter a valid amount.");
+  if (!input.amount || input.amount <= 0)
+    throw new DbError("invalid_amount", "Enter a valid amount.");
   const deposit: DepositRow = {
     id: `d-${Date.now()}`,
     user_id: user.id,
@@ -1032,7 +1143,8 @@ async function createWithdrawal(input: {
   currency?: string;
 }) {
   const user = await requireSession();
-  if (!input.amount || input.amount <= 0) throw new DbError("invalid_amount", "Enter a valid amount.");
+  if (!input.amount || input.amount <= 0)
+    throw new DbError("invalid_amount", "Enter a valid amount.");
   const acc = state.accounts.find((a) => a.user_id === user.id);
   if (!acc || Number(acc.balance) < input.amount) {
     throw new DbError("insufficient_funds", "Insufficient funds for this withdrawal.");
@@ -1148,7 +1260,7 @@ async function requestWithdrawal(input: {
   }
   await checkPin(user, input.pin);
 
-    await ensurePaymentMethodsSeededMock();
+  await ensurePaymentMethodsSeededMock();
   const method =
     input.method_id != null
       ? state.paymentMethodsDb.find((m) => m.id === String(input.method_id) && m.enabled !== false)
@@ -1156,11 +1268,15 @@ async function requestWithdrawal(input: {
   if (method) {
     const min = Number(method.minimum ?? 0);
     if (min > 0 && input.amount < min) {
-      throw new DbError("below_minimum", `Minimum withdrawal is ${min}.`, 400, { min_transfer: min });
+      throw new DbError("below_minimum", `Minimum withdrawal is ${min}.`, 400, {
+        min_transfer: min,
+      });
     }
     const max = Number(method.maximum ?? 0);
     if (max > 0 && input.amount > max) {
-      throw new DbError("above_maximum", `Maximum withdrawal is ${max}.`, 400, { max_transfer: max });
+      throw new DbError("above_maximum", `Maximum withdrawal is ${max}.`, 400, {
+        max_transfer: max,
+      });
     }
   }
 
@@ -1174,9 +1290,7 @@ async function requestWithdrawal(input: {
     currency: acc?.currency ?? "USD",
     account_number: null,
     destination:
-      typeof input.destination === "object" && input.destination != null
-        ? input.destination
-        : null,
+      typeof input.destination === "object" && input.destination != null ? input.destination : null,
     custom: input.custom ?? null,
     reference: `WDR-${Date.now()}`,
     status: "pending",
@@ -1226,11 +1340,13 @@ async function verifyWithdrawal(input: { withdrawal_id: string; code: string }) 
       w.confirmation_code_expires_at &&
       new Date(w.confirmation_code_expires_at).getTime() > Date.now() &&
       w.status === "pending",
-  ) as (WithdrawalRow & {
-    confirmation_code?: string | null;
-    confirmation_code_expires_at?: string | null;
-    confirmation_code_used_at?: string | null;
-  }) | undefined;
+  ) as
+    | (WithdrawalRow & {
+        confirmation_code?: string | null;
+        confirmation_code_expires_at?: string | null;
+        confirmation_code_used_at?: string | null;
+      })
+    | undefined;
   if (!withdrawal) {
     throw new DbError("invalid_code", "That code is wrong, expired or already used.");
   }
@@ -1238,7 +1354,11 @@ async function verifyWithdrawal(input: { withdrawal_id: string; code: string }) 
   withdrawal.confirmation_code_used_at = now;
   withdrawal.status = "completed";
   const tx = state.transactions.find(
-    (t) => t.user_id === user.id && t.reference === withdrawal.reference && t.kind === "withdrawal" && t.status === "pending",
+    (t) =>
+      t.user_id === user.id &&
+      t.reference === withdrawal.reference &&
+      t.kind === "withdrawal" &&
+      t.status === "pending",
   );
   if (tx) tx.status = "completed";
   state.notifications.push({
@@ -1358,10 +1478,19 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
   const record = transferCodes.get(String(input.transfer_id));
   const tx = state.transactions.find(
     (t) =>
-      t.id === input.transfer_id && t.user_id === user.id && t.kind === "transfer" && t.status === "pending",
+      t.id === input.transfer_id &&
+      t.user_id === user.id &&
+      t.kind === "transfer" &&
+      t.status === "pending",
   );
   // The code must belong to THIS transfer, be unused and unexpired.
-  if (!tx || !record || record.used_at || record.code !== supplied || record.expires_at < Date.now()) {
+  if (
+    !tx ||
+    !record ||
+    record.used_at ||
+    record.code !== supplied ||
+    record.expires_at < Date.now()
+  ) {
     throw new DbError("invalid_code", "That code is wrong, expired or already used.");
   }
   record.used_at = new Date().toISOString();
@@ -1584,7 +1713,7 @@ async function applyCard(input: {
     application: {
       id: `ca-${Date.now()}`,
       user_id: user.id,
-      card_brand: input.card_brand ?? "visa",
+      card_brand: input.card_brand ?? "standard",
       currency: input.currency ?? "USD",
       card_level: input.card_level ?? "standard",
       daily_limit: input.daily_limit ?? null,
@@ -1599,7 +1728,8 @@ async function applyCard(input: {
 
 async function applyLoan(input: { amount: number; interest_rate?: number; term_months?: number }) {
   const user = await requireSession();
-  if (!input.amount || input.amount <= 0) throw new DbError("invalid_amount", "Enter a valid amount.");
+  if (!input.amount || input.amount <= 0)
+    throw new DbError("invalid_amount", "Enter a valid amount.");
   const loan: LoanRow = {
     id: `l-${Date.now()}`,
     user_id: user.id,
@@ -1697,8 +1827,24 @@ async function register(input: {
     status: "active",
   });
   state.crypto.push(
-    { id: `cr-${id}-1`, user_id: id, symbol: "BTC", name: "Bitcoin", balance: "0", price_usd: "61500", created_at: now },
-    { id: `cr-${id}-2`, user_id: id, symbol: "ETH", name: "Ethereum", balance: "0", price_usd: "3400", created_at: now },
+    {
+      id: `cr-${id}-1`,
+      user_id: id,
+      symbol: "BTC",
+      name: "Bitcoin",
+      balance: "0",
+      price_usd: "61500",
+      created_at: now,
+    },
+    {
+      id: `cr-${id}-2`,
+      user_id: id,
+      symbol: "ETH",
+      name: "Ethereum",
+      balance: "0",
+      price_usd: "3400",
+      created_at: now,
+    },
   );
   state.settings.set(id, {
     user_id: id,
@@ -1711,7 +1857,7 @@ async function register(input: {
   state.notifications.push({
     id: `n-${Date.now()}`,
     user_id: id,
-    title: "Welcome to Online Banking",
+    title: "Welcome to Account Dashboard",
     body: "Your account is ready. Complete your KYC to unlock all features.",
     link: "/settings/kyc",
     icon: null,
@@ -1752,7 +1898,8 @@ async function login(input: { email?: string; password?: string; acknowledge?: b
       {
         allow_proceed: true,
         account_status: user.status.replace(/-/g, " "),
-        message: "Your account currently has a restriction. You can continue, but some features may be limited.",
+        message:
+          "Your account currently has a restriction. You can continue, but some features may be limited.",
       },
     );
   }
@@ -1859,7 +2006,8 @@ async function resendVerifyStatus() {
 
 async function requireAdmin() {
   const user = await requireSession();
-  if (user.role !== "admin") throw new DbError("forbidden", "You do not have access to this area.", 403);
+  if (user.role !== "admin")
+    throw new DbError("forbidden", "You do not have access to this area.", 403);
   return user;
 }
 
@@ -1897,7 +2045,23 @@ async function adminMe(slug?: string) {
     site,
     user: mapUser(user),
     admin: {
-      permissions: ["super", "users", "kyc", "deposits", "withdrawals", "cards", "loans", "grants", "crm", "content", "appearance", "settings", "audit", "broadcast", "chat"],
+      permissions: [
+        "super",
+        "users",
+        "kyc",
+        "deposits",
+        "withdrawals",
+        "cards",
+        "loans",
+        "grants",
+        "crm",
+        "content",
+        "appearance",
+        "settings",
+        "audit",
+        "broadcast",
+        "chat",
+      ],
       is_super: true,
     },
   };
@@ -1907,11 +2071,21 @@ async function adminOverview() {
   await requireAdmin();
   const users = [...state.users.values()];
   const active = users.filter((u) => u.status === "active").length;
-  const blocked = users.filter((u) => u.status === "blocked" || u.status === "disabled" || u.status === "restricted" || u.status === "suspended").length;
+  const blocked = users.filter(
+    (u) =>
+      u.status === "blocked" ||
+      u.status === "disabled" ||
+      u.status === "restricted" ||
+      u.status === "suspended",
+  ).length;
   const totalDeposits = state.deposits.reduce((sum, d) => sum + Number(d.amount ?? 0), 0);
-  const pendingDeposits = state.deposits.filter((d) => d.status === "processing" || d.status === "pending").reduce((sum, d) => sum + Number(d.amount ?? 0), 0);
+  const pendingDeposits = state.deposits
+    .filter((d) => d.status === "processing" || d.status === "pending")
+    .reduce((sum, d) => sum + Number(d.amount ?? 0), 0);
   const totalTransfers = state.withdrawals.reduce((sum, w) => sum + Number(w.amount ?? 0), 0);
-  const pendingTransfers = state.withdrawals.filter((w) => w.status === "pending").reduce((sum, w) => sum + Number(w.amount ?? 0), 0);
+  const pendingTransfers = state.withdrawals
+    .filter((w) => w.status === "pending")
+    .reduce((sum, w) => sum + Number(w.amount ?? 0), 0);
   return {
     counts: {
       currency: state.site.primary_currency ?? "USD",
@@ -2000,7 +2174,8 @@ async function adminDeposits(opts: AdminListOptions = {}) {
 
 async function setDepositStatus(input: { id?: string; status?: string }) {
   await requireAdmin();
-  if (!input.id || !input.status) throw new DbError("invalid_request", "Missing deposit id or status.");
+  if (!input.id || !input.status)
+    throw new DbError("invalid_request", "Missing deposit id or status.");
   const allowed = ["processing", "pending", "completed", "failed"];
   if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
   const deposit = state.deposits.find((d) => d.id === input.id);
@@ -2016,7 +2191,13 @@ async function setDepositStatus(input: { id?: string; status?: string }) {
     target_type: "deposit",
     target_id: deposit.id,
     target_label: deposit.reference ?? undefined,
-    details: { user_id: deposit.user_id, amount: deposit.amount, currency: deposit.currency, from: previous, to: input.status },
+    details: {
+      user_id: deposit.user_id,
+      amount: deposit.amount,
+      currency: deposit.currency,
+      from: previous,
+      to: input.status,
+    },
   });
   if (input.status === "completed" && previous !== "completed") {
     const account = state.accounts.find(
@@ -2094,7 +2275,14 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     action: `withdrawal.${input.status}`,
     target_type: "withdrawal",
     target_id: withdrawal.id,
-    details: { user_id: withdrawal.user_id, amount: withdrawal.amount, currency: withdrawal.currency, from: previous, to: input.status, refunded: refunding },
+    details: {
+      user_id: withdrawal.user_id,
+      amount: withdrawal.amount,
+      currency: withdrawal.currency,
+      from: previous,
+      to: input.status,
+      refunded: refunding,
+    },
   });
   if (refunding) {
     const account = state.accounts.find(
@@ -2142,7 +2330,12 @@ async function setCardStatus(input: { id?: string; status?: string; frozen?: boo
     if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
     card.status = input.status;
   }
-  await writeAudit({ action: "card.update", target_type: "card", target_id: card.id, details: { status: input.status, frozen: input.frozen } });
+  await writeAudit({
+    action: "card.update",
+    target_type: "card",
+    target_id: card.id,
+    details: { status: input.status, frozen: input.frozen },
+  });
   return { ok: true };
 }
 
@@ -2158,12 +2351,15 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
 async function adminLoans(opts: AdminListOptions = {}) {
   await requireAdmin();
   const rows = applyListFilters(state.loans, opts, () => false);
-  return { loans: rows.map((l) => ({ ...l, amount: String(l.amount), email: emailOf(l.user_id) })) };
+  return {
+    loans: rows.map((l) => ({ ...l, amount: String(l.amount), email: emailOf(l.user_id) })),
+  };
 }
 
 async function setLoanStatus(input: { id?: string; status?: string }) {
   await requireAdmin();
-  if (!input.id || !input.status) throw new DbError("invalid_request", "Missing loan id or status.");
+  if (!input.id || !input.status)
+    throw new DbError("invalid_request", "Missing loan id or status.");
   const allowed = ["pending", "approved", "active", "rejected", "completed", "declined"];
   if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
   const loan = state.loans.find((l) => l.id === input.id);
@@ -2181,33 +2377,43 @@ async function setLoanStatus(input: { id?: string; status?: string }) {
 
 async function adminGrants(opts: AdminListOptions = {}) {
   await requireAdmin();
-  const rows = applyListFilters(state.grants, opts, (g, t) =>
-    g.program.toLowerCase().includes(t),
-  );
+  const rows = applyListFilters(state.grants, opts, (g, t) => g.program.toLowerCase().includes(t));
   return { grants: rows.map((g) => ({ ...g, email: emailOf(g.user_id) })) };
 }
 
 async function setGrantStatus(input: { id?: string; status?: string }) {
   await requireAdmin();
-  if (!input.id || !input.status) throw new DbError("invalid_request", "Missing grant id or status.");
+  if (!input.id || !input.status)
+    throw new DbError("invalid_request", "Missing grant id or status.");
   const allowed = ["pending", "approved", "rejected", "completed", "declined"];
   if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
   const grant = state.grants.find((g) => g.id === input.id);
   if (!grant) throw new DbError("not_found", "Grant not found.", 404);
   grant.status = input.status;
-  await writeAudit({ action: `grant.${input.status}`, target_type: "grant", target_id: grant.id, details: { to: input.status } });
+  await writeAudit({
+    action: `grant.${input.status}`,
+    target_type: "grant",
+    target_id: grant.id,
+    details: { to: input.status },
+  });
   return { ok: true };
 }
 
 async function adminSetUserStatus(input: { id?: string; status?: string }) {
   await requireAdmin();
-  if (!input.id || !input.status) throw new DbError("invalid_request", "Missing user id or status.");
+  if (!input.id || !input.status)
+    throw new DbError("invalid_request", "Missing user id or status.");
   const allowed = ["active", "suspended", "disabled"];
   if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
   const user = state.users.get(input.id);
   if (!user) throw new DbError("not_found", "User not found.", 404);
   user.status = input.status as typeof user.status;
-  await writeAudit({ action: `user.${input.status}`, target_type: "user", target_id: input.id, details: { to: input.status } });
+  await writeAudit({
+    action: `user.${input.status}`,
+    target_type: "user",
+    target_id: input.id,
+    details: { to: input.status },
+  });
   return { ok: true };
 }
 
@@ -2226,7 +2432,10 @@ async function adminUserDetail(id?: string) {
       .slice(0, 50)
       .map(mapTransaction),
     cards: state.cards.filter((c) => c.user_id === id),
-    kyc: (security.kyc && typeof security.kyc === "object" ? security.kyc : {}) as Record<string, unknown>,
+    kyc: (security.kyc && typeof security.kyc === "object" ? security.kyc : {}) as Record<
+      string,
+      unknown
+    >,
   };
 }
 
@@ -2252,17 +2461,31 @@ async function adminUpdateUser(input: {
   const user = state.users.get(input.id);
   if (!user) throw new DbError("not_found", "User not found.", 404);
   const patch: Record<string, unknown> = {};
-  if (input.first_name !== undefined) { user.first_name = input.first_name.trim(); patch.first_name = input.first_name; }
-  if (input.last_name !== undefined) { user.last_name = input.last_name.trim(); patch.last_name = input.last_name; }
-  if (input.phone !== undefined) { user.phone = input.phone; patch.phone = input.phone; }
-  if (input.country !== undefined) { user.country = input.country; patch.country = input.country; }
+  if (input.first_name !== undefined) {
+    user.first_name = input.first_name.trim();
+    patch.first_name = input.first_name;
+  }
+  if (input.last_name !== undefined) {
+    user.last_name = input.last_name.trim();
+    patch.last_name = input.last_name;
+  }
+  if (input.phone !== undefined) {
+    user.phone = input.phone;
+    patch.phone = input.phone;
+  }
+  if (input.country !== undefined) {
+    user.country = input.country;
+    patch.country = input.country;
+  }
   if (input.status !== undefined) {
-    if (!["active", "suspended", "disabled"].includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
+    if (!["active", "suspended", "disabled"].includes(input.status))
+      throw new DbError("invalid_status", "Unsupported status.");
     user.status = input.status as typeof user.status;
     patch.status = input.status;
   }
   if (input.kyc_status !== undefined) {
-    if (!["not_submitted", "in_review", "verified", "rejected"].includes(input.kyc_status)) throw new DbError("invalid_status", "Unsupported KYC status.");
+    if (!["not_submitted", "in_review", "verified", "rejected"].includes(input.kyc_status))
+      throw new DbError("invalid_status", "Unsupported KYC status.");
     user.kyc_status = input.kyc_status as typeof user.kyc_status;
     patch.kyc_status = input.kyc_status;
   }
@@ -2276,7 +2499,8 @@ async function adminUpdateUser(input: {
   }
   if (input.password !== undefined) {
     const password = input.password.trim();
-    if (password.length < 8) throw new DbError("weak_password", "The password must be at least 8 characters.");
+    if (password.length < 8)
+      throw new DbError("weak_password", "The password must be at least 8 characters.");
     state.passwords.set(user.email, password);
     patch.password_set = true;
   }
@@ -2287,7 +2511,13 @@ async function adminUpdateUser(input: {
     user.pin_hash = hash;
     patch.pin_set = true;
   }
-  await writeAudit({ action: "user.update", target_type: "user", target_id: user.id, target_label: user.email, details: patch });
+  await writeAudit({
+    action: "user.update",
+    target_type: "user",
+    target_id: user.id,
+    target_label: user.email,
+    details: patch,
+  });
   return { ok: true, user: mapUser(user) };
 }
 
@@ -2305,7 +2535,9 @@ async function adminAdjustBalance(input: {
   }
   const direction = input.direction === "debit" ? "debit" : "credit";
   const currency = input.currency || "USD";
-  const account = state.accounts.find((a) => a.user_id === input.user_id && a.currency === currency);
+  const account = state.accounts.find(
+    (a) => a.user_id === input.user_id && a.currency === currency,
+  );
   if (!account) throw new DbError("not_found", "No account in that currency.", 404);
   if (direction === "debit" && account.balance < amount) {
     throw new DbError("insufficient_funds", "The user has insufficient funds for this deduction.");
@@ -2384,7 +2616,9 @@ async function adminCreateTransaction(input: {
   const allowedKinds = ["deposit", "withdrawal", "transfer", "adjustment", "credited", "grant"];
   const kind = allowedKinds.includes(input.kind ?? "") ? (input.kind as string) : "adjustment";
   const currency = "USD";
-  const account = state.accounts.find((a) => a.user_id === input.user_id && a.currency === currency);
+  const account = state.accounts.find(
+    (a) => a.user_id === input.user_id && a.currency === currency,
+  );
   const mode =
     input.mode === "balance" || input.mode === "history" || input.mode === "both"
       ? input.mode
@@ -2410,13 +2644,13 @@ async function adminCreateTransaction(input: {
     direction: direction as "credit" | "debit",
     amount: String(amount),
     currency,
-          name:
-        input.name?.trim() ||
-        (kind === "credited" || kind === "adjustment"
-          ? direction === "credit"
-            ? "Bank Transfer"
-            : "Bank Debit"
-          : kind.charAt(0).toUpperCase() + kind.slice(1)),
+    name:
+      input.name?.trim() ||
+      (kind === "credited" || kind === "adjustment"
+        ? direction === "credit"
+          ? "Bank Transfer"
+          : "Bank Debit"
+        : kind.charAt(0).toUpperCase() + kind.slice(1)),
     reference: null,
     status: "completed",
     fee: "0",
@@ -2447,7 +2681,12 @@ async function adminDeleteUser(id?: string) {
   state.withdrawals = state.withdrawals.filter((w) => w.user_id !== id);
   state.loans = state.loans.filter((l) => l.user_id !== id);
   state.grants = state.grants.filter((g) => g.user_id !== id);
-  await writeAudit({ action: "user.delete", target_type: "user", target_id: id, target_label: user.email });
+  await writeAudit({
+    action: "user.delete",
+    target_type: "user",
+    target_id: id,
+    target_label: user.email,
+  });
   return { ok: true };
 }
 
@@ -2462,9 +2701,15 @@ async function getAuditLogs(limit = 100) {
 
 async function setAdminConfig(key?: string, value?: Record<string, unknown> | unknown[] | null) {
   await requireAdmin();
-  if (!key || value === undefined) throw new DbError("invalid_request", "Missing config key or value.");
+  if (!key || value === undefined)
+    throw new DbError("invalid_request", "Missing config key or value.");
   state.config.set(key, value);
-  await writeAudit({ action: "config.update", target_type: "config", target_id: key, details: { value } });
+  await writeAudit({
+    action: "config.update",
+    target_type: "config",
+    target_id: key,
+    details: { value },
+  });
   return { ok: true };
 }
 
@@ -2521,10 +2766,21 @@ async function adminVerifications() {
   return {
     unverified_emails: users
       .filter((u) => !u.email_verified_at)
-      .map((u) => ({ id: u.id, email: u.email, created_at: u.created_at, email_verified_at: null })),
+      .map((u) => ({
+        id: u.id,
+        email: u.email,
+        created_at: u.created_at,
+        email_verified_at: null,
+      })),
     kyc_review: users
       .filter((u) => u.kyc_status === "in_review" || u.kyc_status === "rejected")
-      .map((u) => ({ id: u.id, email: u.email, created_at: u.created_at, kyc_status: u.kyc_status, email_verified_at: u.email_verified_at })),
+      .map((u) => ({
+        id: u.id,
+        email: u.email,
+        created_at: u.created_at,
+        kyc_status: u.kyc_status,
+        email_verified_at: u.email_verified_at,
+      })),
   };
 }
 
@@ -2558,7 +2814,11 @@ async function setTransferStatus(input: { id?: string; status?: string }) {
   const txn = state.transactions.find((t) => t.id === input.id);
   if (!txn) throw new DbError("not_found", "Transaction not found.", 404);
   txn.status = input.status;
-  await writeAudit({ action: `transfer.${input.status}`, target_type: "transaction", target_id: input.id });
+  await writeAudit({
+    action: `transfer.${input.status}`,
+    target_type: "transaction",
+    target_id: input.id,
+  });
   return { ok: true };
 }
 
@@ -2584,7 +2844,9 @@ async function adminReferrals() {
   };
 }
 
-async function adminImportUsers(input: { rows?: { email?: string; first_name?: string; last_name?: string; password?: string }[] }) {
+async function adminImportUsers(input: {
+  rows?: { email?: string; first_name?: string; last_name?: string; password?: string }[];
+}) {
   await requireAdmin();
   const rows = input.rows ?? [];
   if (rows.length === 0) throw new DbError("invalid_input", "No rows to import.");
@@ -2601,7 +2863,8 @@ async function adminImportUsers(input: { rows?: { email?: string; first_name?: s
       errors.push({ email, error: "Email already exists." });
       continue;
     }
-    const password = row.password && row.password.length >= 8 ? row.password : generateNumericCode() + "Aa";
+    const password =
+      row.password && row.password.length >= 8 ? row.password : generateNumericCode() + "Aa";
     state.passwords.set(email, password);
     const id = `u-${Date.now()}-${created.length}`;
     const now = new Date().toISOString();
@@ -2610,7 +2873,8 @@ async function adminImportUsers(input: { rows?: { email?: string; first_name?: s
       email,
       first_name: row.first_name?.trim() || email.split("@")[0],
       last_name: row.last_name?.trim() || "",
-      full_name: `${row.first_name?.trim() || email.split("@")[0]} ${row.last_name?.trim() || ""}`.trim(),
+      full_name:
+        `${row.first_name?.trim() || email.split("@")[0]} ${row.last_name?.trim() || ""}`.trim(),
       photo_url: "",
       phone: null,
       country: "US",
@@ -2639,7 +2903,11 @@ async function adminImportUsers(input: { rows?: { email?: string; first_name?: s
     });
     created.push(email);
   }
-  await writeAudit({ action: "users.import", target_type: "user", details: { created: created.length, failed: errors.length } });
+  await writeAudit({
+    action: "users.import",
+    target_type: "user",
+    details: { created: created.length, failed: errors.length },
+  });
   return { created, errors, passwords: Object.fromEntries(created.map((e) => [e, null])) };
 }
 
@@ -2665,7 +2933,8 @@ async function adminLeads(search?: string, status?: string) {
 
 async function saveLead(input: Partial<LeadRow>) {
   await requireAdmin();
-  if (!input.name || !input.name.trim()) throw new DbError("invalid_name", "Lead name is required.");
+  if (!input.name || !input.name.trim())
+    throw new DbError("invalid_name", "Lead name is required.");
   const patch = {
     name: input.name.trim(),
     email: input.email ?? null,
@@ -2678,12 +2947,26 @@ async function saveLead(input: Partial<LeadRow>) {
     const lead = state.leads.find((l) => l.id === input.id);
     if (!lead) throw new DbError("not_found", "Lead not found.", 404);
     Object.assign(lead, patch);
-    await writeAudit({ action: "lead.update", target_type: "lead", target_id: lead.id, details: { name: patch.name } });
+    await writeAudit({
+      action: "lead.update",
+      target_type: "lead",
+      target_id: lead.id,
+      details: { name: patch.name },
+    });
     return { lead };
   }
-  const lead: LeadRow = { id: `lead-${Date.now()}`, created_at: new Date().toISOString(), ...patch };
+  const lead: LeadRow = {
+    id: `lead-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    ...patch,
+  };
   state.leads.unshift(lead);
-  await writeAudit({ action: "lead.create", target_type: "lead", target_id: lead.id, details: { name: patch.name } });
+  await writeAudit({
+    action: "lead.create",
+    target_type: "lead",
+    target_id: lead.id,
+    details: { name: patch.name },
+  });
   return { lead };
 }
 
@@ -2704,7 +2987,8 @@ async function adminTasks(status?: string) {
 
 async function saveTask(input: Partial<AdminTaskRow>) {
   await requireAdmin();
-  if (!input.title || !input.title.trim()) throw new DbError("invalid_input", "Task title is required.");
+  if (!input.title || !input.title.trim())
+    throw new DbError("invalid_input", "Task title is required.");
   const patch = {
     title: input.title.trim(),
     description: input.description ?? null,
@@ -2717,12 +3001,26 @@ async function saveTask(input: Partial<AdminTaskRow>) {
     const task = state.tasks.find((t) => t.id === input.id);
     if (!task) throw new DbError("not_found", "Task not found.", 404);
     Object.assign(task, patch);
-    await writeAudit({ action: "task.update", target_type: "task", target_id: task.id, details: { title: patch.title } });
+    await writeAudit({
+      action: "task.update",
+      target_type: "task",
+      target_id: task.id,
+      details: { title: patch.title },
+    });
     return { task };
   }
-  const task: AdminTaskRow = { id: `task-${Date.now()}`, created_at: new Date().toISOString(), ...patch };
+  const task: AdminTaskRow = {
+    id: `task-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    ...patch,
+  };
   state.tasks.unshift(task);
-  await writeAudit({ action: "task.create", target_type: "task", target_id: task.id, details: { title: patch.title } });
+  await writeAudit({
+    action: "task.create",
+    target_type: "task",
+    target_id: task.id,
+    details: { title: patch.title },
+  });
   return { task };
 }
 
@@ -2745,7 +3043,8 @@ async function adminCurrencies() {
 
 async function saveCurrency(input: Partial<SiteCurrencyRow>) {
   await requireAdmin();
-  if (!input.code || !input.name) throw new DbError("invalid_input", "Currency code and name are required.");
+  if (!input.code || !input.name)
+    throw new DbError("invalid_input", "Currency code and name are required.");
   const code = input.code.toUpperCase();
   const existing = state.currencies.find((c) => c.code === code);
   const patch = {
@@ -2757,12 +3056,26 @@ async function saveCurrency(input: Partial<SiteCurrencyRow>) {
   };
   if (existing) {
     Object.assign(existing, patch);
-    await writeAudit({ action: "currency.save", target_type: "currency", target_id: code, details: patch });
+    await writeAudit({
+      action: "currency.save",
+      target_type: "currency",
+      target_id: code,
+      details: patch,
+    });
     return { currency: existing };
   }
-  const currency: SiteCurrencyRow = { id: `cur-${Date.now()}`, created_at: new Date().toISOString(), ...patch };
+  const currency: SiteCurrencyRow = {
+    id: `cur-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    ...patch,
+  };
   state.currencies.push(currency);
-  await writeAudit({ action: "currency.save", target_type: "currency", target_id: code, details: patch });
+  await writeAudit({
+    action: "currency.save",
+    target_type: "currency",
+    target_id: code,
+    details: patch,
+  });
   return { currency };
 }
 
@@ -2778,11 +3091,19 @@ async function adminIrsRefunds(search?: string, status?: string) {
   await requireAdmin();
   let rows = [...state.irsRefunds].sort((a, b) => b.created_at.localeCompare(a.created_at));
   if (status) rows = rows.filter((r) => r.status === status);
-  if (search) rows = rows.filter((r) => (r.email ?? "").toLowerCase().includes(search.trim().toLowerCase()));
+  if (search)
+    rows = rows.filter((r) => (r.email ?? "").toLowerCase().includes(search.trim().toLowerCase()));
   return { refunds: rows.slice(0, 200) };
 }
 
-async function saveIrsRefund(input: { id?: string; user_id?: string; tax_year?: number; amount?: number; status?: string; notes?: string }) {
+async function saveIrsRefund(input: {
+  id?: string;
+  user_id?: string;
+  tax_year?: number;
+  amount?: number;
+  status?: string;
+  notes?: string;
+}) {
   await requireAdmin();
   let userId = input.user_id;
   if (input.id && !userId) {
@@ -2800,12 +3121,27 @@ async function saveIrsRefund(input: { id?: string; user_id?: string; tax_year?: 
     const refund = state.irsRefunds.find((r) => r.id === input.id);
     if (!refund) throw new DbError("not_found", "Refund not found.", 404);
     Object.assign(refund, patch, { email: emailOf(String(patch.user_id)) });
-    await writeAudit({ action: "irs.update", target_type: "irs_refund", target_id: refund.id, details: patch });
+    await writeAudit({
+      action: "irs.update",
+      target_type: "irs_refund",
+      target_id: refund.id,
+      details: patch,
+    });
     return { refund };
   }
-  const refund = { id: `irs-${Date.now()}`, created_at: new Date().toISOString(), email: emailOf(String(input.user_id)), ...patch };
+  const refund = {
+    id: `irs-${Date.now()}`,
+    created_at: new Date().toISOString(),
+    email: emailOf(String(input.user_id)),
+    ...patch,
+  };
   state.irsRefunds.unshift(refund);
-  await writeAudit({ action: "irs.create", target_type: "irs_refund", target_id: refund.id, details: patch });
+  await writeAudit({
+    action: "irs.create",
+    target_type: "irs_refund",
+    target_id: refund.id,
+    details: patch,
+  });
   return { refund };
 }
 
@@ -2821,11 +3157,18 @@ async function adminMemberships(search?: string, status?: string) {
   await requireAdmin();
   let rows = [...state.memberships].sort((a, b) => b.created_at.localeCompare(a.created_at));
   if (status) rows = rows.filter((m) => m.status === status);
-  if (search) rows = rows.filter((m) => (m.email ?? "").toLowerCase().includes(search.trim().toLowerCase()));
+  if (search)
+    rows = rows.filter((m) => (m.email ?? "").toLowerCase().includes(search.trim().toLowerCase()));
   return { memberships: rows.slice(0, 200) };
 }
 
-async function saveMembership(input: { id?: string; user_id?: string; tier?: string; status?: string; ends_at?: string | null }) {
+async function saveMembership(input: {
+  id?: string;
+  user_id?: string;
+  tier?: string;
+  status?: string;
+  ends_at?: string | null;
+}) {
   await requireAdmin();
   let userId = input.user_id;
   if (input.id && !userId) {
@@ -2842,7 +3185,12 @@ async function saveMembership(input: { id?: string; user_id?: string; tier?: str
     const membership = state.memberships.find((m) => m.id === input.id);
     if (!membership) throw new DbError("not_found", "Membership not found.", 404);
     Object.assign(membership, patch, { email: emailOf(String(patch.user_id)) });
-    await writeAudit({ action: "membership.update", target_type: "membership", target_id: membership.id, details: patch });
+    await writeAudit({
+      action: "membership.update",
+      target_type: "membership",
+      target_id: membership.id,
+      details: patch,
+    });
     return { membership };
   }
   const membership = {
@@ -2853,7 +3201,12 @@ async function saveMembership(input: { id?: string; user_id?: string; tier?: str
     ...patch,
   };
   state.memberships.unshift(membership);
-  await writeAudit({ action: "membership.create", target_type: "membership", target_id: membership.id, details: patch });
+  await writeAudit({
+    action: "membership.create",
+    target_type: "membership",
+    target_id: membership.id,
+    details: patch,
+  });
   return { membership };
 }
 
@@ -2903,7 +3256,13 @@ async function adminTicketDetail(id?: string) {
     messages: state.ticketMessages
       .filter((m) => m.ticket_id === id)
       .sort((a, b) => a.created_at.localeCompare(b.created_at))
-      .map((m) => ({ id: m.id, body: m.body, from: m.sender, sender: m.sender === "support" ? "admin" : "user", created_at: m.created_at })),
+      .map((m) => ({
+        id: m.id,
+        body: m.body,
+        from: m.sender,
+        sender: m.sender === "support" ? "admin" : "user",
+        created_at: m.created_at,
+      })),
   };
 }
 
@@ -2925,12 +3284,18 @@ async function adminReplyTicket(id?: string, body?: string) {
 
 async function setTicketStatus(input: { id?: string; status?: string }) {
   await requireAdmin();
-  if (!input.id || !input.status) throw new DbError("invalid_request", "Missing ticket id or status.");
-  if (!["open", "pending", "closed"].includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
+  if (!input.id || !input.status)
+    throw new DbError("invalid_request", "Missing ticket id or status.");
+  if (!["open", "pending", "closed"].includes(input.status))
+    throw new DbError("invalid_status", "Unsupported status.");
   const ticket = state.tickets.find((t) => t.id === input.id);
   if (!ticket) throw new DbError("not_found", "Ticket not found.", 404);
   ticket.status = input.status;
-  await writeAudit({ action: `ticket.${input.status}`, target_type: "ticket", target_id: input.id });
+  await writeAudit({
+    action: `ticket.${input.status}`,
+    target_type: "ticket",
+    target_id: input.id,
+  });
   return { ok: true };
 }
 
@@ -2957,7 +3322,12 @@ async function setContactHandled(id?: string, handled?: boolean) {
   const msg = state.contactMessages.find((m) => m.id === id);
   if (!msg) throw new DbError("not_found", "Message not found.", 404);
   msg.handled = handled ?? true;
-  await writeAudit({ action: "contact.handled", target_type: "contact_message", target_id: id, details: { handled: handled ?? true } });
+  await writeAudit({
+    action: "contact.handled",
+    target_type: "contact_message",
+    target_id: id,
+    details: { handled: handled ?? true },
+  });
   return { ok: true };
 }
 
@@ -2970,7 +3340,8 @@ async function generateWithdrawalCode(input: { id?: string }) {
   if (!input.id) throw new DbError("invalid_request", "Missing withdrawal id.");
   const w = state.withdrawals.find((x) => x.id === input.id);
   if (!w) throw new DbError("not_found", "Withdrawal not found.", 404);
-  if (w.status !== "pending") throw new DbError("invalid_state", "Only pending withdrawals can receive a confirmation code.");
+  if (w.status !== "pending")
+    throw new DbError("invalid_state", "Only pending withdrawals can receive a confirmation code.");
   const code = generateNumericCode();
   const generatedAt = new Date();
   const expiresAt = new Date(generatedAt.getTime() + 60 * 60 * 1000);
@@ -2984,7 +3355,12 @@ async function generateWithdrawalCode(input: { id?: string }) {
     target_id: w.id,
     details: { amount: w.amount, expires_at: expiresAt.toISOString() },
   });
-  return { ok: true, code, generated_at: generatedAt.toISOString(), expires_at: expiresAt.toISOString() };
+  return {
+    ok: true,
+    code,
+    generated_at: generatedAt.toISOString(),
+    expires_at: expiresAt.toISOString(),
+  };
 }
 
 async function ensurePaymentMethodsSeededMock() {
@@ -3001,7 +3377,9 @@ async function ensurePaymentMethodsSeededMock() {
 async function adminPaymentMethods() {
   await requireAdmin();
   await ensurePaymentMethodsSeededMock();
-  return { methods: [...state.paymentMethodsDb].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)) };
+  return {
+    methods: [...state.paymentMethodsDb].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+  };
 }
 
 async function savePaymentMethod(input: Partial<PaymentMethod> & { instructions?: string | null }) {
@@ -3025,14 +3403,27 @@ async function savePaymentMethod(input: Partial<PaymentMethod> & { instructions?
     const m = state.paymentMethodsDb.find((x) => x.id === input.id);
     if (!m) throw new DbError("not_found", "Method not found.", 404);
     Object.assign(m, patch);
-    await writeAudit({ action: "payment_method.update", target_type: "payment_method", target_id: m.id });
+    await writeAudit({
+      action: "payment_method.update",
+      target_type: "payment_method",
+      target_id: m.id,
+    });
     return { method: m };
   }
   const type = patch.type === "withdrawal" ? "withdraw" : "deposit";
-  const slug = patch.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 28) || "method";
+  const slug =
+    patch.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")
+      .slice(0, 28) || "method";
   const method = { ...patch, id: `${type}_${slug}_${Date.now().toString(36).slice(-4)}` };
   state.paymentMethodsDb.push(method);
-  await writeAudit({ action: "payment_method.create", target_type: "payment_method", target_id: method.id });
+  await writeAudit({
+    action: "payment_method.create",
+    target_type: "payment_method",
+    target_id: method.id,
+  });
   return { method };
 }
 
@@ -3040,7 +3431,11 @@ async function deletePaymentMethod(id?: string) {
   await requireAdmin();
   if (!id) throw new DbError("invalid_request", "Missing method id.");
   state.paymentMethodsDb = state.paymentMethodsDb.filter((m) => m.id !== id);
-  await writeAudit({ action: "payment_method.delete", target_type: "payment_method", target_id: id });
+  await writeAudit({
+    action: "payment_method.delete",
+    target_type: "payment_method",
+    target_id: id,
+  });
   return { ok: true };
 }
 
@@ -3049,7 +3444,10 @@ async function getSiteSettings() {
   return {
     site: state.site,
     contact: state.siteSettings.get("contact") ?? {},
-    live_chat: { enabled: false, ...(state.siteSettings.get("live_chat") ?? {}) } as Record<string, unknown>,
+    live_chat: { enabled: false, ...(state.siteSettings.get("live_chat") ?? {}) } as Record<
+      string,
+      unknown
+    >,
     security: (state.siteSettings.get("security") ?? {}) as Record<string, unknown>,
     features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
     email: (state.siteSettings.get("email") ?? {}) as Record<string, unknown>,
@@ -3063,8 +3461,10 @@ async function updateSiteSettings(input: { group?: string; value?: Record<string
   }
   if (input.group === "general") {
     const s = { ...state.site } as unknown as Record<string, unknown>;
-    if (typeof input.value.name === "string" && input.value.name.trim()) s.name = input.value.name.trim();
-    if (typeof input.value.brand_color === "string" && input.value.brand_color.trim()) s.brand_color = input.value.brand_color.trim();
+    if (typeof input.value.name === "string" && input.value.name.trim())
+      s.name = input.value.name.trim();
+    if (typeof input.value.brand_color === "string" && input.value.brand_color.trim())
+      s.brand_color = input.value.brand_color.trim();
     if ("logo_url" in input.value) s.logo_url = (input.value.logo_url as string) || null;
     Object.assign(state.site, s);
   } else if (["contact", "live_chat", "security", "features", "email"].includes(input.group)) {
@@ -3141,7 +3541,10 @@ async function saveGrantProgram(input: {
   if (!title) throw new DbError("invalid_input", "A program title is required.");
   const bullets = Array.isArray(input.bullets)
     ? input.bullets.map(String)
-    : String(input.bullets ?? "").split("\n").map((b) => b.trim()).filter(Boolean);
+    : String(input.bullets ?? "")
+        .split("\n")
+        .map((b) => b.trim())
+        .filter(Boolean);
   const patch = {
     title,
     description: String(input.description ?? ""),
@@ -3172,7 +3575,8 @@ async function adminFaqs() {
 
 async function saveFaq(input: Partial<FaqRow>) {
   await requireAdmin();
-  if (!input.question?.trim() || !input.answer?.trim()) throw new DbError("invalid_input", "Question and answer are required.");
+  if (!input.question?.trim() || !input.answer?.trim())
+    throw new DbError("invalid_input", "Question and answer are required.");
   const patch = {
     question: input.question.trim(),
     answer: input.answer.trim(),
@@ -3202,12 +3606,15 @@ async function deleteFaq(id?: string) {
 
 async function adminTestimonials() {
   await requireAdmin();
-  return { testimonials: [...state.testimonials].sort((a, b) => b.created_at.localeCompare(a.created_at)) };
+  return {
+    testimonials: [...state.testimonials].sort((a, b) => b.created_at.localeCompare(a.created_at)),
+  };
 }
 
 async function saveTestimonial(input: Partial<TestimonialRow>) {
   await requireAdmin();
-  if (!input.author?.trim() || !input.quote?.trim()) throw new DbError("invalid_input", "Author and quote are required.");
+  if (!input.author?.trim() || !input.quote?.trim())
+    throw new DbError("invalid_input", "Author and quote are required.");
   const rating = Math.min(5, Math.max(1, Number(input.rating ?? 5)));
   const patch = {
     author: input.author.trim(),
@@ -3268,7 +3675,8 @@ async function adminBroadcast(input: {
   for (const u of state.users.values()) {
     if (ids.length > 0 && !ids.includes(u.id)) continue;
     if (ids.length === 0 && segment === "active" && u.status !== "active") continue;
-    if (ids.length === 0 && segment === "inactive" && !["suspended", "disabled"].includes(u.status)) continue;
+    if (ids.length === 0 && segment === "inactive" && !["suspended", "disabled"].includes(u.status))
+      continue;
     if (ids.length === 0 && segment === "email_verified" && !u.email_verified_at) continue;
     if (ids.length === 0 && segment === "email_unverified" && u.email_verified_at) continue;
     if (ids.length === 0 && segment === "kyc_verified" && u.kyc_status !== "verified") continue;
@@ -3303,14 +3711,21 @@ async function adminCryptoAssets(search?: string) {
   const rows = state.crypto.filter((c) => {
     if (!search) return true;
     const term = search.trim().toLowerCase();
-    return c.symbol.toLowerCase().includes(term) || (emailOf(c.user_id) ?? "").toLowerCase().includes(term);
+    return (
+      c.symbol.toLowerCase().includes(term) ||
+      (emailOf(c.user_id) ?? "").toLowerCase().includes(term)
+    );
   });
   return {
     assets: rows.map((c) => ({ ...c, email: emailOf(c.user_id) })),
   };
 }
 
-async function setCryptoAsset(input: { id?: string; balance?: number | string; price_usd?: number | string }) {
+async function setCryptoAsset(input: {
+  id?: string;
+  balance?: number | string;
+  price_usd?: number | string;
+}) {
   await requireAdmin();
   if (!input.id) throw new DbError("invalid_request", "Missing asset id.");
   const asset = state.crypto.find((c) => c.id === input.id);
@@ -3319,7 +3734,12 @@ async function setCryptoAsset(input: { id?: string; balance?: number | string; p
   const price = parseAmountInput(input.price_usd);
   if (balance !== null && balance >= 0) asset.balance = String(balance);
   if (price !== null && price >= 0) asset.price_usd = String(price);
-  await writeAudit({ action: "crypto_asset.update", target_type: "crypto_asset", target_id: input.id, details: { balance: asset.balance, price_usd: asset.price_usd } });
+  await writeAudit({
+    action: "crypto_asset.update",
+    target_type: "crypto_asset",
+    target_id: input.id,
+    details: { balance: asset.balance, price_usd: asset.price_usd },
+  });
   return { ok: true };
 }
 
@@ -3387,8 +3807,10 @@ async function startImpersonation(input: { id?: string }) {
   if (!input.id) throw new DbError("invalid_request", "Missing user id.");
   const target = state.users.get(input.id);
   if (!target) throw new DbError("not_found", "User not found.", 404);
-  if (target.role === "admin") throw new DbError("forbidden", "Admin accounts cannot be impersonated.", 403);
-  if (target.status === "disabled") throw new DbError("account_disabled", "This account is disabled.");
+  if (target.role === "admin")
+    throw new DbError("forbidden", "Admin accounts cannot be impersonated.", 403);
+  if (target.status === "disabled")
+    throw new DbError("account_disabled", "This account is disabled.");
   const store = await cookies();
   store.set("bimp_1", signImpersonationValue(target.id), {
     httpOnly: true,
@@ -3413,7 +3835,11 @@ async function endImpersonation() {
   if (bimp && targetId) {
     const t = state.users.get(targetId);
     let actor: UserRow | null = null;
-    try { actor = await requireSession(); } catch { actor = null; }
+    try {
+      actor = await requireSession();
+    } catch {
+      actor = null;
+    }
     await writeAudit({
       action: "impersonation.end",
       target_type: "user",
@@ -3422,7 +3848,8 @@ async function endImpersonation() {
       details: { admin_email: actor?.role === "admin" ? actor.email : null },
     });
   }
-  store.getAll()
+  store
+    .getAll()
     .filter((c) => c.name.startsWith("bimp_"))
     .forEach((c) => store.delete(c.name));
   return { ok: true };

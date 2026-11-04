@@ -18,8 +18,8 @@ import type {
 
 export const SITE = {
   id: 1,
-  slug: "online-banking",
-  name: "Online Banking",
+  slug: "account-dashboard",
+  name: "Account Dashboard",
   brand_color: "#0ea5e9",
   primary_currency: "USD",
   kyc_required: true,
@@ -50,17 +50,41 @@ export const MOCK_BALANCES: Balance[] = [
 
 export const MOCK_TRANSACTIONS: Transaction[] = [
   { id: 1, kind: "deposit", amount: 2500, status: "completed", created_at: "2026-08-18T10:24:00Z" },
-  { id: 2, kind: "transfer-out", amount: 1200, status: "completed", created_at: "2026-08-17T15:02:00Z" },
-  { id: 3, kind: "card-spend", amount: 87.45, status: "completed", created_at: "2026-08-16T12:41:00Z" },
-  { id: 4, kind: "admin-credit", amount: 5000, status: "completed", created_at: "2026-08-15T09:00:00Z" },
-  { id: 5, kind: "plan-roi", amount: 342.18, status: "completed", created_at: "2026-08-14T08:00:00Z" },
+  {
+    id: 2,
+    kind: "transfer-out",
+    amount: 1200,
+    status: "completed",
+    created_at: "2026-08-17T15:02:00Z",
+  },
+  {
+    id: 3,
+    kind: "card-spend",
+    amount: 87.45,
+    status: "completed",
+    created_at: "2026-08-16T12:41:00Z",
+  },
+  {
+    id: 4,
+    kind: "admin-credit",
+    amount: 5000,
+    status: "completed",
+    created_at: "2026-08-15T09:00:00Z",
+  },
+  {
+    id: 5,
+    kind: "plan-roi",
+    amount: 342.18,
+    status: "completed",
+    created_at: "2026-08-14T08:00:00Z",
+  },
   { id: 6, kind: "withdrawal", amount: 900, status: "pending", created_at: "2026-08-13T18:30:00Z" },
 ];
 
 export const MOCK_CARDS: Card[] = [
   {
     id: 1,
-    card_brand: "visa",
+    card_brand: "standard",
     card_number_masked: "•••• 4128",
     expires_at: "2028-05-01T00:00:00Z",
     balance: 3200,
@@ -69,7 +93,7 @@ export const MOCK_CARDS: Card[] = [
   },
   {
     id: 2,
-    card_brand: "mastercard",
+    card_brand: "premium",
     card_number_masked: "•••• 7761",
     expires_at: "2027-11-01T00:00:00Z",
     balance: 540.25,
@@ -90,9 +114,7 @@ export const MOCK_DEPOSITS: Deposit[] = [
   { id: 2, status: "pending", amount: 800 },
 ];
 
-export const MOCK_WITHDRAWALS: Withdrawal[] = [
-  { id: 1, status: "sent", amount: 900 },
-];
+export const MOCK_WITHDRAWALS: Withdrawal[] = [{ id: 1, status: "sent", amount: 900 }];
 
 export const MOCK_CRYPTO_ASSETS: CryptoAsset[] = [
   { symbol: "BTC", name: "Bitcoin", mock_rate_usd: 61500 },
@@ -110,7 +132,7 @@ export const MOCK_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 2,
     title: "New card issued",
-    body: "Your new Visa card is ready to use.",
+    body: "Your new card is ready to use.",
     created_at: "2026-08-16T12:00:00Z",
     read_at: new Date().toISOString(),
   },

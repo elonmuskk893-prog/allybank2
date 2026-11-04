@@ -4,17 +4,17 @@ import Page from "@/pages/page";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Online Banking — Secure Account Access" },
+      { title: "Account Dashboard — Secure Access" },
       {
         name: "description",
         content:
-          "Manage transfers, cards, loans, and account activity in one secure place.",
+          "Manage transfers, cards, and account activity in one secure place.",
       },
-      { property: "og:title", content: "Online Banking — Secure Account Access" },
+      { property: "og:title", content: "Account Dashboard — Secure Access" },
       {
         property: "og:description",
         content:
-          "Transfers, cards, loans, and account history in one secure place.",
+          "Transfers, cards, and account activity in one secure place.",
       },
       { property: "og:type", content: "website" },
       {

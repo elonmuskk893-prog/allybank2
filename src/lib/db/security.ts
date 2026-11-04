@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, randomInt, scryptSync, timingSafeEqual } from "node:crypto";
 
 const SCRYPT_KEYLEN = 64;
 
@@ -28,7 +28,7 @@ export function generateChallenge(): string {
 
 /** Random 10-digit account number. */
 export function generateAccountNumber(): string {
-  return String(Math.floor(1000000000 + Math.random() * 9000000000));
+  return String(1000000000 + randomInt(0, 9000000000));
 }
 
 /**
@@ -53,5 +53,5 @@ export function verifyImpersonationValue(signed: string | undefined): string | n
 
 /** Random 6-digit numeric code (mock/OTP fallback). */
 export function generateNumericCode(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(100000 + randomInt(0, 900000)).padStart(6, "0");
 }

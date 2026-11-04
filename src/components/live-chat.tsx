@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "@/lib/next/navigation";
 import { bankFetch } from "@/lib/api";
+import { SMARTSUPP_READY_EVENT, isSmartsuppActive } from "@/lib/smartsupp";
 
 export interface LiveChatSettings {
   enabled?: boolean;
@@ -50,17 +51,27 @@ export function LiveChat() {
   const ticketId = useRef<string | null>(null);
 
   const onDashboard = isDashboardRoute(pathname);
+  const [smartsuppActive, setSmartsuppActive] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setSmartsuppActive(isSmartsuppActive());
+    sync();
+    window.addEventListener(SMARTSUPP_READY_EVENT, sync);
+    return () => window.removeEventListener(SMARTSUPP_READY_EVENT, sync);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const [settingsRes, meRes] = await Promise.all([
-        fetch("/api/banking-public/site-settings").then((r) => r.json()).catch(() => null),
-        bankFetch<{ user?: { id?: string } }>("/me"),
+        fetch("/api/banking-public/site-settings")
+          .then((r) => r.json())
+          .catch(() => null),
+        bankFetch<{ user?: { id?: string; pin_gate?: boolean } }>("/me"),
       ]);
       if (cancelled) return;
       setSettings((settingsRes?.data?.live_chat as LiveChatSettings) ?? null);
-      setSignedIn(Boolean(meRes.ok && meRes.data));
+      setSignedIn(Boolean(meRes.ok && meRes.data?.user?.id && !meRes.data.user.pin_gate));
     })();
     return () => {
       cancelled = true;
@@ -69,9 +80,11 @@ export function LiveChat() {
 
   const active = useMemo(() => {
     if (!settings?.enabled) return null;
+    // Smartsupp owns the signed-in chat experience; never show a second bubble.
+    if (signedIn && smartsuppActive) return null;
     if (settings.dashboard_only !== false && !(onDashboard && signedIn)) return null;
     return settings;
-  }, [settings, onDashboard, signedIn]);
+  }, [settings, onDashboard, signedIn, smartsuppActive]);
 
   const send = useCallback(async () => {
     const text = draft.trim();
@@ -90,14 +103,20 @@ export function LiveChat() {
         });
     setSending(false);
     if (!res.ok) {
-      setLines((prev) => [...prev, { from: "support", text: "We couldn't send that just now. Please try again." }]);
+      setLines((prev) => [
+        ...prev,
+        { from: "support", text: "We couldn't send that just now. Please try again." },
+      ]);
       return;
     }
     const created = res.data as { id?: string } | null;
     if (created?.id) ticketId.current = created.id;
     setLines((prev) => [
       ...prev,
-      { from: "support", text: "Thanks — our team has your message and will reply here and by email shortly." },
+      {
+        from: "support",
+        text: "Thanks — our team has your message and will reply here and by email shortly.",
+      },
     ]);
   }, [draft, sending]);
 
@@ -113,9 +132,16 @@ export function LiveChat() {
     >
       {open && (
         <div className="w-[min(20rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
-          <div className="flex items-center justify-between px-4 py-3 text-white" style={{ background: "var(--brand)" }}>
+          <div
+            className="flex items-center justify-between px-4 py-3 text-white"
+            style={{ background: "var(--brand)" }}
+          >
             <span className="text-sm font-semibold">{active.title ?? "Live support"}</span>
-            <button onClick={() => setOpen(false)} aria-label="Close chat" className="text-white/80 hover:text-white">
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close chat"
+              className="text-white/80 hover:text-white"
+            >
               ✕
             </button>
           </div>

@@ -32,7 +32,7 @@ function LiveChatAdmin() {
 
   const rows: [string, string][] = [
     ["Status", chat?.enabled ? "Enabled" : "Disabled"],
-    ["Provider", "Built-in chat"],
+    ["Provider", "Smartsupp (signed-in) + built-in chat"],
     ["Bubble position", chat?.position === "bottom-left" ? "Bottom left" : "Bottom right"],
     ["Shown on", chat?.dashboard_only === false ? "All pages" : "Signed-in dashboard only"],
     ["Welcome message", chat?.welcome_message ?? "—"],
@@ -41,16 +41,22 @@ function LiveChatAdmin() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Live chat</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+          Live chat
+        </h1>
         <p className="mt-1 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-          Current chat configuration for the customer-facing website. Messages sent through the built-in
-          chat arrive in Tickets.
+          Current chat configuration for the customer-facing website. Signed-in members get the
+          Smartsupp widget automatically; the built-in chat feeds Tickets for the audience selected
+          below.
         </p>
       </div>
 
       <section className="max-w-2xl space-y-3 rounded-2xl border border-gray-200/70 bg-white p-6 shadow-sm dark:border-gray-700/50 dark:bg-gray-800">
         {rows.map(([label, value]) => (
-          <div key={label} className="flex items-start justify-between gap-6 border-b border-gray-100 pb-2 last:border-0 dark:border-gray-800">
+          <div
+            key={label}
+            className="flex items-start justify-between gap-6 border-b border-gray-100 pb-2 last:border-0 dark:border-gray-800"
+          >
             <span className="text-xs uppercase tracking-wider text-gray-400">{label}</span>
             <span className="text-right text-sm font-medium text-gray-900 dark:text-gray-100">
               {chat ? value : "…"}

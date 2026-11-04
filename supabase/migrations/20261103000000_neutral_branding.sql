@@ -1,10 +1,10 @@
 -- Move existing installs off the previous brand defaults.
 
-alter table public.sites alter column name set default 'Online Banking';
+alter table public.sites alter column name set default 'Account Dashboard';
 
 update public.sites
-set slug = 'online-banking',
-    name = 'Online Banking',
+set slug = 'account-dashboard',
+    name = 'Account Dashboard',
     logo_url = case
       when logo_url ilike '%allybank%' or logo_url ilike '%tesla%' then '/logo.jpeg'
       else logo_url
@@ -12,8 +12,8 @@ set slug = 'online-banking',
 where id = 1;
 
 update public.notifications
-set title = replace(title, 'Tesla Model', 'Online Banking'),
-    body = replace(body, 'Tesla Model', 'Online Banking')
+set title = replace(title, 'Tesla Model', 'Account Dashboard'),
+    body = replace(body, 'Tesla Model', 'Account Dashboard')
 where title ilike '%Tesla Model%' or body ilike '%Tesla Model%';
 
 drop policy if exists "sites_select_public" on public.sites;
@@ -62,7 +62,7 @@ begin
     coalesce(new.email, ''),
     coalesce(new.raw_user_meta_data->>'first_name', ''),
     coalesce(new.raw_user_meta_data->>'last_name', ''),
-    case when coalesce(new.raw_user_meta_data->>'role', '') = 'admin' then 'admin'::public.user_role else 'user'::public.user_role end,
+    'user'::public.user_role,
     'active'::public.user_status,
     coalesce(new.raw_user_meta_data->>'account_number', public.generate_account_number()),
     'not_submitted'::public.kyc_status
@@ -81,11 +81,11 @@ begin
 
   select id into site_id from public.sites limit 1;
   if site_id is null then
-    insert into public.sites (slug, name) values ('online-banking', 'Online Banking');
+    insert into public.sites (slug, name) values ('account-dashboard', 'Account Dashboard');
   end if;
 
   insert into public.notifications (user_id, title, body)
-  values (new.id, 'Welcome to Online Banking', 'Your account is ready. Complete your KYC to unlock all features.');
+  values (new.id, 'Welcome to Account Dashboard', 'Your account is ready. Complete your KYC to unlock all features.');
 
   return new;
 end $$;

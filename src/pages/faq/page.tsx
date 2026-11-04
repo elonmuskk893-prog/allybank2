@@ -62,7 +62,9 @@ function FaqSection({
     <div className="bg-card dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden mb-8 border border-border dark:border-gray-700">
       <div className="p-6 md:p-8">
         <div className="flex items-center mb-6">
-          <div className={`w-12 h-12 rounded-full ${iconBg} flex items-center justify-center ${iconFg} mr-4`}>
+          <div
+            className={`w-12 h-12 rounded-full ${iconBg} flex items-center justify-center ${iconFg} mr-4`}
+          >
             <i className={`fa-solid ${icon} text-2xl`} />
           </div>
           <h3 className="text-2xl font-bold text-foreground dark:text-white">{title}</h3>
@@ -79,7 +81,7 @@ function FaqSection({
 
 function FaqContent() {
   const { site } = useSite();
-  const name = site?.name ?? "Online Banking";
+  const name = site?.name ?? "Account Dashboard";
   const [active, setActive] = useState("general");
   const [managedFaqs, setManagedFaqs] = useState<FaqEntry[]>([]);
 
@@ -88,7 +90,9 @@ function FaqContent() {
     (async () => {
       try {
         const res = await fetch("/api/banking-public/faqs");
-        const json = (await res.json()) as { data?: { faqs?: { question: string; answer: string }[] } };
+        const json = (await res.json()) as {
+          data?: { faqs?: { question: string; answer: string }[] };
+        };
         const faqs = json.data?.faqs ?? [];
         setManagedFaqs(faqs.map((f) => ({ q: f.question, a: f.answer })));
       } catch {
@@ -301,7 +305,9 @@ function FaqContent() {
               {"Can't Find What You're Looking For?"}
             </h2>
             <p className="text-lg text-muted-foreground dark:text-gray-300 mb-8">
-              {"If you couldn't find the answer to your question in our FAQ, please don't hesitate to contact our support team."}
+              {
+                "If you couldn't find the answer to your question in our FAQ, please don't hesitate to contact our support team."
+              }
             </p>
             <Link
               href="/contact"

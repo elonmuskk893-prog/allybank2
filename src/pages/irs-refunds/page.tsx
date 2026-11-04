@@ -48,33 +48,32 @@ function IrsRefundsContent() {
   return (
     <div className="-mx-4 -my-5 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-3 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 lg:-mx-6 lg:p-4">
       <div className="mx-auto max-w-4xl">
-        <h1 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Tax Refund</h1>
+        <h1 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Tax Documents</h1>
 
         <div className="mb-4 rounded-xl border border-white/20 bg-white/95 p-4 shadow-sm backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-800/95 lg:p-5">
-          <p className="text-xs uppercase tracking-wider text-gray-500">Total refunds on file</p>
+          <p className="text-xs uppercase tracking-wider text-gray-500">Documents on file</p>
           <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">
             {total.toLocaleString(undefined, { minimumFractionDigits: 2 })} {currency}
           </p>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-            Refund records are prepared and updated by our tax team. You&apos;ll be notified as each
-            status changes.
+            Uploaded tax documents and their status are shown here.
           </p>
         </div>
 
         <div className="overflow-hidden rounded-xl border border-white/20 bg-white/95 backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-800/95">
           <div className="border-b border-gray-200/50 px-4 py-3 dark:border-gray-700/50">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">My refunds</h2>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">My documents</h2>
           </div>
           {loading ? (
             <p className="px-4 py-8 text-center text-sm text-gray-500">Loading…</p>
           ) : refunds.length === 0 ? (
             <div className="px-4 py-10 text-center">
-              <i className="fa-solid fa-receipt mb-2 text-2xl text-gray-300 dark:text-gray-600" />
+              <i className="fa-solid fa-file-import mb-2 text-2xl text-gray-300 dark:text-gray-600" />
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                No tax refund has been filed on your account yet.
+                No tax documents have been uploaded yet.
               </p>
               <p className="mt-1 text-xs text-gray-500">
-                Contact support if you believe a refund is due to you.
+                Contact support with questions about your documents.
               </p>
             </div>
           ) : (
@@ -93,7 +92,7 @@ function IrsRefundsContent() {
                       {currency}
                     </div>
                     <div className="text-xs text-gray-500">
-                      Filed {new Date(refund.created_at).toLocaleDateString()}
+                      Uploaded {new Date(refund.created_at).toLocaleDateString()}
                     </div>
                     {refund.notes && (
                       <div className="mt-1 text-xs text-gray-600 dark:text-gray-300">

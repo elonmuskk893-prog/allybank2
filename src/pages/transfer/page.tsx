@@ -6,12 +6,7 @@ import { toast } from "sonner";
 import { AppShell, useMe } from "@/components/dashboard/app-shell";
 import { KycGate } from "@/components/dashboard/kyc-gate";
 import { bankFetch } from "@/lib/api";
-import {
-  currencySymbol,
-  formatCurrency,
-  parseNumeric,
-  sanitizeAmount,
-} from "@/lib/format";
+import { currencySymbol, formatCurrency, parseNumeric, sanitizeAmount } from "@/lib/format";
 
 const TAB_LABELS: Record<string, string> = {
   local: "local",
@@ -38,35 +33,35 @@ const METHODS = [
     detail: "Wallet address",
   },
   {
-    key: "PayPal",
-    icon: "fa-brands fa-paypal",
+    key: "Digital Wallet",
+    icon: "fa-solid fa-wallet",
     wrap: "bg-indigo-100 dark:bg-indigo-900/30",
     color: "text-indigo-600 dark:text-indigo-400",
-    desc: "Transfer funds to your PayPal account.",
-    detail: "PayPal email",
+    desc: "Transfer funds to your digital wallet.",
+    detail: "Wallet email",
   },
   {
-    key: "Wise Transfer",
+    key: "International Transfer",
     icon: "fa-solid fa-money-bill-transfer",
     wrap: "bg-green-100 dark:bg-green-900/30",
     color: "text-green-600 dark:text-green-400",
-    desc: "Transfer with lower fees using Wise.",
-    detail: "Wise email",
+    desc: "Transfer internationally with low fees.",
+    detail: "Recipient email",
   },
   {
-    key: "Cash App",
+    key: "Mobile Wallet",
     icon: "fa-solid fa-dollar-sign",
     wrap: "bg-pink-100 dark:bg-pink-900/30",
     color: "text-pink-600 dark:text-pink-400",
-    desc: "Quick transfers to your Cash App account.",
-    detail: "$Cashtag",
+    desc: "Quick transfers to your mobile wallet.",
+    detail: "Wallet handle",
   },
   {
     key: "More Options",
     icon: "fa-solid fa-ellipsis",
     wrap: "bg-amber-100 dark:bg-amber-900/30",
     color: "text-amber-600 dark:text-amber-400",
-    desc: "Zelle, Venmo, Revolut, and more.",
+    desc: "Other digital wallets and transfers.",
     detail: "Recipient handle / account",
     more: true,
   },
@@ -149,23 +144,19 @@ function TransferFlow() {
   const [accountName, setAccountName] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [bankName, setBankName] = useState("");
-  const [accountType, setAccountType] = useState("Online Banking");
+  const [accountType, setAccountType] = useState("Account");
   const [routing, setRouting] = useState("");
   const [swift, setSwift] = useState("");
   const [description, setDescription] = useState("");
   const [pin, setPin] = useState("");
   const [saveBeneficiary, setSaveBeneficiary] = useState(false);
-  const [selectedBeneficiaryId, setSelectedBeneficiaryId] = useState<
-    number | string | null
-  >(null);
+  const [selectedBeneficiaryId, setSelectedBeneficiaryId] = useState<number | string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [msg, setMsg] = useState<Message | null>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [showReceipt, setShowReceipt] = useState(false);
   const [canShare, setCanShare] = useState(false);
-  const [pendingTransferId, setPendingTransferId] = useState<
-    number | string | null
-  >(null);
+  const [pendingTransferId, setPendingTransferId] = useState<number | string | null>(null);
   const [verifyCode, setVerifyCode] = useState("");
 
   const brandColor = site.brand_color || "#0ea5e9";
@@ -201,9 +192,7 @@ function TransferFlow() {
         setBeneficiaries(benRes.data.beneficiaries);
         const to = new URLSearchParams(window.location.search).get("to");
         if (to) {
-          const found = benRes.data.beneficiaries.find(
-            (b) => b.account_number === to,
-          );
+          const found = benRes.data.beneficiaries.find((b) => b.account_number === to);
           if (found) selectBeneficiary(found);
           else setAccountNumber(to);
         }
@@ -222,20 +211,16 @@ function TransferFlow() {
   const fee = amountNum > 0 ? (amountNum * transferCharges) / 100 : 0;
   const total = amountNum + fee;
   const quickAmounts = [100, 500, 1000].filter(
-    (v) =>
-      (minTransfer <= 0 || v >= minTransfer) &&
-      (maxTransfer <= 0 || v <= maxTransfer),
+    (v) => (minTransfer <= 0 || v >= minTransfer) && (maxTransfer <= 0 || v <= maxTransfer),
   );
   const maxAmount = maxTransfer > 0 ? Math.min(balance, maxTransfer) : balance;
-  const maxAmountRounded =
-    maxAmount > 0 ? Math.floor(100 * maxAmount) / 100 : 0;
+  const maxAmountRounded = maxAmount > 0 ? Math.floor(100 * maxAmount) / 100 : 0;
 
   async function handleExternalTransfer() {
     setSubmitting(true);
     setMsg(null);
     const recipient = accountName.trim() || accountNumber.trim();
-    const methodLabel =
-      tab === "international" ? method : "Local bank transfer";
+    const methodLabel = tab === "international" ? method : "Local bank transfer";
     const res = await bankFetch<TransferResponse>("/transfer/external", {
       method: "POST",
       body: {
@@ -245,9 +230,7 @@ function TransferFlow() {
         account_number: accountNumber.trim(),
         bank_name: isBankMethod ? bankName.trim() : method,
         account_type: accountType,
-        ...(tab === "international" && isBankMethod
-          ? { swift: swift.trim() }
-          : {}),
+        ...(tab === "international" && isBankMethod ? { swift: swift.trim() } : {}),
         ...(tab === "local" ? { routing: routing.trim() || undefined } : {}),
         amount: amountNum,
         ...(description.trim() ? { narration: description.trim() } : {}),
@@ -410,8 +393,7 @@ Date: ${receipt.date.toLocaleString()}`;
   const fmt = (value: number) => formatCurrency(currency, value);
   const inputClass =
     "block w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-sm text-gray-900 outline-none transition focus:ring-2 dark:border-gray-700 dark:bg-gray-900 dark:text-white";
-  const labelClass =
-    "mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300";
+  const labelClass = "mb-1.5 block text-xs font-semibold text-gray-700 dark:text-gray-300";
 
   return (
     <div className="-mx-4 -my-5 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 lg:-mx-6 lg:p-6">
@@ -506,9 +488,7 @@ Date: ${receipt.date.toLocaleString()}`;
                   } else if (maxTransfer > 0 && amountNum > maxTransfer) {
                     toast.error(`Maximum transfer is ${fmt(maxTransfer)}.`);
                   } else if (total > balance) {
-                    toast.error(
-                      "Amount plus fee exceeds your available balance.",
-                    );
+                    toast.error("Amount plus fee exceeds your available balance.");
                   } else if (
                     recipientEmail.trim() &&
                     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail.trim())
@@ -602,9 +582,7 @@ Date: ${receipt.date.toLocaleString()}`;
                 <div>
                   <label className={labelClass}>
                     {"Note "}
-                    <span className="font-normal text-gray-400">
-                      (optional)
-                    </span>
+                    <span className="font-normal text-gray-400">(optional)</span>
                   </label>
                   <input
                     value={description}
@@ -620,9 +598,7 @@ Date: ${receipt.date.toLocaleString()}`;
                     type="password"
                     inputMode="numeric"
                     value={pin}
-                    onChange={(e) =>
-                      setPin(e.target.value.replace(/\D/g, "").slice(0, 6))
-                    }
+                    onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder="••••"
                     className={inputClass}
                   />
@@ -715,9 +691,7 @@ Date: ${receipt.date.toLocaleString()}`;
                   <div
                     className={`grid h-8 w-8 place-items-center rounded-xl ${selectedMethod?.wrap}`}
                   >
-                    <i
-                      className={`${selectedMethod?.icon} ${selectedMethod?.color} text-sm`}
-                    />
+                    <i className={`${selectedMethod?.icon} ${selectedMethod?.color} text-sm`} />
                   </div>
                   <span className="text-sm font-semibold text-gray-900 dark:text-white">
                     {method}
@@ -765,23 +739,13 @@ Date: ${receipt.date.toLocaleString()}`;
                   if (!amount || amountNum <= 0) {
                     toast.error("Enter an amount.");
                   } else if (minTransfer > 0 && amountNum < minTransfer) {
-                    toast.error(
-                      `Minimum transfer is ${formatCurrency(currency, minTransfer)}.`,
-                    );
+                    toast.error(`Minimum transfer is ${formatCurrency(currency, minTransfer)}.`);
                   } else if (maxTransfer > 0 && amountNum > maxTransfer) {
-                    toast.error(
-                      `Maximum transfer is ${formatCurrency(currency, maxTransfer)}.`,
-                    );
+                    toast.error(`Maximum transfer is ${formatCurrency(currency, maxTransfer)}.`);
                   } else if (total > balance) {
-                    toast.error(
-                      "Amount plus fee exceeds your available balance.",
-                    );
+                    toast.error("Amount plus fee exceeds your available balance.");
                   } else if (isBankMethod) {
-                    if (
-                      !accountName.trim() ||
-                      !accountNumber.trim() ||
-                      !bankName.trim()
-                    ) {
+                    if (!accountName.trim() || !accountNumber.trim() || !bankName.trim()) {
                       toast.error("Fill in the recipient bank details.");
                     } else if (tab === "international" && !swift.trim()) {
                       toast.error("SWIFT/BIC is required.");
@@ -791,9 +755,7 @@ Date: ${receipt.date.toLocaleString()}`;
                       setStep("review");
                     }
                   } else if (!accountNumber.trim()) {
-                    toast.error(
-                      `Enter the ${selectedMethod?.detail.toLowerCase()}.`,
-                    );
+                    toast.error(`Enter the ${selectedMethod?.detail.toLowerCase()}.`);
                   } else if (pin.length < 4) {
                     toast.error("Enter your transaction PIN.");
                   } else {
@@ -879,9 +841,7 @@ Date: ${receipt.date.toLocaleString()}`;
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>
-                        Account Number / IBAN
-                      </label>
+                      <label className={labelClass}>Account Number / IBAN</label>
                       <input
                         value={accountNumber}
                         onChange={(e) => {
@@ -911,7 +871,7 @@ Date: ${receipt.date.toLocaleString()}`;
                         onChange={(e) => setAccountType(e.target.value)}
                         className={inputClass}
                       >
-                        <option>Online Banking</option>
+                        <option>Account</option>
                         <option>Checking</option>
                         <option>Savings</option>
                       </select>
@@ -933,9 +893,7 @@ Date: ${receipt.date.toLocaleString()}`;
                       <div>
                         <label className={labelClass}>
                           {"Routing Number "}
-                          <span className="font-normal text-gray-400">
-                            (optional)
-                          </span>
+                          <span className="font-normal text-gray-400">(optional)</span>
                         </label>
                         <input
                           value={routing}
@@ -961,9 +919,7 @@ Date: ${receipt.date.toLocaleString()}`;
                       />
                     </div>
                     <div>
-                      <label className={labelClass}>
-                        {selectedMethod?.detail}
-                      </label>
+                      <label className={labelClass}>{selectedMethod?.detail}</label>
                       <input
                         value={accountNumber}
                         onChange={(e) => {
@@ -976,8 +932,7 @@ Date: ${receipt.date.toLocaleString()}`;
                     </div>
                     {selectedMethod?.more && (
                       <p className="-mt-2 text-xs text-gray-500 dark:text-gray-400">
-                        Enter the recipient handle for Zelle, Venmo, Revolut,
-                        etc.
+                        Enter the recipient handle or wallet details.
                       </p>
                     )}
                   </div>
@@ -999,9 +954,7 @@ Date: ${receipt.date.toLocaleString()}`;
                     type="password"
                     inputMode="numeric"
                     value={pin}
-                    onChange={(e) =>
-                      setPin(e.target.value.replace(/\D/g, "").slice(0, 6))
-                    }
+                    onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder="••••"
                     className={inputClass}
                   />
@@ -1041,23 +994,16 @@ Date: ${receipt.date.toLocaleString()}`;
                     Review transfer
                   </div>
                   <div className="mt-4 space-y-2 text-sm">
-                    <Row
-                      k="Method"
-                      v={tab === "international" ? method : "Local bank transfer"}
-                    />
+                    <Row k="Method" v={tab === "international" ? method : "Local bank transfer"} />
                     {accountName && <Row k="Recipient" v={accountName} />}
                     <Row
                       k={
-                        isBankMethod
-                          ? "Account / IBAN"
-                          : (selectedMethod?.detail ?? "Destination")
+                        isBankMethod ? "Account / IBAN" : (selectedMethod?.detail ?? "Destination")
                       }
                       v={accountNumber}
                     />
                     {isBankMethod && <Row k="Bank" v={bankName} />}
-                    {tab === "international" && isBankMethod && (
-                      <Row k="SWIFT/BIC" v={swift} />
-                    )}
+                    {tab === "international" && isBankMethod && <Row k="SWIFT/BIC" v={swift} />}
                     {description && <Row k="Description" v={description} />}
                     <div className="my-2 border-t border-gray-200 dark:border-gray-700" />
                     <Row k="Amount" v={fmt(amountNum)} />
@@ -1122,18 +1068,14 @@ Date: ${receipt.date.toLocaleString()}`;
                   className="cursor-pointer rounded-2xl border border-white/20 bg-white/80 p-3 text-left backdrop-blur-xl transition hover:shadow-lg dark:border-gray-700/50 dark:bg-gray-800/80"
                 >
                   <div className="mb-2 flex items-center">
-                    <div
-                      className={`grid h-8 w-8 place-items-center rounded-xl ${m.wrap}`}
-                    >
+                    <div className={`grid h-8 w-8 place-items-center rounded-xl ${m.wrap}`}>
                       <i className={`${m.icon} ${m.color} text-sm`} />
                     </div>
                     <h3 className="ml-3 text-sm font-medium text-gray-900 dark:text-white">
                       {m.key}
                     </h3>
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {m.desc}
-                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{m.desc}</p>
                 </button>
               ))}
             </div>
@@ -1164,23 +1106,18 @@ Date: ${receipt.date.toLocaleString()}`;
               className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full"
               style={{ background: `${brandColor}22` }}
             >
-              <i
-                className="fa-solid fa-headset text-2xl"
-                style={{ color: brandColor }}
-              />
+              <i className="fa-solid fa-headset text-2xl" style={{ color: brandColor }} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white">
               Enter confirmation code
             </h3>
             <p className="mb-4 mt-1 text-sm text-gray-500 dark:text-gray-400">
-              Our team will give you a 6-digit code to confirm this transfer.
-              Enter it below to send the money.
+              Our team will give you a 6-digit code to confirm this transfer. Enter it below to send
+              the money.
             </p>
             <input
               value={verifyCode}
-              onChange={(e) =>
-                setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-              }
+              onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
               placeholder="------"
               autoFocus
               inputMode="numeric"
@@ -1196,9 +1133,7 @@ Date: ${receipt.date.toLocaleString()}`;
               Don&apos;t have your code yet? Contact support
             </Link>
             {msg?.kind === "err" && (
-              <p className="mt-3 text-sm text-red-600 dark:text-red-400">
-                {msg.text}
-              </p>
+              <p className="mt-3 text-sm text-red-600 dark:text-red-400">{msg.text}</p>
             )}
             <div className="mt-5 flex justify-center gap-3">
               <button
@@ -1276,11 +1211,7 @@ function DoneReceipt({
       </div>
       <div className="p-6">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard
-            icon="fa-money-bill-transfer"
-            label="Amount"
-            value={fmt(receipt.amount)}
-          />
+          <StatCard icon="fa-money-bill-transfer" label="Amount" value={fmt(receipt.amount)} />
           <StatCard icon="fa-receipt" label="Fee" value={fmt(receipt.fee)} />
           <StatCard icon="fa-coins" label="Total" value={fmt(receipt.total)} />
         </div>
@@ -1301,9 +1232,7 @@ function DoneReceipt({
                 minute: "2-digit",
               })}
             />
-            {receipt.description && (
-              <Row k="Description" v={receipt.description} />
-            )}
+            {receipt.description && <Row k="Description" v={receipt.description} />}
           </div>
         </div>
         {msg && (
@@ -1389,16 +1318,11 @@ function ReceiptModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-gray-900/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border border-white/20 bg-white shadow-2xl dark:border-gray-700/50 dark:bg-gray-800">
         <div ref={ref}>
           <div className="head px-6 pt-6 text-center">
-            <h1 className="text-lg font-bold text-gray-900 dark:text-white">
-              {siteName}
-            </h1>
+            <h1 className="text-lg font-bold text-gray-900 dark:text-white">{siteName}</h1>
             <p className="muted text-xs text-gray-500">Transfer Receipt</p>
             <span className="badge mt-2 inline-block rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900/30 dark:text-green-300">
               Completed
@@ -1407,15 +1331,11 @@ function ReceiptModal({
           <div className="px-6 py-4">
             <div className="row flex justify-between border-b border-gray-100 py-2 text-sm dark:border-gray-700">
               <span className="text-gray-500">Recipient</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {receipt.recipient}
-              </span>
+              <span className="font-medium text-gray-900 dark:text-white">{receipt.recipient}</span>
             </div>
             <div className="row flex justify-between border-b border-gray-100 py-2 text-sm dark:border-gray-700">
               <span className="text-gray-500">Method</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {receipt.method}
-              </span>
+              <span className="font-medium text-gray-900 dark:text-white">{receipt.method}</span>
             </div>
             <div className="row flex justify-between border-b border-gray-100 py-2 text-sm dark:border-gray-700">
               <span className="text-gray-500">Amount</span>
@@ -1425,15 +1345,11 @@ function ReceiptModal({
             </div>
             <div className="row flex justify-between border-b border-gray-100 py-2 text-sm dark:border-gray-700">
               <span className="text-gray-500">Fee</span>
-              <span className="font-medium text-gray-900 dark:text-white">
-                {fmt(receipt.fee)}
-              </span>
+              <span className="font-medium text-gray-900 dark:text-white">{fmt(receipt.fee)}</span>
             </div>
             <div className="row total flex justify-between border-b border-gray-100 py-2 text-base font-bold dark:border-gray-700">
               <span className="text-gray-700 dark:text-gray-200">Total</span>
-              <span className="text-gray-900 dark:text-white">
-                {fmt(receipt.total)}
-              </span>
+              <span className="text-gray-900 dark:text-white">{fmt(receipt.total)}</span>
             </div>
             {receipt.description && (
               <div className="row flex justify-between border-b border-gray-100 py-2 text-sm dark:border-gray-700">
@@ -1486,15 +1402,7 @@ function ReceiptModal({
   );
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-}: {
-  icon: string;
-  label: string;
-  value: string;
-}) {
+function StatCard({ icon, label, value }: { icon: string; label: string; value: string }) {
   return (
     <div className="rounded-xl bg-gray-50 p-4 text-center dark:bg-gray-700/40">
       <div
@@ -1504,24 +1412,12 @@ function StatCard({
         <i className={`fa-solid ${icon} text-sm`} />
       </div>
       <div className="text-xs text-gray-500 dark:text-gray-400">{label}</div>
-      <div className="mt-0.5 text-sm font-bold text-gray-900 dark:text-white">
-        {value}
-      </div>
+      <div className="mt-0.5 text-sm font-bold text-gray-900 dark:text-white">{value}</div>
     </div>
   );
 }
 
-function Row({
-  k,
-  v,
-  strong,
-  mono,
-}: {
-  k: string;
-  v: string;
-  strong?: boolean;
-  mono?: boolean;
-}) {
+function Row({ k, v, strong, mono }: { k: string; v: string; strong?: boolean; mono?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-4">
       <span className="text-gray-500">{k}</span>

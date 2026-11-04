@@ -1,35 +1,18 @@
+-- Deposit payment methods: disabled by default pending operator review.
+-- No customer funds are routed to third-party personal accounts by this
+-- platform. Administrators may enable specific methods through the admin
+-- panel after configuring their own settlement details.
 INSERT INTO public.payment_methods (id, name, type, emoji, minimum, maximum, charges_amount, charges_type, duration, instructions, custom_fields, enabled, sort_order)
 VALUES
-('deposit_bank_usa', 'Bank Transfer — USA (USD)', 'deposit', '🇺🇸', 100, 100000, 0, 'fixed', '1-2 business days',
- 'Send your transfer to the account details below, then submit this form so we can match your payment.',
- '[{"id":"usa_account_name","label":"Account Name","type":"text","role":"display","value":"Grace"},
-   {"id":"usa_account_number","label":"Account Number","type":"text","role":"display","value":"218722191692"},
-   {"id":"usa_wire_routing","label":"Wire Routing","type":"text","role":"display","value":"101019644"},
-   {"id":"usa_ach_routing","label":"ACH Routing","type":"text","role":"display","value":"101019644"},
-   {"id":"usa_account_type","label":"Account Type","type":"text","role":"display","value":"Checking"},
-   {"id":"usa_bank_name","label":"Bank Name","type":"text","role":"display","value":"Lead"},
-   {"id":"usa_bank_address","label":"Bank Address","type":"text","role":"display","value":"1801 Main St., Kansas City, MO 64108"}]'::jsonb,
- true, 1),
-('deposit_bank_eur', 'Bank Transfer — Europe (EUR)', 'deposit', '🇪🇺', 100, 100000, 0, 'fixed', '1-2 business days',
- 'Send your transfer to the EU account details below, then submit this form so we can match your payment.',
- '[{"id":"eur_account_name","label":"Account Name","type":"text","role":"display","value":"Grace"},
-   {"id":"eur_account_number","label":"Account Number","type":"text","role":"display","value":"69353769"},
-   {"id":"eur_swift","label":"SWIFT Code","type":"text","role":"display","value":"CLJUGB21XXX"},
-   {"id":"eur_sort_code","label":"Sort Code","type":"text","role":"display","value":"041307"},
-   {"id":"eur_bank_name","label":"Bank Name","type":"text","role":"display","value":"Clear Junction Limited"},
-   {"id":"eur_bank_address","label":"Bank Address","type":"text","role":"display","value":"4th Floor Imperial House, 15 Kingsway, London, United Kingdom, WC2B 6UN"},
-   {"id":"eur_iban","label":"IBAN","type":"text","role":"display","value":"GB47CLJU04130769353769"}]'::jsonb,
- true, 2),
-('deposit_bank_gbp', 'Bank Transfer — UK (GBP)', 'deposit', '🇬🇧', 100, 100000, 0, 'fixed', '1-2 business days',
- 'Send your transfer to the UK account details below, then submit this form so we can match your payment.',
- '[{"id":"gbp_account_name","label":"Account Name","type":"text","role":"display","value":"Grace Onyebuchi Nwokedi"},
-   {"id":"gbp_account_number","label":"Account Number","type":"text","role":"display","value":"69353769"},
-   {"id":"gbp_swift","label":"SWIFT Code","type":"text","role":"display","value":"CLJUGB21XXX"},
-   {"id":"gbp_sort_code","label":"Sort Code","type":"text","role":"display","value":"041307"},
-   {"id":"gbp_bank_name","label":"Bank Name","type":"text","role":"display","value":"Clear Junction Limited"},
-   {"id":"gbp_bank_address","label":"Bank Address","type":"text","role":"display","value":"4th Floor Imperial House, 15 Kingsway, London, United Kingdom, WC2B 6UN"},
-   {"id":"gbp_iban","label":"IBAN","type":"text","role":"display","value":"GB47CLJU04130769353769"}]'::jsonb,
- true, 3)
+  ('deposit_bank_usa', 'Bank Transfer — USA (USD)', 'deposit', '🏦', 100, 100000, 0, 'fixed', '1-5 business days',
+   'Contact support for deposit instructions. Do not send funds to a personal account.',
+   '[]'::jsonb, false, 1),
+  ('deposit_bank_eur', 'Bank Transfer — Europe (EUR)', 'deposit', '🏦', 100, 100000, 0, 'fixed', '1-5 business days',
+   'Contact support for deposit instructions. Do not send funds to a personal account.',
+   '[]'::jsonb, false, 2),
+  ('deposit_bank_gbp', 'Bank Transfer — UK (GBP)', 'deposit', '🏦', 100, 100000, 0, 'fixed', '1-5 business days',
+   'Contact support for deposit instructions. Do not send funds to a personal account.',
+   '[]'::jsonb, false, 3)
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
   emoji = EXCLUDED.emoji,
@@ -39,6 +22,6 @@ ON CONFLICT (id) DO UPDATE SET
   duration = EXCLUDED.duration,
   instructions = EXCLUDED.instructions,
   custom_fields = EXCLUDED.custom_fields,
-  enabled = true,
+  enabled = false,
   sort_order = EXCLUDED.sort_order,
   updated_at = now();

@@ -10,24 +10,24 @@ import { currencySymbol } from "@/lib/format";
 
 const CARD_TYPES = [
   {
-    value: "visa",
-    label: "Visa",
-    desc: "Card network option for online and in-person payments",
-    tag: "VISA",
+    value: "standard",
+    label: "Standard Card",
+    desc: "Card option for everyday online and in-person payments",
+    tag: "STANDARD",
     tagCls: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50",
   },
   {
-    value: "mastercard",
-    label: "Mastercard",
-    desc: "Card network option with standard card controls",
-    tag: "MASTERCARD",
+    value: "premium",
+    label: "Premium Card",
+    desc: "Card option with higher limits and standard card controls",
+    tag: "PREMIUM",
     tagCls: "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/50",
   },
   {
-    value: "american_express",
-    label: "American Express",
-    desc: "Card network option where supported",
-    tag: "AMEX",
+    value: "platinum",
+    label: "Platinum Card",
+    desc: "Card option where supported",
+    tag: "PLATINUM",
     tagCls: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50",
   },
 ];
@@ -47,7 +47,7 @@ function ApplyForm() {
   const primaryCurrency = me.site.primary_currency;
   const router = useRouter();
 
-  const [cardType, setCardType] = useState("visa");
+  const [cardType, setCardType] = useState("standard");
   const [cardLevel, setCardLevel] = useState("");
   const [currency, setCurrency] = useState(primaryCurrency);
   const [dailyLimit, setDailyLimit] = useState("1000");
@@ -77,7 +77,7 @@ function ApplyForm() {
     const res = await bankFetch("/cards/apply", {
       method: "POST",
       body: {
-        card_brand: cardType === "american_express" ? "mastercard" : cardType,
+        card_brand: cardType,
         currency,
         card_level: cardLevel,
         ...(Number.isFinite(limit) && limit >= 0 ? { daily_limit: limit } : {}),
@@ -137,12 +137,9 @@ function ApplyForm() {
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
-                <h2 className="mb-2 text-xl font-bold lg:text-2xl">
-                  Apply for a Virtual Card
-                </h2>
+                <h2 className="mb-2 text-xl font-bold lg:text-2xl">Apply for a Virtual Card</h2>
                 <p className="text-sm text-white/90">
-                  Apply for a virtual card for online payments and
-                  subscriptions
+                  Apply for a virtual card for online payments and subscriptions
                 </p>
               </div>
               <i className="fas fa-credit-card hidden text-4xl text-white/75 md:block" />
@@ -221,9 +218,7 @@ function ApplyForm() {
                       onChange={(e) => setCurrency(e.target.value)}
                       className={inputClass}
                     >
-                      <option value={primaryCurrency}>
-                        {primaryCurrency} - Account Currency
-                      </option>
+                      <option value={primaryCurrency}>{primaryCurrency} - Account Currency</option>
                       <option value="USD">USD - US Dollar</option>
                       <option value="EUR">EUR - Euro</option>
                       <option value="GBP">GBP - British Pound</option>
@@ -302,24 +297,19 @@ function ApplyForm() {
                   style={{ accentColor: "var(--brand)" }}
                 />
                 <div className="text-sm">
-                  <label
-                    htmlFor="terms"
-                    className="font-semibold text-gray-900 dark:text-white"
-                  >
+                  <label htmlFor="terms" className="font-semibold text-gray-900 dark:text-white">
                     I agree to the Terms and Conditions
                   </label>
                   <p className="mt-1 text-xs text-gray-700 dark:text-gray-200">
-                    By checking this box, you agree to our virtual card terms,
-                    including fees, limits, and usage policies. You also consent
-                    to electronic communications regarding your card account.
+                    By checking this box, you agree to our virtual card terms, including fees,
+                    limits, and usage policies. You also consent to electronic communications
+                    regarding your card account.
                   </p>
                 </div>
               </div>
             </div>
 
-            {error && (
-              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-            )}
+            {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
             <div className="flex flex-col gap-2 pt-2 lg:flex-row lg:gap-3">
               <button
@@ -380,9 +370,7 @@ function SectionHeader({ icon, children }: { icon: string; children: ReactNode }
       >
         <i className={`fas ${icon} text-xs`} />
       </div>
-      <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-        {children}
-      </h3>
+      <h3 className="text-base font-semibold text-gray-900 dark:text-white">{children}</h3>
     </div>
   );
 }
@@ -439,15 +427,10 @@ function Feature({
   return (
     <div className="rounded-xl border border-gray-200/50 bg-white/70 p-4 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/70">
       <div className="mb-2 flex items-center gap-3">
-        <div
-          className="grid h-8 w-8 place-items-center rounded-lg"
-          style={{ background: grad }}
-        >
+        <div className="grid h-8 w-8 place-items-center rounded-lg" style={{ background: grad }}>
           <i className={`fas ${icon} text-sm text-white`} />
         </div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-          {title}
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{title}</h3>
       </div>
       <p className="text-xs text-gray-600 dark:text-gray-400">{desc}</p>
     </div>

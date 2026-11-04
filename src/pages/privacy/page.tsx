@@ -24,18 +24,14 @@ const lastUpdated = new Date().toLocaleDateString("en-US", {
 export default function PrivacyPage() {
   const { site } = useSite();
   const siteData = site as SiteWithContact | null;
-  const bankName = siteData?.name ?? "Online Banking";
+  const bankName = siteData?.name ?? "Account Dashboard";
   const contact = siteData?.contact ?? {
     email: null,
     phone: null,
     address: null,
     hours: null,
   };
-  const email = (
-    contact.email ||
-    siteData?.support_emails?.[0] ||
-    ""
-  ).trim();
+  const email = (contact.email || siteData?.support_emails?.[0] || "").trim();
   const hasContact = !!(email || contact.phone || contact.address);
 
   return (
@@ -67,8 +63,8 @@ export default function PrivacyPage() {
                 Privacy Policy
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Your privacy is our priority. Learn how we protect and handle
-                your personal information
+                Your privacy is our priority. Learn how we protect and handle your personal
+                information
               </p>
             </div>
           </div>
@@ -80,26 +76,25 @@ export default function PrivacyPage() {
               <div className="prose prose-lg dark:prose-invert max-w-none">
                 <h2>1. Information We Collect</h2>
                 <p>
-                  {bankName} collects information to provide better services to
-                  our customers. We collect information in the following ways:
+                  {bankName} collects information to provide better services to our customers. We
+                  collect information in the following ways:
                 </p>
                 <ul>
                   <li>
-                    <strong>Personal Information:</strong> Name, address, phone
-                    number, email address, Social Security number, and other
-                    identifying information
+                    <strong>Personal Information:</strong> Name, address, phone number, email
+                    address, Social Security number, and other identifying information
                   </li>
                   <li>
-                    <strong>Financial Information:</strong> Account balances,
-                    payment history, credit information, and transaction details
+                    <strong>Financial Information:</strong> Account balances, payment history,
+                    credit information, and transaction details
                   </li>
                   <li>
-                    <strong>Technical Information:</strong> IP address, browser
-                    type, device information, and usage data
+                    <strong>Technical Information:</strong> IP address, browser type, device
+                    information, and usage data
                   </li>
                   <li>
-                    <strong>Communication Records:</strong> Records of your
-                    communications with us, including phone calls and emails
+                    <strong>Communication Records:</strong> Records of your communications with us,
+                    including phone calls and emails
                   </li>
                 </ul>
                 <h2>2. How We Use Your Information</h2>
@@ -110,64 +105,51 @@ export default function PrivacyPage() {
                   <li>Comply with legal and regulatory requirements</li>
                   <li>Prevent fraud and enhance security</li>
                   <li>Improve our services and customer experience</li>
-                  <li>
-                    Communicate with you about your accounts and services
-                  </li>
+                  <li>Communicate with you about your accounts and services</li>
                 </ul>
                 <h2>3. Information Sharing</h2>
                 <p>
-                  We do not sell, rent, or trade your personal information. We
-                  may share your information only in the following
-                  circumstances:
+                  We do not sell, rent, or trade your personal information. We may share your
+                  information only in the following circumstances:
                 </p>
                 <ul>
                   <li>With your consent or at your direction</li>
                   <li>With service providers who assist us in our operations</li>
                   <li>To comply with legal obligations or court orders</li>
                   <li>To protect our rights, property, or safety</li>
-                  <li>
-                    In connection with a merger, acquisition, or sale of assets
-                  </li>
+                  <li>In connection with a merger, acquisition, or sale of assets</li>
                 </ul>
                 <h2>4. Data Security</h2>
                 <p>We implement robust security measures to protect your information:</p>
                 <ul>
                   <li>
-                    <strong>Encryption:</strong> All sensitive data is encrypted
-                    in transit and at rest
+                    <strong>Encryption:</strong> All sensitive data is encrypted in transit and at
+                    rest
                   </li>
                   <li>
-                    <strong>Access Controls:</strong> Strict access controls
-                    limit who can view your information
+                    <strong>Access Controls:</strong> Strict access controls limit who can view your
+                    information
                   </li>
                   <li>
-                    <strong>Monitoring:</strong> Continuous monitoring for
-                    suspicious activities
+                    <strong>Monitoring:</strong> Continuous monitoring for suspicious activities
                   </li>
                   <li>
-                    <strong>Regular Audits:</strong> Regular security audits and
-                    assessments
+                    <strong>Regular Audits:</strong> Regular security audits and assessments
                   </li>
                 </ul>
                 <h2>5. Your Rights and Choices</h2>
-                <p>
-                  You have the following rights regarding your personal
-                  information:
-                </p>
+                <p>You have the following rights regarding your personal information:</p>
                 <ul>
                   <li>Access and review your personal information</li>
                   <li>Request corrections to inaccurate information</li>
                   <li>Opt out of certain communications</li>
-                  <li>
-                    Request deletion of your information (subject to legal
-                    requirements)
-                  </li>
+                  <li>Request deletion of your information (subject to legal requirements)</li>
                   <li>File a complaint with regulatory authorities</li>
                 </ul>
                 <h2>6. Cookies and Tracking Technologies</h2>
                 <p>
-                  We use cookies and similar technologies to enhance your
-                  experience on our website. These technologies help us:
+                  We use cookies and similar technologies to enhance your experience on our website.
+                  These technologies help us:
                 </p>
                 <ul>
                   <li>Remember your preferences and settings</li>
@@ -177,27 +159,30 @@ export default function PrivacyPage() {
                 </ul>
                 <h2>7. Third-Party Services</h2>
                 <p>
-                  Our website may contain links to third-party websites or
-                  services. We are not responsible for the privacy practices of
-                  these third parties. We encourage you to review their privacy
-                  policies.
+                  Our website may contain links to third-party websites or services. We are not
+                  responsible for the privacy practices of these third parties. We encourage you to
+                  review their privacy policies.
+                </p>
+                <p>
+                  Signed-in members may use our live-chat widget, which is provided by Smartsupp.
+                  Messages sent through the widget are processed by Smartsupp under its privacy
+                  policy. The widget is only loaded after you sign in.
                 </p>
                 <h2>8. Children&apos;s Privacy</h2>
                 <p>
-                  Our services are not intended for children under 13 years of
-                  age. We do not knowingly collect personal information from
-                  children under 13.
+                  Our services are not intended for children under 13 years of age. We do not
+                  knowingly collect personal information from children under 13.
                 </p>
                 <h2>9. Changes to This Policy</h2>
                 <p>
-                  We may update this Privacy Policy from time to time. We will
-                  notify you of any material changes by posting the new policy
-                  on our website and updating the &quot;Last Updated&quot; date.
+                  We may update this Privacy Policy from time to time. We will notify you of any
+                  material changes by posting the new policy on our website and updating the
+                  &quot;Last Updated&quot; date.
                 </p>
                 <h2>10. Contact Us</h2>
                 <p>
-                  If you have any questions about this Privacy Policy or our
-                  privacy practices, please contact us
+                  If you have any questions about this Privacy Policy or our privacy practices,
+                  please contact us
                   {hasContact ? ":" : " through the contact page on this site."}
                 </p>
                 {hasContact && (

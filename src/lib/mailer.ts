@@ -48,7 +48,7 @@ export function resolveEmailConfig(stored: EmailConfig | null | undefined): Emai
           ? env("MAILERSEND_API_KEY")
           : "";
   }
-  cfg.from_name = cfg.from_name || env("EMAIL_FROM_NAME") || "Online Banking";
+  cfg.from_name = cfg.from_name || env("EMAIL_FROM_NAME") || "Account Dashboard";
   cfg.from_email = cfg.from_email || env("EMAIL_FROM_ADDRESS") || cfg.smtp_user || "";
   return cfg;
 }
@@ -117,7 +117,7 @@ function wrap(socket: net.Socket | tls.TLSSocket): SmtpSocket {
     end: () => current.end(),
     upgrade: async (host: string) => {
       const plain = current as net.Socket;
-      current = tls.connect({ socket: plain, servername: host, rejectUnauthorized: false });
+      current = tls.connect({ socket: plain, servername: host, rejectUnauthorized: true });
       await new Promise<void>((resolve, reject) => {
         (current as tls.TLSSocket).once("secureConnect", () => resolve());
         current.once("error", reject);
@@ -141,7 +141,7 @@ async function sendViaSmtp(cfg: EmailConfig, input: MailInput): Promise<MailResu
   let sock: SmtpSocket | null = null;
   try {
     const raw: net.Socket | tls.TLSSocket = implicit
-      ? tls.connect({ host, port, servername: host, rejectUnauthorized: false })
+      ? tls.connect({ host, port, servername: host, rejectUnauthorized: true })
       : net.connect({ host, port });
     await new Promise<void>((resolve, reject) => {
       raw.once(implicit ? "secureConnect" : "connect", () => resolve());
@@ -195,7 +195,10 @@ async function sendViaSmtp(cfg: EmailConfig, input: MailInput): Promise<MailResu
       `Message-ID: <${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@${domain}>`,
       "MIME-Version: 1.0",
       ...(input.listUnsubscribe
-        ? [`List-Unsubscribe: <mailto:${replyTo}?subject=unsubscribe>`, "List-Unsubscribe-Post: List-Unsubscribe=One-Click"]
+        ? [
+            `List-Unsubscribe: <mailto:${replyTo}?subject=unsubscribe>`,
+            "List-Unsubscribe-Post: List-Unsubscribe=One-Click",
+          ]
         : []),
       `Content-Type: multipart/alternative; boundary="${boundary}"`,
       "",
@@ -256,7 +259,8 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
             : {}),
         }),
       });
-      if (!response.ok) return { sent: false, error: `${response.status} ${await response.text()}` };
+      if (!response.ok)
+        return { sent: false, error: `${response.status} ${await response.text()}` };
       return { sent: true };
     }
     const response = await fetch("https://api.resend.com/emails", {
@@ -281,21 +285,30 @@ async function sendViaApi(cfg: EmailConfig, input: MailInput): Promise<MailResul
 
 export async function sendMail(cfg: EmailConfig, input: MailInput): Promise<MailResult> {
   if (!isEmailConfigured(cfg)) return { sent: false, error: "email_not_configured" };
-  const result = cfg.provider === "smtp" ? await sendViaSmtp(cfg, input) : await sendViaApi(cfg, input);
+  const result =
+    cfg.provider === "smtp" ? await sendViaSmtp(cfg, input) : await sendViaApi(cfg, input);
   if (!result.sent) console.error("[mailer] send failed:", result.error);
   return result;
 }
 
-/** Log the code server-side when delivery fails so the flow remains testable. */
-export function logUndeliveredCode(purpose: string, to: string, code: string) {
-  console.warn(`[mailer] ${purpose} code for ${to}: ${code}`);
+/** Note that delivery failed server-side; the code itself is never logged. */
+export function logUndeliveredCode(purpose: string, to: string, _code?: string) {
+  console.warn(
+    `[mailer] ${purpose} for ${to} — email delivery failed; verification code omitted from logs.`,
+  );
 }
 
 /* -------------------------------------------------------------------------- */
 /* Templates                                                                  */
 /* -------------------------------------------------------------------------- */
 
-function layout(siteName: string, heading: string, intro: string, rows: [string, string][], footer: string) {
+function layout(
+  siteName: string,
+  heading: string,
+  intro: string,
+  rows: [string, string][],
+  footer: string,
+) {
   const cells = rows
     .map(
       ([label, value]) =>
@@ -321,7 +334,10 @@ function layout(siteName: string, heading: string, intro: string, rows: [string,
 
 function money(currency: string, amount: number) {
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: currency || "USD" }).format(amount);
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: currency || "USD",
+    }).format(amount);
   } catch {
     return `${currency} ${amount.toFixed(2)}`;
   }
@@ -367,7 +383,11 @@ export function withdrawalStatusEmail(input: TxEmailInput): MailInput {
   const when = input.date ?? new Date().toISOString();
   const status = (input.status ?? "completed").toLowerCase();
   const heading =
-    status === "completed" ? "Withdrawal completed" : status === "rejected" || status === "failed" ? "Withdrawal declined" : "Withdrawal update";
+    status === "completed"
+      ? "Withdrawal completed"
+      : status === "rejected" || status === "failed"
+        ? "Withdrawal declined"
+        : "Withdrawal update";
   const rows: [string, string][] = [
     ["Amount", `- ${money(input.currency, input.amount)}`],
     ["Currency", input.currency.toUpperCase()],
@@ -416,7 +436,12 @@ export function verificationCodeEmail(code: string, siteName: string): MailInput
     to: "",
     subject: `Verify your email — ${siteName}`,
     text: `Your ${siteName} verification code is ${code}. It expires in 15 minutes.`,
-    html: codeShell(code, siteName, "Confirm your email", "Enter this code on the verification screen to activate your account."),
+    html: codeShell(
+      code,
+      siteName,
+      "Confirm your email",
+      "Enter this code on the verification screen to activate your account.",
+    ),
   };
 }
 
@@ -425,7 +450,12 @@ export function passwordResetCodeEmail(code: string, siteName: string): MailInpu
     to: "",
     subject: `Reset your password — ${siteName}`,
     text: `Your ${siteName} password reset code is ${code}. It expires in 15 minutes.`,
-    html: codeShell(code, siteName, "Reset your password", "Enter this code on the password reset screen to set a new password."),
+    html: codeShell(
+      code,
+      siteName,
+      "Reset your password",
+      "Enter this code on the password reset screen to set a new password.",
+    ),
   };
 }
 
@@ -434,7 +464,13 @@ export function testEmail(siteName: string): MailInput {
     to: "",
     subject: `Test email from ${siteName}`,
     text: `This is a test email from ${siteName}. Your email settings are working.`,
-    html: layout(siteName, "Email settings are working", "This is a test message sent from your admin panel.", [["Status", "Delivered"]], "You can now enable transaction notifications."),
+    html: layout(
+      siteName,
+      "Email settings are working",
+      "This is a test message sent from your admin panel.",
+      [["Status", "Delivered"]],
+      "You can now enable transaction notifications.",
+    ),
   };
 }
 
@@ -453,7 +489,9 @@ export function broadcastEmail(input: {
   const cta = input.link
     ? `<p style="margin:24px 0 0;"><a href="${input.link}" style="display:inline-block;background:#0ea5e9;color:#ffffff;text-decoration:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:bold;">View details</a></p>`
     : "";
-  const greeting = input.name ? `<p style="margin:0 0 16px;font-size:14px;color:#111827;">Hi ${input.name},</p>` : "";
+  const greeting = input.name
+    ? `<p style="margin:0 0 16px;font-size:14px;color:#111827;">Hi ${input.name},</p>`
+    : "";
   const html = `<!doctype html><html><body style="margin:0;padding:0;background:#f3f4f6;font-family:Arial,Helvetica,sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;padding:32px 16px;">
     <tr><td align="center">
@@ -473,7 +511,10 @@ export function broadcastEmail(input: {
   return {
     to: "",
     subject: input.title,
-    text: input.bodyHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+    text: input.bodyHtml
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim(),
     html,
     listUnsubscribe: true,
   };

@@ -287,7 +287,7 @@ function SettingsAdmin() {
             <input value={String(email.from_name)} onChange={(e) => setEmail({ ...email, from_name: e.target.value })} className={inputCls} />
           </Field>
           <Field label="From email">
-            <input value={String(email.from_email)} onChange={(e) => setEmail({ ...email, from_email: e.target.value })} className={inputCls} placeholder="no-reply@yourbank.com" />
+            <input value={String(email.from_email)} onChange={(e) => setEmail({ ...email, from_email: e.target.value })} className={inputCls} placeholder="no-reply@example.com" />
           </Field>
           {email.provider === "smtp" ? (
             <>

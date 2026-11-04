@@ -56,8 +56,7 @@ const DIALOG_SIZES: Record<string, string> = {
 };
 
 const BTN_VARIANTS: Record<string, string> = {
-  primary:
-    "btn-primary text-white",
+  primary: "btn-primary text-white",
   secondary:
     "btn-secondary border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700",
   danger:
@@ -100,7 +99,11 @@ function Btn({
       type={type}
       disabled={disabled || loading}
       className={cn("relative rounded-lg", BTN_VARIANTS[variant], BTN_SIZES[size], className)}
-      style={variant === "primary" ? { background: "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.25))" } : undefined}
+      style={
+        variant === "primary"
+          ? { background: "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.25))" }
+          : undefined
+      }
       {...rest}
     >
       {loading && (
@@ -142,12 +145,8 @@ function Dialog({
       >
         <div className="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 p-5 dark:border-gray-800">
           <div>
-            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
-              {title}
-            </h3>
-            {description && (
-              <p className="mt-1 text-sm text-gray-500">{description}</p>
-            )}
+            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
+            {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
           </div>
           <button
             type="button"
@@ -157,9 +156,7 @@ function Dialog({
             <X className="h-4 w-4" />
           </button>
         </div>
-        {children != null && (
-          <div className="min-h-0 flex-1 overflow-y-auto p-5">{children}</div>
-        )}
+        {children != null && <div className="min-h-0 flex-1 overflow-y-auto p-5">{children}</div>}
         {footer && (
           <div className="flex shrink-0 items-center justify-end gap-2 border-t border-gray-100 p-4 dark:border-gray-800">
             {footer}
@@ -357,9 +354,7 @@ function BeneficiariesFlow() {
                     {kind === "crypto" ? (
                       <>
                         {item.crypto_currency && (
-                          <div className="text-xs text-gray-500">
-                            {item.crypto_currency}
-                          </div>
+                          <div className="text-xs text-gray-500">{item.crypto_currency}</div>
                         )}
                         {item.account_number && (
                           <div className="truncate font-mono text-xs text-gray-600 dark:text-gray-400">
@@ -383,9 +378,7 @@ function BeneficiariesFlow() {
                           </div>
                         )}
                         {item.swift && (
-                          <div className="font-mono text-xs text-gray-500">
-                            SWIFT: {item.swift}
-                          </div>
+                          <div className="font-mono text-xs text-gray-500">SWIFT: {item.swift}</div>
                         )}
                         {item.country && (
                           <div className="text-xs text-gray-500">{item.country}</div>
@@ -618,7 +611,7 @@ function BeneficiaryModal({
                 onChange={setAccountType}
                 options={[
                   ["", "Select…"],
-                  ["Online Banking", "Online Banking"],
+                  ["Account", "Account"],
                   ["Savings Account", "Savings Account"],
                   ["Checking Account", "Checking Account"],
                   ["Business Account", "Business Account"],
@@ -634,17 +627,8 @@ function BeneficiaryModal({
               {kind === "international" && (
                 <>
                   <Field label="Country" value={country} onChange={setCountry} />
-                  <Field
-                    label="Bank address"
-                    value={bankAddress}
-                    onChange={setBankAddress}
-                  />
-                  <Field
-                    label="IBAN (optional)"
-                    value={iban}
-                    onChange={setIban}
-                    mono
-                  />
+                  <Field label="Bank address" value={bankAddress} onChange={setBankAddress} />
+                  <Field label="IBAN (optional)" value={iban} onChange={setIban} mono />
                 </>
               )}
             </>
@@ -697,9 +681,7 @@ function Field({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1 block text-xs text-gray-600 dark:text-gray-400">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs text-gray-600 dark:text-gray-400">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -723,9 +705,7 @@ function SelectField({
 }) {
   return (
     <label className="block text-sm">
-      <span className="mb-1 block text-xs text-gray-600 dark:text-gray-400">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs text-gray-600 dark:text-gray-400">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}

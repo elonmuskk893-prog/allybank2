@@ -5,12 +5,7 @@ import Link from "@/lib/next/link";
 import { toast } from "sonner";
 import { AppShell, useMe } from "@/components/dashboard/app-shell";
 import { bankFetch } from "@/lib/api";
-import {
-  currencySymbol,
-  formatCurrency,
-  parseNumeric,
-  sanitizeAmount,
-} from "@/lib/format";
+import { currencySymbol, formatCurrency, parseNumeric, sanitizeAmount } from "@/lib/format";
 import {
   CustomFieldsEditor,
   missingFieldLabel,
@@ -118,7 +113,7 @@ function mapMethod(raw: RawMethod): DepositMethod {
 }
 
 /** A deposit method that has guidance text but no payment details to copy —
- *  e.g. PayPal and Cash Deposit, which require contacting support. */
+ *  e.g. digital wallet and cash deposit, which require contacting support. */
 function isContactSupport(method: DepositMethod | null): boolean {
   if (!method) return false;
   return method.details.length === 0 && !!method.instructions?.trim();
@@ -154,12 +149,8 @@ function DepositFlow() {
   useEffect(() => {
     loadDeposits();
     (async () => {
-      const res = await bankFetch<{ methods: RawMethod[] }>(
-        "/payment-methods?for=deposit",
-      );
-      setMethods(
-        res.ok && res.data?.methods ? res.data.methods.map(mapMethod) : [],
-      );
+      const res = await bankFetch<{ methods: RawMethod[] }>("/payment-methods?for=deposit");
+      setMethods(res.ok && res.data?.methods ? res.data.methods.map(mapMethod) : []);
     })();
   }, []);
 
@@ -175,16 +166,15 @@ function DepositFlow() {
 
   const selected = methods?.find((m) => m.id === selectedId) ?? null;
   const amountNum = parseNumeric(amount);
-  const validation =
-    selected
-      ? amountNum
-        ? selected.min != null && amountNum < selected.min
-          ? `The minimum for ${selected.name} is ${formatCurrency(currency, selected.min)}.`
-          : selected.max != null && selected.max > 0 && amountNum > selected.max
-            ? `The maximum for ${selected.name} is ${formatCurrency(currency, selected.max)}.`
-            : null
-        : null
-      : null;
+  const validation = selected
+    ? amountNum
+      ? selected.min != null && amountNum < selected.min
+        ? `The minimum for ${selected.name} is ${formatCurrency(currency, selected.min)}.`
+        : selected.max != null && selected.max > 0 && amountNum > selected.max
+          ? `The maximum for ${selected.name} is ${formatCurrency(currency, selected.max)}.`
+          : null
+      : null
+    : null;
   const missingLabel = selected ? missingFieldLabel(selected.inputFields, custom) : null;
 
   async function submitPayment() {
@@ -239,9 +229,7 @@ function DepositFlow() {
                 <i className="fas fa-piggy-bank text-lg" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Deposit Funds
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Deposit Funds</h1>
                 <p className="text-gray-600 dark:text-gray-400">
                   Add money to your account securely
                 </p>
@@ -261,8 +249,7 @@ function DepositFlow() {
           <div
             className="p-6 text-white"
             style={{
-              background:
-                "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.4))",
+              background: "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.4))",
             }}
           >
             <div className="flex flex-col items-center text-center">
@@ -312,7 +299,9 @@ function DepositFlow() {
               ) : methods.length === 0 ? (
                 <div className="rounded-xl border border-amber-200/60 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-300">
                   <i className="fas fa-circle-info mr-2" />
-                  {"No deposit method has been set up yet. Please contact support before sending any payment."}
+                  {
+                    "No deposit method has been set up yet. Please contact support before sending any payment."
+                  }
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -327,11 +316,10 @@ function DepositFlow() {
                         className={`cursor-pointer rounded-xl border p-4 text-left transition hover:shadow-md ${selectedMethod ? "border-transparent ring-2" : "border-gray-200 bg-white/80 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800/80"}`}
                         style={
                           selectedMethod
-                            ? {
+                            ? ({
                                 "--tw-ring-color": "var(--brand)",
-                                background:
-                                  "color-mix(in srgb, var(--brand) 8%, transparent)",
-                              } as React.CSSProperties
+                                background: "color-mix(in srgb, var(--brand) 8%, transparent)",
+                              } as React.CSSProperties)
                             : undefined
                         }
                       >
@@ -351,9 +339,7 @@ function DepositFlow() {
                             className={`ml-2 grid h-5 w-5 shrink-0 place-items-center rounded-full border-2 ${selectedMethod ? "border-transparent text-white" : "border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-700"}`}
                             style={selectedMethod ? { background: "var(--brand)" } : undefined}
                           >
-                            {selectedMethod && (
-                              <i className="fas fa-check text-[10px]" />
-                            )}
+                            {selectedMethod && <i className="fas fa-check text-[10px]" />}
                           </div>
                         </div>
                       </button>
@@ -362,9 +348,7 @@ function DepositFlow() {
                 </div>
               )}
 
-              {selected && (
-                <MethodInfo method={selected} cur={currency} amount={amountNum} />
-              )}
+              {selected && <MethodInfo method={selected} cur={currency} amount={amountNum} />}
 
               {selected && isContactSupport(selected) ? (
                 <div className="mt-6 rounded-2xl border border-amber-300/70 bg-amber-50 p-5 shadow-sm dark:border-amber-700/50 dark:bg-amber-900/20">
@@ -375,8 +359,8 @@ function DepositFlow() {
                         Contact support to use {selected.name}
                       </h3>
                       <p className="mt-1 text-sm font-medium text-amber-800 dark:text-amber-200">
-                        Please message the support team if you want to deposit
-                        money using this payment method.
+                        Please message the support team if you want to deposit money using this
+                        payment method.
                       </p>
                       <div className="mt-4 flex flex-wrap gap-3">
                         <Link
@@ -420,8 +404,7 @@ function DepositFlow() {
                         placeholder="0.00"
                         className="relative block w-full rounded-xl border-2 bg-white/90 py-4 pl-12 pr-12 text-2xl font-bold text-gray-900 outline-none transition focus:ring-2 dark:bg-gray-800/90 dark:text-white"
                         style={{
-                          borderColor:
-                            "color-mix(in srgb, var(--brand) 35%, transparent)",
+                          borderColor: "color-mix(in srgb, var(--brand) 35%, transparent)",
                         }}
                       />
                       <span className="pointer-events-none absolute right-3 top-1/2 z-10 -translate-y-1/2 text-lg font-bold text-gray-400 dark:text-gray-500">
@@ -429,9 +412,7 @@ function DepositFlow() {
                       </span>
                     </div>
                     {validation ? (
-                      <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                        {validation}
-                      </p>
+                      <p className="mt-2 text-sm text-red-600 dark:text-red-400">{validation}</p>
                     ) : (
                       <div className="mt-4 flex flex-wrap gap-2">
                         {QUICK_AMOUNTS.map((value) => (
@@ -507,10 +488,7 @@ function DepositFlow() {
               {selected.details.length > 0 ? (
                 <div className="rounded-xl border border-gray-200/70 bg-white p-5 dark:border-gray-700/50 dark:bg-gray-900/40">
                   <h3 className="mb-3 flex items-center text-sm font-semibold text-gray-900 dark:text-white">
-                    <i
-                      className="fas fa-building-columns mr-2"
-                      style={{ color: "var(--brand)" }}
-                    />
+                    <i className="fas fa-building-columns mr-2" style={{ color: "var(--brand)" }} />
                     {" Send your payment to"}
                   </h3>
                   <div className="space-y-2">
@@ -532,8 +510,12 @@ function DepositFlow() {
 
               {selected.instructions && (
                 <div className="mt-4 rounded-xl border border-gray-200/70 bg-gray-50 p-4 dark:border-gray-700/60 dark:bg-gray-800/60">
-                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">Instructions</h4>
-                  <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">{selected.instructions}</p>
+                  <h4 className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                    Instructions
+                  </h4>
+                  <p className="whitespace-pre-line text-sm text-gray-700 dark:text-gray-300">
+                    {selected.instructions}
+                  </p>
                 </div>
               )}
 
@@ -545,9 +527,7 @@ function DepositFlow() {
                   <CustomFieldsEditor
                     defs={selected.inputFields}
                     values={custom}
-                    onChange={(id, value) =>
-                      setCustom((prev) => ({ ...prev, [id]: value }))
-                    }
+                    onChange={(id, value) => setCustom((prev) => ({ ...prev, [id]: value }))}
                     upload={uploadFile}
                   />
                 </div>
@@ -596,9 +576,7 @@ function DepositFlow() {
               <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-green-100 dark:bg-green-900/40">
                 <i className="fas fa-check text-2xl text-green-600 dark:text-green-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Deposit submitted
-              </h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Deposit submitted</h3>
               <p className="mx-auto mt-2 max-w-sm text-sm text-gray-500 dark:text-gray-400">
                 {"We've received your deposit request. You'll be emailed once it's approved."}
               </p>
@@ -628,7 +606,9 @@ function DepositFlow() {
                 Secure Deposit
               </h3>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {"Deposits are submitted through the payment channels shown for your account. Review the method details before confirming."}
+                {
+                  "Deposits are submitted through the payment channels shown for your account. Review the method details before confirming."
+                }
               </p>
             </div>
           </div>
@@ -695,9 +675,7 @@ function MethodInfo({
   if (method.charge != null && method.chargeType) {
     chips.push(
       `Fee ${
-        method.chargeType === "percent"
-          ? `${method.charge}%`
-          : formatCurrency(cur, method.charge)
+        method.chargeType === "percent" ? `${method.charge}%` : formatCurrency(cur, method.charge)
       }`,
     );
   }
@@ -724,15 +702,7 @@ function MethodInfo({
   );
 }
 
-function DetailRow({
-  label,
-  value,
-  isFile,
-}: {
-  label: string;
-  value: string;
-  isFile: boolean;
-}) {
+function DetailRow({ label, value, isFile }: { label: string; value: string; isFile: boolean }) {
   if (isFile) {
     return (
       <div className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
@@ -754,7 +724,7 @@ function DetailRow({
           {value}
         </span>
         {masked ? (
-          <span className="text-gray-400" title="Hidden by the bank">
+          <span className="text-gray-400" title="Hidden for your privacy">
             <i className="fas fa-lock text-xs" />
           </span>
         ) : (

@@ -1,4 +1,4 @@
-# Online Banking
+# Account Dashboard
 
 TanStack Start application with a Supabase backend and a Vercel-compatible Nitro server build.
 

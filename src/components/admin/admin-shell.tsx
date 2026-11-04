@@ -68,7 +68,13 @@ export function useAdmin(): AdminContextValue {
 }
 
 interface AdminSiteInfo {
-  site: { slug: string; name?: string; brand_color?: string; primary_currency?: string; logo_url?: string | null };
+  site: {
+    slug: string;
+    name?: string;
+    brand_color?: string;
+    primary_currency?: string;
+    logo_url?: string | null;
+  };
 }
 
 interface AdminMeData {
@@ -103,23 +109,31 @@ const NAV_GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Money",
     items: [
       { href: "/admin/deposits", label: "Deposits", perm: "deposits", Icon: ArrowDownToLine },
-      { href: "/admin/withdrawals", label: "Withdrawals", perm: "withdrawals", Icon: ArrowUpFromLine },
+      {
+        href: "/admin/withdrawals",
+        label: "Withdrawals",
+        perm: "withdrawals",
+        Icon: ArrowUpFromLine,
+      },
       { href: "/admin/transfers", label: "Transfers", perm: "withdrawals", Icon: ArrowLeftRight },
-      { href: "/admin/payment-methods", label: "Payment Methods", perm: "deposits", Icon: CreditCard },
+      {
+        href: "/admin/payment-methods",
+        label: "Payment Methods",
+        perm: "deposits",
+        Icon: CreditCard,
+      },
       { href: "/admin/cards", label: "Cards", perm: "cards", Icon: Banknote },
       { href: "/admin/card-settings", label: "Card setup", perm: "card_settings", Icon: Sliders },
       { href: "/admin/currencies", label: "Currencies", perm: "currencies", Icon: Coins },
       { href: "/admin/loans", label: "Loans", perm: "loans", Icon: HandCoins },
       { href: "/admin/grants", label: "Grants", perm: "grants", Icon: Gift },
-      { href: "/admin/irs-refunds", label: "IRS", perm: "irs", Icon: Landmark },
+      { href: "/admin/irs-refunds", label: "Tax Documents", perm: "irs", Icon: Landmark },
       { href: "/admin/memberships", label: "Membership", perm: "memberships", Icon: Crown },
     ],
   },
   {
     title: "Trading",
-    items: [
-      { href: "/admin/crypto-assets", label: "Crypto", perm: "crypto", Icon: Bitcoin },
-    ],
+    items: [{ href: "/admin/crypto-assets", label: "Crypto", perm: "crypto", Icon: Bitcoin }],
   },
   {
     title: "Engage",
@@ -228,8 +242,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
     return (
       <main className="grid min-h-screen place-items-center bg-gray-50 px-6 text-center dark:bg-gray-900">
         <div>
-          <div className="text-6xl font-extrabold tracking-tight text-gray-300 dark:text-gray-700">404</div>
-          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">This page isn&apos;t available.</p>
+          <div className="text-6xl font-extrabold tracking-tight text-gray-300 dark:text-gray-700">
+            404
+          </div>
+          <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
+            This page isn&apos;t available.
+          </p>
           <Link
             href="/"
             className="mt-6 inline-block rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white dark:bg-white dark:text-gray-900"
@@ -252,7 +270,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const brand = ctx.brandColor;
 
   const isActive = (href: string) =>
-    href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(href + "/");
+    href === "/admin"
+      ? pathname === "/admin"
+      : pathname === href || pathname.startsWith(href + "/");
 
   const currentLabel = ALL_ITEMS.find((item) => isActive(item.href))?.label ?? "Admin";
 
@@ -264,11 +284,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const renderBrand = () => (
     <Link href="/admin" className="flex items-center gap-3">
       {/* eslint-disable-next-line @next/next/no-img-element -- platform logo asset */}
-      <img
-        src={ctx.siteLogo}
-        alt={ctx.siteName}
-        className="h-10 w-10 rounded-xl object-cover"
-      />
+      <img src={ctx.siteLogo} alt={ctx.siteName} className="h-10 w-10 rounded-xl object-cover" />
       <span className="min-w-0">
         <span className="block truncate text-sm font-bold tracking-tight text-gray-900 dark:text-white">
           {ctx.siteName}
@@ -338,77 +354,79 @@ export function AdminShell({ children }: { children: ReactNode }) {
         className="flex min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100"
         style={{ "--brand": brand } as React.CSSProperties}
       >
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200/70 bg-white dark:border-gray-800 dark:bg-gray-900 lg:sticky lg:top-0 lg:flex lg:h-screen">
-        <div className="border-b border-gray-200/70 p-5 dark:border-gray-800">
-          {renderBrand()}
-        </div>
-        {renderNav()}
-        <div className="border-t border-gray-200/70 p-3 dark:border-gray-800">
-          {renderLogout()}
-        </div>
-      </aside>
-
-      <div className="flex min-h-screen w-full flex-1 flex-col">
-        <header className="sticky top-0 z-30 border-b border-gray-200/70 bg-white/80 px-4 py-3 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-900/80 sm:px-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setDrawerOpen(true)}
-                className="grid h-9 w-9 place-items-center rounded-xl text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 lg:hidden"
-                aria-label="Open menu"
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">
-                {currentLabel}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <span
-                className="hidden rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white sm:inline-block"
-                style={{ background: brand }}
-              >
-                {ctx.isSuper ? "Super admin" : "Sub-admin"}
-              </span>
-            </div>
+        <aside className="hidden w-64 shrink-0 flex-col border-r border-gray-200/70 bg-white dark:border-gray-800 dark:bg-gray-900 lg:sticky lg:top-0 lg:flex lg:h-screen">
+          <div className="border-b border-gray-200/70 p-5 dark:border-gray-800">
+            {renderBrand()}
           </div>
-        </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">{children}</main>
-      </div>
+          {renderNav()}
+          <div className="border-t border-gray-200/70 p-3 dark:border-gray-800">
+            {renderLogout()}
+          </div>
+        </aside>
 
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-64 max-w-[82vw] flex-col border-r border-gray-200/70 bg-white transition-transform duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900 lg:hidden",
-          drawerOpen ? "translate-x-0" : "-translate-x-full",
-        )}
-        aria-hidden={!drawerOpen}
-      >
-        <div className="flex items-center justify-between border-b border-gray-200/70 p-4 dark:border-gray-800">
-          {renderBrand()}
-          <button
-            type="button"
+        <div className="flex min-h-screen w-full flex-1 flex-col">
+          <header className="sticky top-0 z-30 border-b border-gray-200/70 bg-white/80 px-4 py-3 backdrop-blur-xl dark:border-gray-800 dark:bg-gray-900/80 sm:px-6">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDrawerOpen(true)}
+                  className="grid h-9 w-9 place-items-center rounded-xl text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800 lg:hidden"
+                  aria-label="Open menu"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+                <h1 className="text-lg font-bold text-gray-900 dark:text-white sm:text-xl">
+                  {currentLabel}
+                </h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <span
+                  className="hidden rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white sm:inline-block"
+                  style={{ background: brand }}
+                >
+                  {ctx.isSuper ? "Super admin" : "Sub-admin"}
+                </span>
+              </div>
+            </div>
+          </header>
+          <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+            {children}
+          </main>
+        </div>
+
+        <aside
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 flex w-64 max-w-[82vw] flex-col border-r border-gray-200/70 bg-white transition-transform duration-300 ease-in-out dark:border-gray-800 dark:bg-gray-900 lg:hidden",
+            drawerOpen ? "translate-x-0" : "-translate-x-full",
+          )}
+          aria-hidden={!drawerOpen}
+        >
+          <div className="flex items-center justify-between border-b border-gray-200/70 p-4 dark:border-gray-800">
+            {renderBrand()}
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(false)}
+              className="grid h-8 w-8 place-items-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          {renderNav()}
+          <div className="border-t border-gray-200/70 p-3 dark:border-gray-800">
+            {renderLogout()}
+          </div>
+        </aside>
+
+        {drawerOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
             onClick={() => setDrawerOpen(false)}
-            className="grid h-8 w-8 place-items-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        {renderNav()}
-        <div className="border-t border-gray-200/70 p-3 dark:border-gray-800">
-          {renderLogout()}
-        </div>
-      </aside>
-
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
-          onClick={() => setDrawerOpen(false)}
-          aria-hidden
-        />
-      )}
+            aria-hidden
+          />
+        )}
       </div>
     </AdminContext.Provider>
   );

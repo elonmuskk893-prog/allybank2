@@ -15,9 +15,24 @@ const REGISTER_FEATURES: AuthPanelContent["features"] = [
 ];
 
 const STEPS = [
-  { key: "Personal", icon: "fa-user", title: "Personal Information", sub: "Tell us about yourself" },
-  { key: "Contact", icon: "fa-envelope", title: "Contact Information", sub: "How can we reach you" },
-  { key: "Account", icon: "fa-building-columns", title: "Account Setup", sub: "Configure your account" },
+  {
+    key: "Personal",
+    icon: "fa-user",
+    title: "Personal Information",
+    sub: "Tell us about yourself",
+  },
+  {
+    key: "Contact",
+    icon: "fa-envelope",
+    title: "Contact Information",
+    sub: "How can we reach you",
+  },
+  {
+    key: "Account",
+    icon: "fa-building-columns",
+    title: "Account Setup",
+    sub: "Configure your account",
+  },
   { key: "Security", icon: "fa-shield-halved", title: "Security", sub: "Secure your account" },
 ];
 
@@ -33,7 +48,7 @@ interface RegisterResponse {
 function RegisterForm() {
   const router = useRouter();
   const { site } = useSite();
-  const siteName = site?.name ?? "Online Banking";
+  const siteName = site?.name ?? "Account Dashboard";
   const currency = site?.primary_currency ?? "USD";
   const searchParams = useSearchParams();
   const refCode = searchParams.get("ref")?.trim() ?? "";
@@ -95,9 +110,7 @@ function RegisterForm() {
       return;
     }
     router.replace(
-      result.data?.needs_email_verification
-        ? "/auth/verify-email"
-        : "/auth/login?registered=1",
+      result.data?.needs_email_verification ? "/auth/verify-email" : "/auth/login?registered=1",
     );
   }
 
@@ -193,28 +206,52 @@ function RegisterForm() {
                   <label className={LABEL_CLASS}>First Name *</label>
                   <div className="relative">
                     {iconLeft("fa-user")}
-                    <input value={form.name} onChange={update("name")} placeholder="John" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.name}
+                      onChange={update("name")}
+                      placeholder="John"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Last Name *</label>
                   <div className="relative">
                     {iconLeft("fa-user")}
-                    <input value={form.lastname} onChange={update("lastname")} placeholder="Smith" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.lastname}
+                      onChange={update("lastname")}
+                      placeholder="Smith"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Middle Name</label>
                   <div className="relative">
                     {iconLeft("fa-user")}
-                    <input value={form.middlename} onChange={update("middlename")} placeholder="David" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.middlename}
+                      onChange={update("middlename")}
+                      placeholder="David"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Username *</label>
                   <div className="relative">
                     {iconLeft("fa-at")}
-                    <input value={form.username} onChange={update("username")} placeholder="johnsmith123" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.username}
+                      onChange={update("username")}
+                      placeholder="johnsmith123"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
               </>
@@ -226,21 +263,40 @@ function RegisterForm() {
                   <label className={LABEL_CLASS}>Email Address *</label>
                   <div className="relative">
                     {iconLeft("fa-envelope")}
-                    <input type="email" value={form.email} onChange={update("email")} placeholder="you@example.com" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={update("email")}
+                      placeholder="you@example.com"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Phone Number</label>
                   <div className="relative">
                     {iconLeft("fa-phone")}
-                    <input value={form.phone} onChange={update("phone")} placeholder="+1 555 000 0000" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.phone}
+                      onChange={update("phone")}
+                      placeholder="+1 555 000 0000"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Country</label>
                   <div className="relative">
                     {iconLeft("fa-globe")}
-                    <input value={form.country} onChange={update("country")} placeholder="United States" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.country}
+                      onChange={update("country")}
+                      placeholder="United States"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
               </>
@@ -252,14 +308,24 @@ function RegisterForm() {
                   <label className={LABEL_CLASS}>Account Currency</label>
                   <div className="relative">
                     {iconLeft("fa-coins")}
-                    <input value={form.curr} onChange={update("curr")} className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      value={form.curr}
+                      onChange={update("curr")}
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Account Type</label>
                   <div className="relative">
                     {iconLeft("fa-building-columns")}
-                    <select value={form.accounttype} onChange={update("accounttype")} className={INPUT_CLASS} style={RING_STYLE}>
+                    <select
+                      value={form.accounttype}
+                      onChange={update("accounttype")}
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    >
                       <option>Savings</option>
                       <option>Checking</option>
                       <option>Business</option>
@@ -274,7 +340,12 @@ function RegisterForm() {
                       type="password"
                       inputMode="numeric"
                       value={form.pin}
-                      onChange={(e) => setForm((prev) => ({ ...prev, pin: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          pin: e.target.value.replace(/\D/g, "").slice(0, 6),
+                        }))
+                      }
                       placeholder="4-6 digits"
                       className={INPUT_CLASS}
                       style={RING_STYLE}
@@ -290,14 +361,30 @@ function RegisterForm() {
                   <label className={LABEL_CLASS}>Password *</label>
                   <div className="relative">
                     {iconLeft("fa-lock")}
-                    <input type="password" value={form.password} onChange={update("password")} placeholder="At least 8 characters" autoComplete="new-password" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      type="password"
+                      value={form.password}
+                      onChange={update("password")}
+                      placeholder="At least 8 characters"
+                      autoComplete="new-password"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <div>
                   <label className={LABEL_CLASS}>Confirm Password *</label>
                   <div className="relative">
                     {iconLeft("fa-lock")}
-                    <input type="password" value={form.password_confirmation} onChange={update("password_confirmation")} placeholder="Re-enter password" autoComplete="new-password" className={INPUT_CLASS} style={RING_STYLE} />
+                    <input
+                      type="password"
+                      value={form.password_confirmation}
+                      onChange={update("password_confirmation")}
+                      placeholder="Re-enter password"
+                      autoComplete="new-password"
+                      className={INPUT_CLASS}
+                      style={RING_STYLE}
+                    />
                   </div>
                 </div>
                 <label className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-400">

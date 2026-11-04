@@ -189,12 +189,13 @@ alter type public.tx_kind add value if not exists 'adjustment' after 'grant';
 
 -- ----------------------------------------------- avatars/uploads bucket
 insert into storage.buckets (id, name, public)
-values ('uploads', 'uploads', true)
+values ('uploads', 'uploads', false)
 on conflict (id) do nothing;
 
 drop policy if exists "uploads_public_read" on storage.objects;
-create policy "uploads_public_read" on storage.objects
-  for select using (bucket_id = 'uploads');
+create policy "uploads_owner_read" on storage.objects
+  for select to authenticated
+  using (bucket_id = 'uploads' and (storage.foldername(name))[1] = auth.uid()::text);
 
 drop policy if exists "uploads_user_write" on storage.objects;
 create policy "uploads_user_write" on storage.objects

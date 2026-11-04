@@ -35,7 +35,11 @@ import {
 async function loadEmailConfig(): Promise<EmailConfig> {
   try {
     const admin = createAdminClient();
-    const { data } = await admin.from("admin_config").select("value").eq("key", "email").maybeSingle();
+    const { data } = await admin
+      .from("admin_config")
+      .select("value")
+      .eq("key", "email")
+      .maybeSingle();
     return resolveEmailConfig((data as { value?: EmailConfig } | null)?.value ?? null);
   } catch {
     return resolveEmailConfig(null);
@@ -54,9 +58,9 @@ async function deliver(to: string, template: MailInput): Promise<boolean> {
 async function siteNameForEmail(): Promise<string> {
   try {
     const site = await resolveSite(undefined);
-    return site?.name ?? "Online Banking";
+    return site?.name ?? "Account Dashboard";
   } catch {
-    return "Online Banking";
+    return "Account Dashboard";
   }
 }
 import { DbError } from "@/lib/db/error";
@@ -113,9 +117,22 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "fixed",
     duration: "0-2 hours",
     custom_fields: [
-      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "Online Banking" },
-      { id: "account_number", label: "Account Number", type: "text", role: "display", value: "4023391234" },
-      { id: "reference", label: "Deposit Reference", type: "text", role: "input", required: false, placeholder: "Optional note" },
+      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "" },
+      {
+        id: "account_number",
+        label: "Account Number",
+        type: "text",
+        role: "display",
+        value: "4023391234",
+      },
+      {
+        id: "reference",
+        label: "Deposit Reference",
+        type: "text",
+        role: "input",
+        required: false,
+        placeholder: "Optional note",
+      },
     ],
   },
   {
@@ -129,23 +146,45 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "percent",
     duration: "Network confirmations",
     custom_fields: [
-      { id: "network", label: "Network", type: "select", role: "input", required: true, options: ["TRC20", "ERC20", "BEP20"] },
-      { id: "coin", label: "Coin", type: "select", role: "input", required: true, options: ["BTC", "USDT", "ETH"] },
+      {
+        id: "network",
+        label: "Network",
+        type: "select",
+        role: "input",
+        required: true,
+        options: ["TRC20", "ERC20", "BEP20"],
+      },
+      {
+        id: "coin",
+        label: "Coin",
+        type: "select",
+        role: "input",
+        required: true,
+        options: ["BTC", "USDT", "ETH"],
+      },
     ],
   },
   {
-    id: "deposit_paypal",
-    name: "PayPal",
+    id: "deposit_wallet",
+    name: "Digital Wallet",
     type: "deposit",
-    emoji: "🅿",
+    emoji: "💳",
     minimum: 20,
     maximum: 20000,
     charges_amount: 2.5,
     charges_type: "percent",
     duration: "Instant",
-    instructions: "Please message the support team if you want to deposit money using this payment method.",
+    instructions:
+      "Please message the support team if you want to deposit money using this payment method.",
     custom_fields: [
-      { id: "paypal_email", label: "PayPal Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
+      {
+        id: "wallet_email",
+        label: "Wallet email",
+        type: "text",
+        role: "input",
+        required: true,
+        placeholder: "you@example.com",
+      },
     ],
   },
   {
@@ -158,7 +197,8 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_amount: 0,
     charges_type: "fixed",
     duration: "Same day",
-    instructions: "Please message the support team if you want to deposit money using this payment method.",
+    instructions:
+      "Please message the support team if you want to deposit money using this payment method.",
     custom_fields: [
       { id: "branch", label: "Branch / Location", type: "text", role: "input", required: true },
       { id: "teller_note", label: "Teller Note", type: "text", role: "input", required: false },
@@ -175,7 +215,13 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "percent",
     duration: "1-2 business days",
     custom_fields: [
-      { id: "account_number", label: "Account Number / IBAN", type: "text", role: "input", required: true },
+      {
+        id: "account_number",
+        label: "Account Number / IBAN",
+        type: "text",
+        role: "input",
+        required: true,
+      },
       { id: "bank_name", label: "Bank Name", type: "text", role: "input", required: true },
     ],
   },
@@ -190,38 +236,65 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "percent",
     duration: "Network confirmations",
     custom_fields: [
-      { id: "network", label: "Network", type: "select", role: "input", required: true, options: ["TRC20", "ERC20", "BEP20"] },
-      { id: "wallet_address", label: "Wallet Address", type: "text", role: "input", required: true },
+      {
+        id: "network",
+        label: "Network",
+        type: "select",
+        role: "input",
+        required: true,
+        options: ["TRC20", "ERC20", "BEP20"],
+      },
+      {
+        id: "wallet_address",
+        label: "Wallet Address",
+        type: "text",
+        role: "input",
+        required: true,
+      },
     ],
   },
   {
-    id: "withdraw_paypal",
-    name: "PayPal",
+    id: "withdraw_wallet",
+    name: "Digital Wallet",
     type: "withdrawal",
-    emoji: "🅿",
+    emoji: "💳",
     minimum: 20,
     maximum: 20000,
     charges_amount: 2.5,
     charges_type: "percent",
     duration: "Instant",
     custom_fields: [
-      { id: "paypal_email", label: "PayPal Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
+      {
+        id: "wallet_email",
+        label: "Wallet email",
+        type: "text",
+        role: "input",
+        required: true,
+        placeholder: "you@example.com",
+      },
     ],
   },
   {
-    id: "withdraw_wise",
-    name: "Wise",
+    id: "withdraw_external",
+    name: "External Transfer",
     type: "withdrawal",
-    emoji: "💸",
+    emoji: "🏦",
     minimum: 20,
     maximum: 25000,
     charges_amount: 1,
     charges_type: "percent",
-     duration: "1-2 business days",
-     custom_fields: [
-       { id: "wise_email", label: "Wise Email", type: "text", role: "input", required: true, placeholder: "you@example.com" },
-     ],
-   },
+    duration: "1-2 business days",
+    custom_fields: [
+      {
+        id: "external_email",
+        label: "Recipient email",
+        type: "text",
+        role: "input",
+        required: true,
+        placeholder: "you@example.com",
+      },
+    ],
+  },
 ];
 
 /* ------------------------------------------------------------------------- */
@@ -339,10 +412,7 @@ async function endImpersonation() {
   if (bimp && targetId) {
     const admin = createAdminClient();
     const { data: tRows } = await admin.from("users").select("email").eq("id", targetId).single();
-    const { data: aRows } = await admin
-      .from("admin_codes")
-      .select("user_id")
-      .limit(0); // placeholder; actor email resolved below from audit context
+    const { data: aRows } = await admin.from("admin_codes").select("user_id").limit(0); // placeholder; actor email resolved below from audit context
     void aRows;
     const actor = await currentUser().catch(() => null);
     await writeAudit({
@@ -398,11 +468,10 @@ function mapTransaction(tx: TransactionRow) {
   };
 }
 
-
 function mapCard(card: CardRow) {
   return {
     id: card.id,
-    card_brand: card.brand as "visa" | "mastercard",
+    card_brand: card.brand,
     card_number_masked: `•••• ${card.last4}`,
     expires_at: card.expiry,
     balance: Number(card.limit_amount ?? 0) - Number(card.spent),
@@ -538,10 +607,7 @@ async function withdrawals() {
 async function cryptoAssets() {
   const user = await requireUser();
   const sb = await createServerClient();
-  const { data } = await sb
-    .from("crypto_assets")
-    .select("*")
-    .eq("user_id", user.id);
+  const { data } = await sb.from("crypto_assets").select("*").eq("user_id", user.id);
   return {
     assets: (data ?? []).map((a) => ({
       symbol: a.symbol,
@@ -577,11 +643,7 @@ async function notifications() {
 async function settings() {
   const user = await requireUser();
   const sb = await createServerClient();
-  const { data } = await sb
-    .from("settings")
-    .select("*")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const { data } = await sb.from("settings").select("*").eq("user_id", user.id).maybeSingle();
   return { settings: (data as SettingsRow | null) ?? null };
 }
 
@@ -631,7 +693,12 @@ async function setAdminConfig(key?: string, value?: Record<string, unknown> | un
   await admin
     .from("admin_config")
     .upsert({ key, value: value as object, updated_at: new Date().toISOString() });
-  await writeAudit({ action: "config.update", target_type: "config", target_id: key, details: { value } });
+  await writeAudit({
+    action: "config.update",
+    target_type: "config",
+    target_id: key,
+    details: { value },
+  });
   return { ok: true };
 }
 
@@ -642,11 +709,7 @@ async function getAdminConfig(key?: string) {
     const { data: all } = await admin.from("admin_config").select("*");
     return { config: all ?? [] };
   }
-  const { data } = await admin
-    .from("admin_config")
-    .select("value")
-    .eq("key", key)
-    .maybeSingle();
+  const { data } = await admin.from("admin_config").select("value").eq("key", key).maybeSingle();
   return { value: (data as { value?: unknown } | null)?.value ?? null };
 }
 
@@ -661,11 +724,13 @@ async function generateWithdrawalCode(input: { id?: string }) {
     .select("id, user_id, amount, currency, status, reference, users(email)")
     .eq("id", input.id)
     .limit(1);
-  const w = firstRow(rows) as (Record<string, unknown> & {
-    status?: string;
-    confirmation_code_used_at?: string | null;
-    users?: { email?: string };
-  }) | null;
+  const w = firstRow(rows) as
+    | (Record<string, unknown> & {
+        status?: string;
+        confirmation_code_used_at?: string | null;
+        users?: { email?: string };
+      })
+    | null;
   if (!w) throw new DbError("not_found", "Withdrawal not found.", 404);
   if (w.status !== "pending") {
     throw new DbError("invalid_state", "Only pending withdrawals can receive a confirmation code.");
@@ -723,7 +788,6 @@ async function adminTogglePaymentMethod(input: { id?: string; enabled?: boolean 
   return { ok: true };
 }
 
-
 async function adminPaymentMethods() {
   await requireAdmin();
   await ensurePaymentMethodsSeeded();
@@ -772,9 +836,7 @@ async function dbPaymentMethodList(type: "deposit" | "withdrawal"): Promise<Paym
   return data as unknown as PaymentMethod[];
 }
 
-async function savePaymentMethod(
-  input: Partial<PaymentMethod> & { instructions?: string | null },
-) {
+async function savePaymentMethod(input: Partial<PaymentMethod> & { instructions?: string | null }) {
   await requireAdmin();
   await ensurePaymentMethodsSeeded();
   const admin = createAdminClient();
@@ -784,8 +846,11 @@ async function savePaymentMethod(
   if (isNew) {
     const type = input.type === "withdrawal" ? "withdraw" : "deposit";
     const slug =
-      (input.name ?? "method").toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 28) ||
-      "method";
+      (input.name ?? "method")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "")
+        .slice(0, 28) || "method";
     id = `${type}_${slug}_${Date.now().toString(36).slice(-4)}`;
   }
   if (!input.name?.trim()) throw new DbError("invalid_name", "Method name is required.");
@@ -793,10 +858,14 @@ async function savePaymentMethod(
   // Merge with the stored row so a partial save never wipes existing configuration.
   let existing: Record<string, unknown> = {};
   if (!isNew) {
-    const { data: prevRows } = await admin.from("payment_methods").select("*").eq("id", id).limit(1);
+    const { data: prevRows } = await admin
+      .from("payment_methods")
+      .select("*")
+      .eq("id", id)
+      .limit(1);
     existing = (firstRow(prevRows) as Record<string, unknown> | null) ?? {};
   }
-  const keep = <T,>(value: T | undefined, key: string, fallback: T): T =>
+  const keep = <T>(value: T | undefined, key: string, fallback: T): T =>
     value !== undefined && value !== null ? value : ((existing[key] as T) ?? fallback);
 
   const patch = {
@@ -810,7 +879,11 @@ async function savePaymentMethod(
     charges_type: keep(input.charges_type ?? undefined, "charges_type", null as string | null),
     duration: keep(input.duration ?? undefined, "duration", null as string | null),
     instructions: keep(input.instructions ?? undefined, "instructions", null as string | null),
-    custom_fields: keep(input.custom_fields, "custom_fields", [] as NonNullable<PaymentMethod["custom_fields"]>),
+    custom_fields: keep(
+      input.custom_fields,
+      "custom_fields",
+      [] as NonNullable<PaymentMethod["custom_fields"]>,
+    ),
     enabled: keep(input.enabled, "enabled", true),
     sort_order: keep(
       typeof input.sort_order === "number" ? input.sort_order : undefined,
@@ -842,7 +915,11 @@ async function deletePaymentMethod(id?: string) {
   const admin = createAdminClient();
   const { error } = await admin.from("payment_methods").delete().eq("id", id);
   if (error) throw new DbError("delete_failed", error.message, 500);
-  await writeAudit({ action: "payment_method.delete", target_type: "payment_method", target_id: id });
+  await writeAudit({
+    action: "payment_method.delete",
+    target_type: "payment_method",
+    target_id: id,
+  });
   return { ok: true };
 }
 
@@ -867,7 +944,11 @@ async function getKyc() {
   // Admin client: settings has no INSERT policy for users, only server-side
   // enforcement via requireUser.
   const admin = createAdminClient();
-  const { data } = await admin.from("settings").select("security").eq("user_id", user.id).maybeSingle();
+  const { data } = await admin
+    .from("settings")
+    .select("security")
+    .eq("user_id", user.id)
+    .maybeSingle();
   const security = (data as { security?: Record<string, unknown> } | null)?.security ?? {};
   const kyc = security.kyc;
   return { kyc: (kyc && typeof kyc === "object" ? kyc : {}) as Record<string, unknown> };
@@ -1048,7 +1129,6 @@ async function createTransfer(input: {
   return { transaction: tx ? mapTransaction(tx as TransactionRow) : null };
 }
 
-
 async function memberTransfer(
   user: UserRow,
   input: {
@@ -1082,7 +1162,10 @@ async function memberTransfer(
     .select("id, email, first_name, last_name, full_name")
     .eq("email", email)
     .maybeSingle();
-  const recipient = recipientRow as Pick<UserRow, "id" | "email" | "first_name" | "last_name" | "full_name"> | null;
+  const recipient = recipientRow as Pick<
+    UserRow,
+    "id" | "email" | "first_name" | "last_name" | "full_name"
+  > | null;
   if (!recipient) {
     throw new DbError("recipient_not_found", "No member found with that email.");
   }
@@ -1106,7 +1189,6 @@ async function memberTransfer(
 
   // The recipient is credited only once the transfer is confirmed
   // (see verifyTransfer) — never at request time.
-
 
   const ref = `TFR-${Date.now().toString(36).toUpperCase()}`;
   // Member transfers also wait for the confirmation code. The recipient is
@@ -1180,7 +1262,7 @@ async function createDeposit(input: { amount: number; method: string; currency?:
   await admin.from("notifications").insert({
     user_id: user.id,
     title: "Deposit received",
-    body: `Your deposit of ${(input.currency ?? "USD")} ${input.amount.toLocaleString()} is pending verification.`,
+    body: `Your deposit of ${input.currency ?? "USD"} ${input.amount.toLocaleString()} is pending verification.`,
     link: "/deposits",
   });
 
@@ -1211,9 +1293,7 @@ async function createWithdrawal(input: {
   });
   if (holdError) {
     throw new DbError(
-      holdError.message.includes("insufficient_funds")
-        ? "insufficient_funds"
-        : "withdrawal_failed",
+      holdError.message.includes("insufficient_funds") ? "insufficient_funds" : "withdrawal_failed",
       holdError.message.includes("insufficient_funds")
         ? "Insufficient funds for this withdrawal."
         : "The withdrawal could not be completed.",
@@ -1247,7 +1327,6 @@ async function createWithdrawal(input: {
     reference: wRow?.id ?? null,
     status: "pending",
   });
-
 
   return { withdrawal };
 }
@@ -1360,7 +1439,6 @@ async function releaseWithdrawalHold(w: HoldWithdrawal) {
   return true;
 }
 
-
 async function requestWithdrawal(input: {
   amount: number;
   method_id?: string | number;
@@ -1374,17 +1452,19 @@ async function requestWithdrawal(input: {
   }
   const methods = await dbPaymentMethodList("withdrawal");
   const method =
-    input.method_id != null
-      ? methods.find((m) => m.id === String(input.method_id))
-      : undefined;
+    input.method_id != null ? methods.find((m) => m.id === String(input.method_id)) : undefined;
   if (method) {
     const min = Number(method.minimum ?? 0);
     if (min > 0 && input.amount < min) {
-      throw new DbError("below_minimum", `Minimum withdrawal is ${min}.`, 400, { min_transfer: min });
+      throw new DbError("below_minimum", `Minimum withdrawal is ${min}.`, 400, {
+        min_transfer: min,
+      });
     }
     const max = Number(method.maximum ?? 0);
     if (max > 0 && input.amount > max) {
-      throw new DbError("above_maximum", `Maximum withdrawal is ${max}.`, 400, { max_transfer: max });
+      throw new DbError("above_maximum", `Maximum withdrawal is ${max}.`, 400, {
+        max_transfer: max,
+      });
     }
   }
   await checkPin(user, input.pin);
@@ -1444,11 +1524,13 @@ async function verifyWithdrawal(input: { withdrawal_id: string; code: string }) 
     .eq("id", input.withdrawal_id)
     .eq("user_id", user.id)
     .limit(1);
-  const w = firstRow(rows) as (WithdrawalRow & {
-    confirmation_code?: string | null;
-    confirmation_code_expires_at?: string | null;
-    confirmation_code_used_at?: string | null;
-  }) | null;
+  const w = firstRow(rows) as
+    | (WithdrawalRow & {
+        confirmation_code?: string | null;
+        confirmation_code_expires_at?: string | null;
+        confirmation_code_used_at?: string | null;
+      })
+    | null;
 
   // The code must belong to THIS withdrawal, be unused, unexpired and the
   // withdrawal itself must still be awaiting completion.
@@ -1487,7 +1569,6 @@ async function verifyWithdrawal(input: { withdrawal_id: string; code: string }) 
     .eq("kind", "withdrawal")
     .eq("reference", w.id)
     .eq("status", "pending");
-
 
   await admin.from("notifications").insert({
     user_id: user.id,
@@ -1544,7 +1625,6 @@ async function createExternalTransfer(input: {
   if (holdError) {
     throw new DbError("insufficient_funds", "Insufficient funds for this transfer.");
   }
-
 
   const ref = `TFR-${Date.now().toString(36).toUpperCase()}`;
   // A unique confirmation code is issued immediately and stored on the
@@ -1615,11 +1695,13 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
     .eq("kind", "transfer")
     .eq("status", "pending")
     .limit(1);
-  const w = firstRow(rows) as (TransactionRow & {
-    confirmation_code?: string | null;
-    confirmation_code_expires_at?: string | null;
-    confirmation_code_used_at?: string | null;
-  }) | null;
+  const w = firstRow(rows) as
+    | (TransactionRow & {
+        confirmation_code?: string | null;
+        confirmation_code_expires_at?: string | null;
+        confirmation_code_used_at?: string | null;
+      })
+    | null;
 
   // The code must belong to THIS transfer, be unused, unexpired and the
   // transfer itself must still be pending.
@@ -1656,7 +1738,6 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
     p_currency: w.currency,
   });
 
-
   // Member-to-member transfers carry a pending credit row for the recipient
   // under the same reference — settle it now that the code is verified.
   const { data: counterparts } = await admin
@@ -1668,7 +1749,12 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
     .eq("status", "pending")
     .neq("id", w.id)
     .limit(1);
-  const counter = firstRow(counterparts) as { id: string; user_id: string; amount: string | number; currency: string } | null;
+  const counter = firstRow(counterparts) as {
+    id: string;
+    user_id: string;
+    amount: string | number;
+    currency: string;
+  } | null;
   if (counter) {
     // Claim the pending credit row first, so the recipient can never be
     // credited twice if this runs concurrently.
@@ -1755,11 +1841,13 @@ async function generateTransferCode(input: { id?: string }) {
     .eq("id", input.id)
     .eq("kind", "transfer")
     .limit(1);
-  const t = firstRow(rows) as (Record<string, unknown> & {
-    status?: string;
-    confirmation_code_used_at?: string | null;
-    users?: { email?: string };
-  }) | null;
+  const t = firstRow(rows) as
+    | (Record<string, unknown> & {
+        status?: string;
+        confirmation_code_used_at?: string | null;
+        users?: { email?: string };
+      })
+    | null;
   if (!t) throw new DbError("not_found", "Transfer not found.", 404);
   if (t.status !== "pending") {
     throw new DbError("invalid_state", "Only pending transfers can receive a confirmation code.");
@@ -1786,7 +1874,12 @@ async function generateTransferCode(input: { id?: string }) {
     target_label: t.users?.email,
     details: { amount: t.amount, expires_at: expiresAt.toISOString() },
   });
-  return { ok: true, code, generated_at: generatedAt.toISOString(), expires_at: expiresAt.toISOString() };
+  return {
+    ok: true,
+    code,
+    generated_at: generatedAt.toISOString(),
+    expires_at: expiresAt.toISOString(),
+  };
 }
 
 async function uploadFile(input: { filename?: string; contentType?: string; data?: string }) {
@@ -1824,12 +1917,14 @@ async function submitContact(input: {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email.trim())) {
     throw new DbError("invalid_email", "Enter a valid email address.");
   }
-  await createAdminClient().from("contact_messages").insert({
-    name: input.name.trim(),
-    email: input.email.trim().toLowerCase(),
-    subject: input.subject?.trim() || null,
-    message: input.message.trim(),
-  });
+  await createAdminClient()
+    .from("contact_messages")
+    .insert({
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      subject: input.subject?.trim() || null,
+      message: input.message.trim(),
+    });
   return { ok: true };
 }
 
@@ -1928,7 +2023,9 @@ async function markNotificationsRead(ids?: string[]) {
   return { ok: true };
 }
 
-async function updateSettings(patch: Partial<Pick<SettingsRow, "language" | "currency" | "notifications" | "security">>) {
+async function updateSettings(
+  patch: Partial<Pick<SettingsRow, "language" | "currency" | "notifications" | "security">>,
+) {
   const user = await requireUser();
   const sb = await createServerClient();
   const { data } = await sb
@@ -1939,15 +2036,12 @@ async function updateSettings(patch: Partial<Pick<SettingsRow, "language" | "cur
   return { settings: data };
 }
 
-async function updateProfile(patch: Partial<Pick<UserRow, "first_name" | "last_name" | "phone" | "photo_url" | "country">>) {
+async function updateProfile(
+  patch: Partial<Pick<UserRow, "first_name" | "last_name" | "phone" | "photo_url" | "country">>,
+) {
   const user = await requireUser();
   const sb = await createServerClient();
-  const { data } = await sb
-    .from("users")
-    .update(patch)
-    .eq("id", user.id)
-    .select()
-    .single();
+  const { data } = await sb.from("users").update(patch).eq("id", user.id).select().single();
   return { user: mapUser(data as UserRow) };
 }
 
@@ -1974,11 +2068,9 @@ async function setPin(input: { current_password?: string; pin: string }) {
   if (!input.current_password) {
     throw new DbError("invalid_password", "Your account password is incorrect.");
   }
-  const anon = createAnonClient(
-    supabaseUrl(),
-    supabaseAnonKey(),
-    { auth: { persistSession: false } },
-  );
+  const anon = createAnonClient(supabaseUrl(), supabaseAnonKey(), {
+    auth: { persistSession: false },
+  });
   const { error: signInError } = await anon.auth.signInWithPassword({
     email: user.email,
     password: input.current_password,
@@ -2017,7 +2109,7 @@ async function applyCard(input: {
     .insert({
       user_id: user.id,
       card_type: input.card_level ?? "credit",
-      card_brand: input.card_brand ?? "visa",
+      card_brand: input.card_brand ?? "standard",
       currency: input.currency ?? "USD",
       card_level: input.card_level ?? "standard",
       daily_limit: input.daily_limit ?? null,
@@ -2034,7 +2126,8 @@ async function applyCard(input: {
 async function applyLoan(input: { amount: number; interest_rate?: number; term_months?: number }) {
   const user = await requireUser();
   const sb = await createServerClient();
-  if (!input.amount || input.amount <= 0) throw new DbError("invalid_amount", "Enter a valid amount.");
+  if (!input.amount || input.amount <= 0)
+    throw new DbError("invalid_amount", "Enter a valid amount.");
   const { data } = await sb
     .from("loans")
     .insert({
@@ -2127,7 +2220,6 @@ async function register(input: {
 
   // Email verification: issue a code and deliver it via SMTP.
   let needs_email_verification = false;
-  let dev_code: string | undefined;
   if (data.user?.id) {
     const code = generateNumericCode();
     await admin.from("email_verifications").insert({
@@ -2140,23 +2232,14 @@ async function register(input: {
     if (sent) {
       needs_email_verification = true;
     } else {
-      // Email delivery is unavailable — confirm the account immediately so the
-      // member is never locked out of their brand-new account.
-      logUndeliveredCode("verification (auto-confirming account)", email, code);
-      await admin.auth.admin
-        .updateUserById(data.user.id, { email_confirm: true })
-        .then(({ error: confirmError }) => {
-          if (confirmError) throw confirmError;
-        });
-      await admin
-        .from("users")
-        .update({ email_verified_at: new Date().toISOString() })
-        .eq("id", data.user.id);
-      dev_code = code;
+      // Email delivery is unavailable — leave the account unconfirmed so it can
+      // be verified once SMTP is configured. The code is never exposed to the
+      // client and is never written to logs.
+      logUndeliveredCode("verification (delivery failed)", email);
     }
   }
 
-  return { user_id: data.user?.id, email, needs_email_verification, dev_code };
+  return { user_id: data.user?.id, email, needs_email_verification };
 }
 
 async function login(input: { email?: string; password?: string }) {
@@ -2336,7 +2419,10 @@ async function verifyEmail(input: { code: string }) {
     throw new DbError("invalid_or_expired_code", "Code is wrong or expired.", 410);
   }
 
-  await admin.from("email_verifications").update({ used_at: new Date().toISOString() }).eq("id", row.id);
+  await admin
+    .from("email_verifications")
+    .update({ used_at: new Date().toISOString() })
+    .eq("id", row.id);
   await admin.auth.admin.updateUserById(row.user_id, { email_confirm: true });
   await admin
     .from("users")
@@ -2472,10 +2558,7 @@ async function adminOverview() {
       .in("status", ["blocked", "disabled", "restricted", "suspended"]),
   ]);
 
-  const totalDeposits = (deposits.data ?? []).reduce(
-    (sum, d) => sum + Number(d.amount ?? 0),
-    0,
-  );
+  const totalDeposits = (deposits.data ?? []).reduce((sum, d) => sum + Number(d.amount ?? 0), 0);
   const pendingDeposits = (deposits.data ?? [])
     .filter((d) => d.status === "processing" || d.status === "pending")
     .reduce((sum, d) => sum + Number(d.amount ?? 0), 0);
@@ -2504,12 +2587,11 @@ async function adminOverview() {
 async function adminUsers(search?: string, status?: string) {
   await requireAdmin();
   const admin = createAdminClient();
-  let query = admin
-    .from("users")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(100);
-  if (search) query = query.or(`email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`);
+  let query = admin.from("users").select("*").order("created_at", { ascending: false }).limit(100);
+  if (search)
+    query = query.or(
+      `email.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%`,
+    );
   if (status) query = query.eq("status", status);
   const { data } = await query;
   return { users: (data ?? []).map(mapUser) };
@@ -2560,24 +2642,24 @@ async function fetchListWithUsers<T>(
   }
   const { data, error } = await query;
   if (error) throw new DbError("list_failed", error.message, 500);
-  return (((data ?? []) as Record<string, unknown>[]).map((row) => {
+  return ((data ?? []) as Record<string, unknown>[]).map((row) => {
     const rel = row.users as
-      | { email?: string; first_name?: string; last_name?: string }
-      | null
-      | undefined;
+      { email?: string; first_name?: string; last_name?: string } | null | undefined;
     const { users: _users, ...rest } = row;
     return {
       ...(rest as T),
       email: rel?.email,
       full_name: `${rel?.first_name ?? ""} ${rel?.last_name ?? ""}`.trim() || undefined,
     };
-  }) as AdminRow<T>[]);
+  }) as AdminRow<T>[];
 }
 
 async function adminDeposits(
   opts: AdminListOptions = {},
 ): Promise<{ deposits: AdminRow<DepositRow>[] }> {
-  return { deposits: await fetchListWithUsers<DepositRow>("deposits", opts, ["method", "reference"]) };
+  return {
+    deposits: await fetchListWithUsers<DepositRow>("deposits", opts, ["method", "reference"]),
+  };
 }
 
 async function setDepositStatus(input: { id?: string; status?: string }) {
@@ -2612,7 +2694,13 @@ async function setDepositStatus(input: { id?: string; status?: string }) {
     target_type: "deposit",
     target_id: deposit.id,
     target_label: deposit.reference ?? undefined,
-    details: { user_id: deposit.user_id, amount: deposit.amount, currency: deposit.currency, from: deposit.status, to: input.status },
+    details: {
+      user_id: deposit.user_id,
+      amount: deposit.amount,
+      currency: deposit.currency,
+      from: deposit.status,
+      to: input.status,
+    },
   });
 
   if (input.status === "completed" && deposit.status !== "completed") {
@@ -2639,22 +2727,25 @@ async function setDepositStatus(input: { id?: string; status?: string }) {
       reference: deposit.reference,
       status: "completed",
       balance_after:
-        account != null
-          ? (Number(account.balance) + Number(deposit.amount)).toString()
-          : null,
+        account != null ? (Number(account.balance) + Number(deposit.amount)).toString() : null,
     });
     const { data: depositUser } = await admin
       .from("users")
       .select("email, first_name, last_name")
       .eq("id", deposit.user_id)
       .single();
-    const depositOwner = depositUser as { email: string; first_name?: string; last_name?: string } | null;
+    const depositOwner = depositUser as {
+      email: string;
+      first_name?: string;
+      last_name?: string;
+    } | null;
     if (depositOwner?.email) {
       await deliver(
         depositOwner.email,
         depositApprovedEmail({
           siteName: await siteNameForEmail(),
-          name: `${depositOwner.first_name ?? ""} ${depositOwner.last_name ?? ""}`.trim() || "there",
+          name:
+            `${depositOwner.first_name ?? ""} ${depositOwner.last_name ?? ""}`.trim() || "there",
           amount: Number(deposit.amount),
           currency: deposit.currency,
           method: deposit.method,
@@ -2720,7 +2811,14 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     target_type: "withdrawal",
     target_id: withdrawal.id,
     target_label: withdrawal.account_number ?? undefined,
-    details: { user_id: withdrawal.user_id, amount: withdrawal.amount, currency: withdrawal.currency, from: withdrawal.status, to: input.status, refunded: refunding },
+    details: {
+      user_id: withdrawal.user_id,
+      amount: withdrawal.amount,
+      currency: withdrawal.currency,
+      from: withdrawal.status,
+      to: input.status,
+      refunded: refunding,
+    },
   });
 
   if (input.status === "completed") {
@@ -2731,7 +2829,6 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     // credit row, because the money never left the balance.
     await releaseWithdrawalHold(withdrawal as HoldWithdrawal);
   }
-
 
   if (["completed", "rejected", "failed"].includes(input.status)) {
     const { data: wUser } = await admin
@@ -2772,7 +2869,6 @@ async function setWithdrawalStatus(input: { id?: string; status?: string }) {
     .eq("kind", "withdrawal")
     .eq("reference", withdrawal.id)
     .eq("status", "pending");
-
 
   const titles: Record<string, string> = {
     completed: "Withdrawal approved",
@@ -2821,7 +2917,12 @@ async function setCardStatus(input: { id?: string; status?: string; frozen?: boo
   }
   const { error } = await admin.from("cards").update(patch).eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
-  await writeAudit({ action: "card.update", target_type: "card", target_id: input.id, details: patch });
+  await writeAudit({
+    action: "card.update",
+    target_type: "card",
+    target_id: input.id,
+    details: patch,
+  });
   return { ok: true };
 }
 
@@ -2856,14 +2957,17 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
       .select("first_name,last_name,full_name")
       .eq("id", app.user_id)
       .limit(1);
-    const owner = firstRow(ownerRows) as
-      | { first_name?: string | null; last_name?: string | null; full_name?: string | null }
-      | null;
-    const holder =
-      (owner?.full_name?.trim() ||
-        `${owner?.first_name ?? ""} ${owner?.last_name ?? ""}`.trim() ||
-        "Card Holder").toUpperCase();
-    const brandRaw = String((app as { card_brand?: string }).card_brand ?? "visa");
+    const owner = firstRow(ownerRows) as {
+      first_name?: string | null;
+      last_name?: string | null;
+      full_name?: string | null;
+    } | null;
+    const holder = (
+      owner?.full_name?.trim() ||
+      `${owner?.first_name ?? ""} ${owner?.last_name ?? ""}`.trim() ||
+      "Card Holder"
+    ).toUpperCase();
+    const brandRaw = String((app as { card_brand?: string }).card_brand ?? "standard");
     const brand = brandRaw.charAt(0).toUpperCase() + brandRaw.slice(1);
     await admin.from("cards").insert({
       user_id: app.user_id,
@@ -2871,7 +2975,7 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
       card_type: app.card_type,
       last4,
       holder,
-      expiry: `${String(new Date().getMonth() + 1).padStart(2, "0")}/${String(new Date().getFullYear() % 100 + 3).padStart(2, "0")}`,
+      expiry: `${String(new Date().getMonth() + 1).padStart(2, "0")}/${String((new Date().getFullYear() % 100) + 3).padStart(2, "0")}`,
       status: "active",
       spent: "0",
       frozen: false,
@@ -2887,9 +2991,7 @@ async function setCardApplicationStatus(input: { id?: string; status?: string })
   return { ok: true };
 }
 
-async function adminLoans(
-  opts: AdminListOptions = {},
-): Promise<{ loans: AdminRow<LoanRow>[] }> {
+async function adminLoans(opts: AdminListOptions = {}): Promise<{ loans: AdminRow<LoanRow>[] }> {
   return { loans: await fetchListWithUsers<LoanRow>("loans", opts, []) };
 }
 
@@ -2935,9 +3037,7 @@ async function setLoanStatus(input: { id?: string; status?: string }) {
       name: "Loan disbursement",
       status: "completed",
       balance_after:
-        account != null
-          ? (Number(account.balance) + Number(loan.amount)).toString()
-          : null,
+        account != null ? (Number(account.balance) + Number(loan.amount)).toString() : null,
     });
     if (loanTxError) throw new DbError("update_failed", loanTxError.message, 500);
     await admin.from("notifications").insert({
@@ -2950,9 +3050,7 @@ async function setLoanStatus(input: { id?: string; status?: string }) {
   return { ok: true };
 }
 
-async function adminGrants(
-  opts: AdminListOptions = {},
-): Promise<{ grants: AdminRow<GrantRow>[] }> {
+async function adminGrants(opts: AdminListOptions = {}): Promise<{ grants: AdminRow<GrantRow>[] }> {
   return { grants: await fetchListWithUsers<GrantRow>("grants", opts, ["program"]) };
 }
 
@@ -2966,7 +3064,12 @@ async function setGrantStatus(input: { id?: string; status?: string }) {
   if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
   const { error } = await admin.from("grants").update({ status: input.status }).eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
-  await writeAudit({ action: `grant.${input.status}`, target_type: "grant", target_id: input.id, details: { from: input.status } });
+  await writeAudit({
+    action: `grant.${input.status}`,
+    target_type: "grant",
+    target_id: input.id,
+    details: { from: input.status },
+  });
   return { ok: true };
 }
 
@@ -2980,7 +3083,12 @@ async function adminSetUserStatus(input: { id?: string; status?: string }) {
   if (!allowed.includes(input.status)) throw new DbError("invalid_status", "Unsupported status.");
   const { error } = await admin.from("users").update({ status: input.status }).eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
-  await writeAudit({ action: `user.${input.status}`, target_type: "user", target_id: input.id, details: { to: input.status } });
+  await writeAudit({
+    action: `user.${input.status}`,
+    target_type: "user",
+    target_id: input.id,
+    details: { to: input.status },
+  });
   return { ok: true };
 }
 
@@ -3008,7 +3116,10 @@ async function adminUserDetail(id?: string) {
     accounts: accountsRes.data ?? [],
     transactions: (txRes.data ?? []).map(mapTransaction),
     cards: cardsRes.data ?? [],
-    kyc: (security.kyc && typeof security.kyc === "object" ? security.kyc : {}) as Record<string, unknown>,
+    kyc: (security.kyc && typeof security.kyc === "object" ? security.kyc : {}) as Record<
+      string,
+      unknown
+    >,
   };
 }
 
@@ -3074,7 +3185,10 @@ async function adminUpdateUser(input: {
       throw new DbError("invalid_pin", "The PIN must be 4 to 6 digits.");
     }
     const { hash } = await hashPassword(pin);
-    const { error: pinErr } = await admin.from("users").update({ pin_hash: hash }).eq("id", input.id);
+    const { error: pinErr } = await admin
+      .from("users")
+      .update({ pin_hash: hash })
+      .eq("id", input.id);
     if (pinErr) throw new DbError("update_failed", pinErr.message, 500);
     patch.pin_set = true;
   }
@@ -3088,7 +3202,10 @@ async function adminUpdateUser(input: {
     });
     if (authErr) throw new DbError("update_failed", authErr.message, 500);
     patch.email_verified_at = input.email_verified ? new Date().toISOString() : null;
-    await admin.from("users").update({ email_verified_at: patch.email_verified_at }).eq("id", input.id);
+    await admin
+      .from("users")
+      .update({ email_verified_at: patch.email_verified_at })
+      .eq("id", input.id);
   }
   await writeAudit({
     action: "user.update",
@@ -3156,7 +3273,11 @@ async function adminAdjustBalance(input: {
     balance_after: account != null ? String(account.balance) : null,
   });
   if (transactionError) {
-    throw new DbError("history_failed", "The balance changed, but its transaction record could not be saved.", 500);
+    throw new DbError(
+      "history_failed",
+      "The balance changed, but its transaction record could not be saved.",
+      500,
+    );
   }
 
   await admin.from("notifications").insert({
@@ -3227,7 +3348,9 @@ async function adminCreateTransaction(input: {
     });
     if (rpcError) {
       throw new DbError(
-        rpcError.message.includes("insufficient_funds") ? "insufficient_funds" : "transaction_failed",
+        rpcError.message.includes("insufficient_funds")
+          ? "insufficient_funds"
+          : "transaction_failed",
         rpcError.message.includes("insufficient_funds")
           ? "The user has insufficient funds."
           : rpcError.message.includes("no_active_account")
@@ -3242,26 +3365,26 @@ async function adminCreateTransaction(input: {
 
   const transactionResult = writeHistory
     ? await admin
-    .from("transactions")
-    .insert({
-      user_id: input.user_id,
-      account_id: accountId,
-      kind,
-      direction,
-      amount,
-      currency,
-      name:
-        input.name?.trim() ||
-        (kind === "credited" || kind === "adjustment"
-          ? direction === "credit"
-            ? "Bank Transfer"
-            : "Bank Debit"
-          : kind.charAt(0).toUpperCase() + kind.slice(1)),
-      status: "completed",
-      balance_after: balanceAfter,
-    })
-    .select()
-    .single()
+        .from("transactions")
+        .insert({
+          user_id: input.user_id,
+          account_id: accountId,
+          kind,
+          direction,
+          amount,
+          currency,
+          name:
+            input.name?.trim() ||
+            (kind === "credited" || kind === "adjustment"
+              ? direction === "credit"
+                ? "Bank Transfer"
+                : "Bank Debit"
+              : kind.charAt(0).toUpperCase() + kind.slice(1)),
+          status: "completed",
+          balance_after: balanceAfter,
+        })
+        .select()
+        .single()
     : { data: null, error: null };
   if (transactionResult.error) {
     throw new DbError("history_failed", "The transaction history could not be saved.", 500);
@@ -3317,7 +3440,9 @@ async function verifyAccountPassword(email: string, password: string): Promise<b
     process.env["SUPABASE_ANON_KEY"] ??
     process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ??
     "";
-  const probe = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+  const probe = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
   const { error } = await probe.auth.signInWithPassword({ email, password });
   return !error;
 }
@@ -3351,9 +3476,12 @@ async function securityStatus() {
     .select("twofa_enabled, pin_hash, email_verified_at, updated_at")
     .eq("id", user.id)
     .single();
-  const row = data as
-    | { twofa_enabled: boolean; pin_hash: string | null; email_verified_at: string | null; updated_at: string }
-    | null;
+  const row = data as {
+    twofa_enabled: boolean;
+    pin_hash: string | null;
+    email_verified_at: string | null;
+    updated_at: string;
+  } | null;
   return {
     twofa_enabled: Boolean(row?.twofa_enabled),
     twofa_method: "email" as const,
@@ -3393,7 +3521,10 @@ async function sendTestEmail(input: { to?: string }) {
   }
   const cfg = await loadEmailConfig();
   if (!isEmailConfigured(cfg)) {
-    throw new DbError("email_not_configured", "Save your email settings (host/key and from address) first.");
+    throw new DbError(
+      "email_not_configured",
+      "Save your email settings (host/key and from address) first.",
+    );
   }
   const result = await sendMail(cfg, { ...testEmail(await siteNameForEmail()), to });
   if (!result.sent) {
@@ -3504,13 +3635,18 @@ async function setTransferStatus(input: { id?: string; status?: string }) {
   }
   const admin = createAdminClient();
   const { data: rows } = await admin.from("transactions").select("*").eq("id", input.id).limit(1);
-  const tx = firstRow(rows) as (TransactionRow & {
-    hold_settled_at?: string | null;
-    hold_released_at?: string | null;
-  }) | null;
+  const tx = firstRow(rows) as
+    | (TransactionRow & {
+        hold_settled_at?: string | null;
+        hold_released_at?: string | null;
+      })
+    | null;
   if (!tx) throw new DbError("not_found", "Transfer not found.", 404);
 
-  const { error } = await admin.from("transactions").update({ status: input.status }).eq("id", input.id);
+  const { error } = await admin
+    .from("transactions")
+    .update({ status: input.status })
+    .eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
 
   // Money only moves for the sender's (debit) side, and only once — the
@@ -3542,9 +3678,12 @@ async function setTransferStatus(input: { id?: string; status?: string }) {
           .eq("status", "pending")
           .neq("id", tx.id)
           .limit(1);
-        const counter = firstRow(counterparts) as
-          | { id: string; user_id: string; amount: string | number; currency: string }
-          | null;
+        const counter = firstRow(counterparts) as {
+          id: string;
+          user_id: string;
+          amount: string | number;
+          currency: string;
+        } | null;
         if (counter) {
           const { data: claimedCredit } = await admin
             .from("transactions")
@@ -3588,10 +3727,13 @@ async function setTransferStatus(input: { id?: string; status?: string }) {
     }
   }
 
-  await writeAudit({ action: `transfer.${input.status}`, target_type: "transaction", target_id: input.id });
+  await writeAudit({
+    action: `transfer.${input.status}`,
+    target_type: "transaction",
+    target_id: input.id,
+  });
   return { ok: true };
 }
-
 
 /* ------------------------------------------------------------------------- */
 /* Admin: referrals                                                          */
@@ -3635,7 +3777,9 @@ async function adminReferrals() {
 /* Admin: bulk user import                                                   */
 /* ------------------------------------------------------------------------- */
 
-async function adminImportUsers(input: { rows?: { email?: string; first_name?: string; last_name?: string; password?: string }[] }) {
+async function adminImportUsers(input: {
+  rows?: { email?: string; first_name?: string; last_name?: string; password?: string }[];
+}) {
   await requireAdmin();
   const rows = input.rows ?? [];
   if (rows.length === 0) throw new DbError("invalid_input", "No rows to import.");
@@ -3649,7 +3793,8 @@ async function adminImportUsers(input: { rows?: { email?: string; first_name?: s
       errors.push({ email, error: "Invalid email." });
       continue;
     }
-    const password = row.password && row.password.length >= 8 ? row.password : generateNumericCode() + "Aa";
+    const password =
+      row.password && row.password.length >= 8 ? row.password : generateNumericCode() + "Aa";
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password,
@@ -3672,7 +3817,11 @@ async function adminImportUsers(input: { rows?: { email?: string; first_name?: s
     target_type: "user",
     details: { created: created.length, failed: errors.length },
   });
-  return { created, errors, passwords: Object.fromEntries(created.map((e, i) => [e, rows[i]?.password ?? null])) };
+  return {
+    created,
+    errors,
+    passwords: Object.fromEntries(created.map((e, i) => [e, rows[i]?.password ?? null])),
+  };
 }
 
 /* ------------------------------------------------------------------------- */
@@ -3694,7 +3843,8 @@ async function adminLeads(search?: string, status?: string) {
 
 async function saveLead(input: Partial<LeadRow>) {
   await requireAdmin();
-  if (!input.name || !input.name.trim()) throw new DbError("invalid_name", "Lead name is required.");
+  if (!input.name || !input.name.trim())
+    throw new DbError("invalid_name", "Lead name is required.");
   const admin = createAdminClient();
   if (input.id) {
     const { data, error } = await admin
@@ -3711,7 +3861,12 @@ async function saveLead(input: Partial<LeadRow>) {
       .select()
       .single();
     if (error) throw new DbError("update_failed", error.message, 500);
-    await writeAudit({ action: "lead.update", target_type: "lead", target_id: String(input.id), details: { name: input.name } });
+    await writeAudit({
+      action: "lead.update",
+      target_type: "lead",
+      target_id: String(input.id),
+      details: { name: input.name },
+    });
     return { lead: data };
   }
   const { data, error } = await admin
@@ -3727,7 +3882,12 @@ async function saveLead(input: Partial<LeadRow>) {
     .select()
     .single();
   if (error) throw new DbError("create_failed", error.message, 500);
-  await writeAudit({ action: "lead.create", target_type: "lead", target_id: (data as LeadRow).id, details: { name: input.name } });
+  await writeAudit({
+    action: "lead.create",
+    target_type: "lead",
+    target_id: (data as LeadRow).id,
+    details: { name: input.name },
+  });
   return { lead: data };
 }
 
@@ -3743,7 +3903,11 @@ async function deleteLead(id?: string) {
 async function adminTasks(status?: string) {
   await requireAdmin();
   const admin = createAdminClient();
-  let query = admin.from("admin_tasks").select("*").order("created_at", { ascending: false }).limit(200);
+  let query = admin
+    .from("admin_tasks")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
   if (status) query = query.eq("status", status);
   const { data } = await query;
   return { tasks: (data ?? []) as AdminTaskRow[] };
@@ -3751,7 +3915,8 @@ async function adminTasks(status?: string) {
 
 async function saveTask(input: Partial<AdminTaskRow>) {
   await requireAdmin();
-  if (!input.title || !input.title.trim()) throw new DbError("invalid_input", "Task title is required.");
+  if (!input.title || !input.title.trim())
+    throw new DbError("invalid_input", "Task title is required.");
   const admin = createAdminClient();
   const patch = {
     title: input.title.trim(),
@@ -3762,14 +3927,29 @@ async function saveTask(input: Partial<AdminTaskRow>) {
     due_at: input.due_at ?? null,
   };
   if (input.id) {
-    const { data, error } = await admin.from("admin_tasks").update(patch).eq("id", input.id).select().single();
+    const { data, error } = await admin
+      .from("admin_tasks")
+      .update(patch)
+      .eq("id", input.id)
+      .select()
+      .single();
     if (error) throw new DbError("update_failed", error.message, 500);
-    await writeAudit({ action: "task.update", target_type: "task", target_id: String(input.id), details: { title: patch.title } });
+    await writeAudit({
+      action: "task.update",
+      target_type: "task",
+      target_id: String(input.id),
+      details: { title: patch.title },
+    });
     return { task: data };
   }
   const { data, error } = await admin.from("admin_tasks").insert(patch).select().single();
   if (error) throw new DbError("create_failed", error.message, 500);
-  await writeAudit({ action: "task.create", target_type: "task", target_id: (data as AdminTaskRow).id, details: { title: patch.title } });
+  await writeAudit({
+    action: "task.create",
+    target_type: "task",
+    target_id: (data as AdminTaskRow).id,
+    details: { title: patch.title },
+  });
   return { task: data };
 }
 
@@ -3797,7 +3977,8 @@ async function adminCurrencies() {
 
 async function saveCurrency(input: Partial<SiteCurrencyRow>) {
   await requireAdmin();
-  if (!input.code || !input.name) throw new DbError("invalid_input", "Currency code and name are required.");
+  if (!input.code || !input.name)
+    throw new DbError("invalid_input", "Currency code and name are required.");
   const admin = createAdminClient();
   const patch = {
     code: input.code.toUpperCase(),
@@ -3812,7 +3993,12 @@ async function saveCurrency(input: Partial<SiteCurrencyRow>) {
     .select()
     .single();
   if (error) throw new DbError("save_failed", error.message, 500);
-  await writeAudit({ action: "currency.save", target_type: "currency", target_id: patch.code, details: patch });
+  await writeAudit({
+    action: "currency.save",
+    target_type: "currency",
+    target_id: patch.code,
+    details: patch,
+  });
   return { currency: data };
 }
 
@@ -3825,7 +4011,10 @@ async function deleteCurrency(id?: string) {
   return { ok: true };
 }
 
-async function adminIrsRefunds(search?: string, status?: string): Promise<{ refunds: (IrsRefundRow & { email?: string })[] }> {
+async function adminIrsRefunds(
+  search?: string,
+  status?: string,
+): Promise<{ refunds: (IrsRefundRow & { email?: string })[] }> {
   await requireAdmin();
   const admin = createAdminClient();
   let query = admin
@@ -3845,12 +4034,23 @@ async function adminIrsRefunds(search?: string, status?: string): Promise<{ refu
   };
 }
 
-async function saveIrsRefund(input: { id?: string; user_id?: string; tax_year?: number; amount?: number; status?: string; notes?: string }) {
+async function saveIrsRefund(input: {
+  id?: string;
+  user_id?: string;
+  tax_year?: number;
+  amount?: number;
+  status?: string;
+  notes?: string;
+}) {
   await requireAdmin();
   const admin = createAdminClient();
   let userId = input.user_id;
   if (input.id && !userId) {
-    const { data: existingRow } = await admin.from("irs_refunds").select("user_id").eq("id", input.id).single();
+    const { data: existingRow } = await admin
+      .from("irs_refunds")
+      .select("user_id")
+      .eq("id", input.id)
+      .single();
     userId = (existingRow as { user_id?: string } | null)?.user_id;
   }
   if (!userId) throw new DbError("invalid_input", "Select a user for the refund.");
@@ -3862,14 +4062,29 @@ async function saveIrsRefund(input: { id?: string; user_id?: string; tax_year?: 
     notes: input.notes ?? null,
   };
   if (input.id) {
-    const { data, error } = await admin.from("irs_refunds").update(patch).eq("id", input.id).select().single();
+    const { data, error } = await admin
+      .from("irs_refunds")
+      .update(patch)
+      .eq("id", input.id)
+      .select()
+      .single();
     if (error) throw new DbError("update_failed", error.message, 500);
-    await writeAudit({ action: "irs.update", target_type: "irs_refund", target_id: String(input.id), details: patch });
+    await writeAudit({
+      action: "irs.update",
+      target_type: "irs_refund",
+      target_id: String(input.id),
+      details: patch,
+    });
     return { refund: data };
   }
   const { data, error } = await admin.from("irs_refunds").insert(patch).select().single();
   if (error) throw new DbError("create_failed", error.message, 500);
-  await writeAudit({ action: "irs.create", target_type: "irs_refund", target_id: (data as IrsRefundRow).id, details: patch });
+  await writeAudit({
+    action: "irs.create",
+    target_type: "irs_refund",
+    target_id: (data as IrsRefundRow).id,
+    details: patch,
+  });
   return { refund: data };
 }
 
@@ -3882,7 +4097,10 @@ async function deleteIrsRefund(id?: string) {
   return { ok: true };
 }
 
-async function adminMemberships(search?: string, status?: string): Promise<{ memberships: (MembershipRow & { email?: string })[] }> {
+async function adminMemberships(
+  search?: string,
+  status?: string,
+): Promise<{ memberships: (MembershipRow & { email?: string })[] }> {
   await requireAdmin();
   const admin = createAdminClient();
   let query = admin
@@ -3902,12 +4120,22 @@ async function adminMemberships(search?: string, status?: string): Promise<{ mem
   };
 }
 
-async function saveMembership(input: { id?: string; user_id?: string; tier?: string; status?: string; ends_at?: string | null }) {
+async function saveMembership(input: {
+  id?: string;
+  user_id?: string;
+  tier?: string;
+  status?: string;
+  ends_at?: string | null;
+}) {
   await requireAdmin();
   const admin = createAdminClient();
   let userId = input.user_id;
   if (input.id && !userId) {
-    const { data: existingRow } = await admin.from("memberships").select("user_id").eq("id", input.id).single();
+    const { data: existingRow } = await admin
+      .from("memberships")
+      .select("user_id")
+      .eq("id", input.id)
+      .single();
     userId = (existingRow as { user_id?: string } | null)?.user_id;
   }
   if (!userId) throw new DbError("invalid_input", "Select a user for the membership.");
@@ -3920,14 +4148,29 @@ async function saveMembership(input: { id?: string; user_id?: string; tier?: str
   };
   if (patch.starts_at === undefined) delete (patch as { starts_at?: string }).starts_at;
   if (input.id) {
-    const { data, error } = await admin.from("memberships").update(patch).eq("id", input.id).select().single();
+    const { data, error } = await admin
+      .from("memberships")
+      .update(patch)
+      .eq("id", input.id)
+      .select()
+      .single();
     if (error) throw new DbError("update_failed", error.message, 500);
-    await writeAudit({ action: "membership.update", target_type: "membership", target_id: String(input.id), details: patch });
+    await writeAudit({
+      action: "membership.update",
+      target_type: "membership",
+      target_id: String(input.id),
+      details: patch,
+    });
     return { membership: data };
   }
   const { data, error } = await admin.from("memberships").insert(patch).select().single();
   if (error) throw new DbError("create_failed", error.message, 500);
-  await writeAudit({ action: "membership.create", target_type: "membership", target_id: (data as MembershipRow).id, details: patch });
+  await writeAudit({
+    action: "membership.create",
+    target_type: "membership",
+    target_id: (data as MembershipRow).id,
+    details: patch,
+  });
   return { membership: data };
 }
 
@@ -3991,7 +4234,11 @@ async function adminTicketDetail(id?: string) {
     .select("*, users(email, first_name, last_name)")
     .eq("id", id)
     .limit(1);
-  const ticket = firstRow(rows) as (Record<string, unknown> & { users?: { email?: string; first_name?: string; last_name?: string } }) | null;
+  const ticket = firstRow(rows) as
+    | (Record<string, unknown> & {
+        users?: { email?: string; first_name?: string; last_name?: string };
+      })
+    | null;
   if (!ticket) throw new DbError("not_found", "Ticket not found.", 404);
   const { data: msgRows } = await admin
     .from("support_messages")
@@ -4026,7 +4273,8 @@ async function adminReplyTicket(id?: string, body?: string) {
 
 async function setTicketStatus(input: { id?: string; status?: string }) {
   await requireAdmin();
-  if (!input.id || !input.status) throw new DbError("invalid_request", "Missing ticket id or status.");
+  if (!input.id || !input.status)
+    throw new DbError("invalid_request", "Missing ticket id or status.");
   if (!["open", "pending", "closed"].includes(input.status)) {
     throw new DbError("invalid_status", "Unsupported status.");
   }
@@ -4035,7 +4283,11 @@ async function setTicketStatus(input: { id?: string; status?: string }) {
     .update({ status: input.status })
     .eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
-  await writeAudit({ action: `ticket.${input.status}`, target_type: "ticket", target_id: input.id });
+  await writeAudit({
+    action: `ticket.${input.status}`,
+    target_type: "ticket",
+    target_id: input.id,
+  });
   return { ok: true };
 }
 
@@ -4051,7 +4303,11 @@ async function deleteTicket(id?: string) {
 async function adminContactMessages(handled?: string) {
   await requireAdmin();
   const admin = createAdminClient();
-  let query = admin.from("contact_messages").select("*").order("created_at", { ascending: false }).limit(200);
+  let query = admin
+    .from("contact_messages")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
   if (handled === "true") query = query.eq("handled", true);
   if (handled === "false") query = query.eq("handled", false);
   const { data } = await query;
@@ -4066,7 +4322,12 @@ async function setContactHandled(id?: string, handled?: boolean) {
     .update({ handled: handled ?? true })
     .eq("id", id);
   if (error) throw new DbError("update_failed", error.message, 500);
-  await writeAudit({ action: "contact.handled", target_type: "contact_message", target_id: id, details: { handled: handled ?? true } });
+  await writeAudit({
+    action: "contact.handled",
+    target_type: "contact_message",
+    target_id: id,
+    details: { handled: handled ?? true },
+  });
   return { ok: true };
 }
 
@@ -4082,7 +4343,9 @@ interface SiteSettingsGroups {
   email: Record<string, unknown>;
 }
 
-async function readConfigGroups(admin: ReturnType<typeof createAdminClient>): Promise<SiteSettingsGroups> {
+async function readConfigGroups(
+  admin: ReturnType<typeof createAdminClient>,
+): Promise<SiteSettingsGroups> {
   const { data } = await admin.from("admin_config").select("key, value");
   const map = new Map<string, unknown>();
   for (const row of (data ?? []) as { key: string; value: unknown }[]) {
@@ -4128,8 +4391,10 @@ async function updateSiteSettings(input: { group?: string; value?: Record<string
   if (input.group === "general") {
     // Site identity lives on the sites table.
     const patch: Record<string, unknown> = {};
-    if (typeof input.value.name === "string" && input.value.name.trim()) patch.name = input.value.name.trim();
-    if (typeof input.value.brand_color === "string" && input.value.brand_color.trim()) patch.brand_color = input.value.brand_color.trim();
+    if (typeof input.value.name === "string" && input.value.name.trim())
+      patch.name = input.value.name.trim();
+    if (typeof input.value.brand_color === "string" && input.value.brand_color.trim())
+      patch.brand_color = input.value.brand_color.trim();
     if ("logo_url" in input.value) patch.logo_url = input.value.logo_url || null;
     if (Object.keys(patch).length === 0) throw new DbError("invalid_input", "Nothing to update.");
     const current = await resolveSite(undefined);
@@ -4142,19 +4407,32 @@ async function updateSiteSettings(input: { group?: string; value?: Record<string
         .select("value")
         .eq("key", "email")
         .maybeSingle();
-      const prev = ((existing as { value?: Record<string, unknown> } | null)?.value ?? {}) as Record<string, unknown>;
+      const prev = ((existing as { value?: Record<string, unknown> } | null)?.value ??
+        {}) as Record<string, unknown>;
       for (const field of ["smtp_password", "api_key"]) {
-        if (!input.value[field] || input.value[field] === "********") input.value[field] = prev[field] ?? "";
+        if (!input.value[field] || input.value[field] === "********")
+          input.value[field] = prev[field] ?? "";
       }
     }
     await admin
       .from("admin_config")
-      .upsert({ key: input.group, value: input.value, updated_at: new Date().toISOString() }, { onConflict: "key" });
+      .upsert(
+        { key: input.group, value: input.value, updated_at: new Date().toISOString() },
+        { onConflict: "key" },
+      );
   } else {
     throw new DbError("invalid_group", "Unknown settings group.");
   }
 
-  await writeAudit({ action: "settings.update", target_type: "settings", target_id: input.group, details: input.value });
+  const auditDetails = { ...input.value };
+  delete auditDetails.smtp_password;
+  delete auditDetails.api_key;
+  await writeAudit({
+    action: "settings.update",
+    target_type: "settings",
+    target_id: input.group,
+    details: auditDetails,
+  });
   return { ok: true };
 }
 
@@ -4217,7 +4495,12 @@ async function saveFaq(input: Partial<FaqRow>) {
     enabled: input.enabled ?? true,
   };
   if (input.id) {
-    const { data, error } = await admin.from("faqs").update(patch).eq("id", input.id).select().single();
+    const { data, error } = await admin
+      .from("faqs")
+      .update(patch)
+      .eq("id", input.id)
+      .select()
+      .single();
     if (error) throw new DbError("update_failed", error.message, 500);
     await writeAudit({ action: "faq.update", target_type: "faq", target_id: String(input.id) });
     return { faq: data };
@@ -4261,14 +4544,27 @@ async function saveTestimonial(input: Partial<TestimonialRow>) {
     enabled: input.enabled ?? true,
   };
   if (input.id) {
-    const { data, error } = await admin.from("testimonials").update(patch).eq("id", input.id).select().single();
+    const { data, error } = await admin
+      .from("testimonials")
+      .update(patch)
+      .eq("id", input.id)
+      .select()
+      .single();
     if (error) throw new DbError("update_failed", error.message, 500);
-    await writeAudit({ action: "testimonial.update", target_type: "testimonial", target_id: String(input.id) });
+    await writeAudit({
+      action: "testimonial.update",
+      target_type: "testimonial",
+      target_id: String(input.id),
+    });
     return { testimonial: data };
   }
   const { data, error } = await admin.from("testimonials").insert(patch).select().single();
   if (error) throw new DbError("create_failed", error.message, 500);
-  await writeAudit({ action: "testimonial.create", target_type: "testimonial", target_id: (data as TestimonialRow).id });
+  await writeAudit({
+    action: "testimonial.create",
+    target_type: "testimonial",
+    target_id: (data as TestimonialRow).id,
+  });
   return { testimonial: data };
 }
 
@@ -4295,9 +4591,13 @@ export type BroadcastSegment =
   | "kyc_in_review";
 
 const BROADCAST_SEGMENTS: BroadcastSegment[] = [
-  "all", "active", "inactive",
-  "email_verified", "email_unverified",
-  "kyc_verified", "kyc_in_review",
+  "all",
+  "active",
+  "inactive",
+  "email_verified",
+  "email_unverified",
+  "kyc_verified",
+  "kyc_in_review",
 ];
 
 /**
@@ -4321,9 +4621,9 @@ async function adminBroadcast(input: {
     throw new DbError("invalid_input", "Title and message are required.");
   }
   const ids = (input.user_ids ?? []).map((id) => String(id)).filter(Boolean);
-  const segment = (BROADCAST_SEGMENTS.includes(input.segment as BroadcastSegment)
-    ? input.segment
-    : "all") as BroadcastSegment;
+  const segment = (
+    BROADCAST_SEGMENTS.includes(input.segment as BroadcastSegment) ? input.segment : "all"
+  ) as BroadcastSegment;
 
   const admin = createAdminClient();
   let query = admin.from("users").select("id, email, first_name, last_name");
@@ -4374,9 +4674,7 @@ async function adminBroadcast(input: {
 
   const rows = recipients.map((u) => ({ user_id: u.id, title, body, link }));
   for (let i = 0; i < rows.length; i += 200) {
-    const { error: insertError } = await admin
-      .from("notifications")
-      .insert(rows.slice(i, i + 200));
+    const { error: insertError } = await admin.from("notifications").insert(rows.slice(i, i + 200));
     if (insertError) throw new DbError("broadcast_failed", insertError.message, 500);
   }
 
@@ -4537,9 +4835,7 @@ async function adminCryptoAssets(search?: string): Promise<{
   const { data } = await query;
   return {
     assets: ((data ?? []) as Record<string, unknown>[]).map((row) => {
-      const rel = row.users as
-        | { email?: string; first_name?: string; last_name?: string }
-        | null;
+      const rel = row.users as { email?: string; first_name?: string; last_name?: string } | null;
       const { users: _users, ...rest } = row;
       return {
         ...(rest as {
@@ -4556,7 +4852,11 @@ async function adminCryptoAssets(search?: string): Promise<{
   };
 }
 
-async function setCryptoAsset(input: { id?: string; balance?: number | string; price_usd?: number | string }) {
+async function setCryptoAsset(input: {
+  id?: string;
+  balance?: number | string;
+  price_usd?: number | string;
+}) {
   await requireAdmin();
   if (!input.id) throw new DbError("invalid_request", "Missing asset id.");
   const patch: Record<string, unknown> = {};
@@ -4568,7 +4868,12 @@ async function setCryptoAsset(input: { id?: string; balance?: number | string; p
   const admin = createAdminClient();
   const { error } = await admin.from("crypto_assets").update(patch).eq("id", input.id);
   if (error) throw new DbError("update_failed", error.message, 500);
-  await writeAudit({ action: "crypto_asset.update", target_type: "crypto_asset", target_id: input.id, details: patch });
+  await writeAudit({
+    action: "crypto_asset.update",
+    target_type: "crypto_asset",
+    target_id: input.id,
+    details: patch,
+  });
   return { ok: true };
 }
 
@@ -4577,12 +4882,24 @@ async function adminStorageAssets() {
   await requireAdmin();
   const admin = createAdminClient();
   const bucket = admin.storage.from("uploads");
-  const { data: top, error } = await bucket.list("", { limit: 50, sortBy: { column: "created_at", order: "desc" } });
+  const { data: top, error } = await bucket.list("", {
+    limit: 50,
+    sortBy: { column: "created_at", order: "desc" },
+  });
   if (error) throw new DbError("list_failed", error.message, 500);
   const folders = (top ?? []).filter((f) => f.id === null);
-  const files: { path: string; name: string; size: number; created_at: string | null; public_url: string }[] = [];
+  const files: {
+    path: string;
+    name: string;
+    size: number;
+    created_at: string | null;
+    public_url: string;
+  }[] = [];
   for (const folder of folders.slice(0, 25)) {
-    const { data: objs } = await bucket.list(folder.name, { limit: 20, sortBy: { column: "created_at", order: "desc" } });
+    const { data: objs } = await bucket.list(folder.name, {
+      limit: 20,
+      sortBy: { column: "created_at", order: "desc" },
+    });
     for (const o of objs ?? []) {
       const path = `${folder.name}/${o.name}`;
       files.push({

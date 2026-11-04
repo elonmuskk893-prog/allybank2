@@ -83,7 +83,9 @@ function AppsPage() {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-6">
                 <i className="fa-solid fa-chart-pie text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Account Overview</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                Account Overview
+              </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 View all your accounts, balances, and recent transactions in one place.
               </p>
@@ -152,7 +154,9 @@ function AppsPage() {
               <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center mb-6">
                 <i className="fa-solid fa-camera text-2xl text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Document Upload</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                Document Upload
+              </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 Upload a receipt or supporting document through the deposit flow.
               </p>
@@ -175,7 +179,9 @@ function AppsPage() {
               <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/30 rounded-2xl flex items-center justify-center mb-6">
                 <i className="fa-solid fa-credit-card text-2xl text-teal-600 dark:text-teal-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Card Controls</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
+                Card Controls
+              </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
                 Manage your debit and credit cards with advanced security features.
               </p>
@@ -236,7 +242,9 @@ function AppsPage() {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-right-to-bracket text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Password Sign-In</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Password Sign-In
+              </h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Sign in with your email and password, plus optional 2FA.
               </p>
@@ -245,25 +253,27 @@ function AppsPage() {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-shield-halved text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Encrypted Connection</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                TLS helps protect data in transit.
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Encrypted Connection
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">TLS helps protect data in transit.</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-bell text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Activity Alerts</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Notifications for account activity
-              </p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Activity Alerts
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">Notifications for account activity</p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-user-shield text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Fraud Protection</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Fraud Protection
+              </h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Session controls and activity history
               </p>
@@ -287,7 +297,9 @@ function AppsPage() {
               <div className="bg-gray-200 dark:bg-gray-700 rounded-3xl h-96 flex items-center justify-center mb-4">
                 <i className="fa-solid fa-mobile-alt text-6xl text-gray-400 dark:text-gray-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Dashboard</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Dashboard
+              </h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Complete overview of all your accounts and recent activity
               </p>
@@ -296,7 +308,9 @@ function AppsPage() {
               <div className="bg-gray-200 dark:bg-gray-700 rounded-3xl h-96 flex items-center justify-center mb-4">
                 <i className="fa-solid fa-exchange-alt text-6xl text-gray-400 dark:text-gray-500" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Transfers</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Transfers
+              </h3>
               <p className="text-gray-600 dark:text-gray-300">
                 Quick and easy money transfers with just a few taps
               </p>
@@ -316,7 +330,9 @@ function AppsPage() {
 
       <section className="py-16 bg-blue-600 dark:bg-blue-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Use Your Account Online</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
+            Use Your Account Online
+          </h2>
           <p className="text-xl text-blue-100 mb-8">
             Access the dashboard from a modern desktop or mobile browser. No download is required.
           </p>

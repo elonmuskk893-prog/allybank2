@@ -6,7 +6,7 @@ import { useSite } from "@/lib/use-site";
 
 function AboutPage() {
   const { site } = useSite();
-  const name = site?.name ?? "Online Banking";
+  const name = site?.name ?? "Account Dashboard";
 
   return (
     <>
@@ -53,8 +53,8 @@ function AboutPage() {
                 money, manage supported cards, and contact support.
               </p>
               <p className="text-lg text-gray-600 dark:text-gray-300">
-                We focus on clear account information and straightforward controls. Availability
-                of individual features depends on your account and the services enabled for it.
+                We focus on clear account information and straightforward controls. Availability of
+                individual features depends on your account and the services enabled for it.
               </p>
             </div>
             <div className="overflow-hidden rounded-2xl shadow-2xl">
@@ -103,9 +103,13 @@ function AboutPage() {
             ].map((item) => (
               <div key={item.title} className="text-center">
                 <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-blue-100 dark:bg-blue-900/30">
-                  <i className={`fa-solid ${item.icon} text-2xl text-blue-600 dark:text-blue-400`} />
+                  <i
+                    className={`fa-solid ${item.icon} text-2xl text-blue-600 dark:text-blue-400`}
+                  />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">{item.title}</h3>
+                <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                  {item.title}
+                </h3>
                 <p className="text-gray-600 dark:text-gray-300">{item.text}</p>
               </div>
             ))}
@@ -120,21 +124,34 @@ function AboutPage() {
               Getting started
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-300">
-              Create an account, verify your email, and sign in to see the features available
-              to you.
+              Create an account, verify your email, and sign in to see the features available to
+              you.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {[
-              { step: "1", title: "Create an account", text: "Provide your name and email address." },
-              { step: "2", title: "Verify your email", text: "Enter the verification code we send you." },
+              {
+                step: "1",
+                title: "Create an account",
+                text: "Provide your name and email address.",
+              },
+              {
+                step: "2",
+                title: "Verify your email",
+                text: "Enter the verification code we send you.",
+              },
               { step: "3", title: "Sign in", text: "Open your dashboard and review your account." },
             ].map((item) => (
-              <div key={item.step} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+              <div
+                key={item.step}
+                className="rounded-2xl border border-gray-200 bg-white p-6 shadow-lg dark:border-gray-700 dark:bg-gray-800"
+              >
                 <div className="mb-4 grid h-12 w-12 place-items-center rounded-full bg-blue-600 text-xl font-bold text-white">
                   {item.step}
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">{item.title}</h3>
+                <h3 className="mb-2 text-xl font-bold text-gray-900 dark:text-white">
+                  {item.title}
+                </h3>
                 <p className="text-gray-600 dark:text-gray-300">{item.text}</p>
               </div>
             ))}

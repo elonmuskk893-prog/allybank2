@@ -1,5 +1,5 @@
 -- ============================================================================
--- Online Banking Platform — Initial schema
+-- Account Platform — Initial schema
 -- PostgreSQL for Supabase. Idempotent-friendly: each section drops/creates
 -- cleanly so it can be re-run from scratch.
 -- ============================================================================
@@ -90,7 +90,7 @@ create index if not exists users_kyc_idx on public.users(kyc_status);
 create table if not exists public.sites (
   id                int primary key default 1 check (id = 1),
   slug              text not null,
-  name              text not null default 'Online Banking',
+  name              text not null default 'Account Dashboard',
   brand_color       text not null default '#0ea5e9',
   primary_currency  text not null default 'USD',
   kyc_required      boolean not null default true,
@@ -145,7 +145,7 @@ create index if not exists transactions_user_kind_idx on public.transactions(use
 create table if not exists public.cards (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null references public.users(id) on delete cascade,
-  brand         text not null default 'visa',
+  brand         text not null default 'standard',
   card_type     text not null default 'credit',
   last4         text not null,
   holder        text not null,
@@ -372,7 +372,7 @@ begin
     coalesce(new.email, ''),
     coalesce(new.raw_user_meta_data->>'first_name', ''),
     coalesce(new.raw_user_meta_data->>'last_name', ''),
-    case when coalesce(new.raw_user_meta_data->>'role', '') = 'admin' then 'admin'::public.user_role else 'user'::public.user_role end,
+    'user'::public.user_role,
     'active'::public.user_status,
     coalesce(new.raw_user_meta_data->>'account_number', public.generate_account_number()),
     'not_submitted'::public.kyc_status
@@ -391,11 +391,11 @@ begin
 
   select id into site_id from public.sites limit 1;
   if site_id is null then
-    insert into public.sites (slug, name) values ('online-banking', 'Online Banking');
+    insert into public.sites (slug, name) values ('account-dashboard', 'Account Dashboard');
   end if;
 
   insert into public.notifications (user_id, title, body)
-  values (new.id, 'Welcome to Online Banking', 'Your account is ready. Complete your KYC to unlock all features.');
+  values (new.id, 'Welcome to Account Dashboard', 'Your account is ready. Complete your KYC to unlock all features.');
 
   return new;
 end $$;
@@ -705,5 +705,5 @@ create policy "password_resets_admin" on public.password_resets
 -- Seed: default site + demo user (dev convenience)
 -- ---------------------------------------------------------------------------
 insert into public.sites (id, slug, name, brand_color)
-values (1, 'online-banking', 'Online Banking', '#0ea5e9')
+values (1, 'account-dashboard', 'Account Dashboard', '#0ea5e9')
 on conflict (id) do nothing;

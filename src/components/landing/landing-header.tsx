@@ -12,11 +12,31 @@ const NAV = [
 ];
 
 const SERVICES = [
-  { label: "Personal Accounts", icon: "fa-user", color: "text-sky-500", href: "/services/personal" },
-  { label: "Business Accounts", icon: "fa-briefcase", color: "text-blue-500", href: "/services/business" },
-  { label: "Loans & Credit", icon: "fa-handshake", color: "text-green-500", href: "/services/loans" },
+  {
+    label: "Personal Accounts",
+    icon: "fa-user",
+    color: "text-sky-500",
+    href: "/services/personal",
+  },
+  {
+    label: "Business Accounts",
+    icon: "fa-briefcase",
+    color: "text-blue-500",
+    href: "/services/business",
+  },
+  {
+    label: "Loans & Credit",
+    icon: "fa-handshake",
+    color: "text-green-500",
+    href: "/services/loans",
+  },
   { label: "Cards", icon: "fa-credit-card", color: "text-purple-500", href: "/services/cards" },
-  { label: "Grants & Aid", icon: "fa-hand-holding-dollar", color: "text-orange-500", href: "/services/grants" },
+  {
+    label: "Grants & Aid",
+    icon: "fa-hand-holding-dollar",
+    color: "text-orange-500",
+    href: "/services/grants",
+  },
 ];
 
 const NAV_LINKS = [...NAV, ...SERVICES];
@@ -25,7 +45,7 @@ export function LandingHeader() {
   const { theme, toggleTheme } = useTheme();
   const { site } = useSite();
   const [menuOpen, setMenuOpen] = useState(false);
-  const brandName = site?.name ?? "  ";
+  const brandName = site?.name ?? "Account Dashboard";
   const brandInitial = brandName.slice(0, 1).toUpperCase();
 
   return (
@@ -55,20 +75,33 @@ export function LandingHeader() {
               />
               <span
                 className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-full text-lg font-bold text-white"
-                style={{ background: "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))" }}
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+                }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- platform logo asset */}
-                <img src={site?.logo_url || "/logo.jpeg"} alt={brandName} className="h-full w-full object-cover" />
+                <img
+                  src={site?.logo_url || "/logo.jpeg"}
+                  alt={brandName}
+                  className="h-full w-full object-cover"
+                />
               </span>
             </div>
             <span className="ml-2 text-lg font-bold tracking-tight">{brandName}</span>
           </Link>
 
           <div className="hidden items-center space-x-1 lg:flex">
-            <Link href="/" className="group relative px-4 py-2 font-medium text-gray-700 transition-all hover:text-[var(--brand)] dark:text-gray-300">
+            <Link
+              href="/"
+              className="group relative px-4 py-2 font-medium text-gray-700 transition-all hover:text-[var(--brand)] dark:text-gray-300"
+            >
               Home
             </Link>
-            <Link href="/about" className="group relative px-4 py-2 font-medium text-gray-700 transition-all hover:text-[var(--brand)] dark:text-gray-300">
+            <Link
+              href="/about"
+              className="group relative px-4 py-2 font-medium text-gray-700 transition-all hover:text-[var(--brand)] dark:text-gray-300"
+            >
               About
             </Link>
 
@@ -93,7 +126,10 @@ export function LandingHeader() {
               </div>
             </div>
 
-            <Link href="/contact" className="group relative px-4 py-2 font-medium text-gray-700 transition-all hover:text-[var(--brand)] dark:text-gray-300">
+            <Link
+              href="/contact"
+              className="group relative px-4 py-2 font-medium text-gray-700 transition-all hover:text-[var(--brand)] dark:text-gray-300"
+            >
               Contact
             </Link>
           </div>
@@ -106,13 +142,19 @@ export function LandingHeader() {
             >
               <i className={`fa-solid ${theme === "dark" ? "fa-sun" : "fa-moon"} text-lg`} />
             </button>
-            <Link href="/auth/login" className="px-4 py-2.5 font-semibold text-[var(--brand)] transition hover:opacity-80">
+            <Link
+              href="/auth/login"
+              className="px-4 py-2.5 font-semibold text-[var(--brand)] transition hover:opacity-80"
+            >
               Login
             </Link>
             <Link
               href="/auth/register"
               className="rounded-2xl px-6 py-2.5 font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
-              style={{ background: "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))" }}
+              style={{
+                background:
+                  "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+              }}
             >
               <i className="fa-solid fa-sparkles mr-2" /> Open Account
             </Link>
@@ -137,7 +179,9 @@ export function LandingHeader() {
                   onClick={() => setMenuOpen(false)}
                   className="flex items-center rounded-xl px-4 py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
                 >
-                  <i className={`fa-solid ${item.icon ?? "fa-link"} mr-3 w-5 text-center text-gray-400`} />
+                  <i
+                    className={`fa-solid ${item.icon ?? "fa-link"} mr-3 w-5 text-center text-gray-400`}
+                  />
                   {item.label}
                 </Link>
               ))}

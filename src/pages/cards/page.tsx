@@ -33,9 +33,7 @@ export default function CardsPage() {
 function Cards() {
   const me = useMe();
   const currency = me.site.primary_currency;
-  const holder =
-    [me.user.first_name, me.user.last_name].filter(Boolean).join(" ") ||
-    me.user.email;
+  const holder = [me.user.first_name, me.user.last_name].filter(Boolean).join(" ") || me.user.email;
 
   const [cards, setCards] = useState<CardData[] | null>(null);
 
@@ -65,9 +63,7 @@ function Cards() {
                 <i className="fas fa-credit-card text-lg" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Virtual Cards
-                </h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Virtual Cards</h1>
                 <p className="text-gray-600 dark:text-gray-400">
                   Secure virtual cards for online payments and subscriptions
                 </p>
@@ -116,8 +112,8 @@ function Cards() {
                   Virtual Cards Made Easy
                 </h2>
                 <p className="mb-4 text-sm text-white/90">
-                  Apply for a virtual card for online payments and review the
-                  available controls for supported cards.
+                  Apply for a virtual card for online payments and review the available controls for
+                  supported cards.
                 </p>
                 <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
                   {[
@@ -131,9 +127,7 @@ function Cards() {
                         <i className={`fas ${icon} text-sm text-white`} />
                       </div>
                       <div>
-                        <h3 className="text-xs font-semibold text-white">
-                          {title}
-                        </h3>
+                        <h3 className="text-xs font-semibold text-white">{title}</h3>
                         <p className="text-xs text-white/80">{desc}</p>
                       </div>
                     </div>
@@ -161,9 +155,7 @@ function Cards() {
                   >
                     <div className="flex h-full flex-col justify-between p-4 text-white">
                       <div className="flex items-start justify-between">
-                        <div className="font-mono text-xs text-white/75">
-                          Virtual Card
-                        </div>
+                        <div className="font-mono text-xs text-white/75">Virtual Card</div>
                         <i className="fas fa-wifi rotate-90 text-sm text-white/75" />
                       </div>
                       <div className="mt-4 font-mono text-xs text-white">
@@ -171,12 +163,8 @@ function Cards() {
                       </div>
                       <div className="flex items-end justify-between">
                         <div>
-                          <div className="font-mono text-xs text-white/75">
-                            VALID THRU
-                          </div>
-                          <div className="font-mono text-xs text-white">
-                            12/25
-                          </div>
+                          <div className="font-mono text-xs text-white/75">VALID THRU</div>
+                          <div className="font-mono text-xs text-white">12/25</div>
                         </div>
                         <i className="fas fa-credit-card text-lg text-white/75" />
                       </div>
@@ -190,9 +178,7 @@ function Cards() {
 
         <div className="overflow-hidden rounded-2xl border border-white/20 bg-white/95 shadow-xl backdrop-blur-xl dark:border-gray-700/50 dark:bg-gray-800/95">
           <div className="flex items-center justify-between border-b border-gray-200/50 px-6 py-4 dark:border-gray-700/50">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Your Cards
-            </h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Your Cards</h2>
             <Link
               href="/cards/apply"
               className="flex items-center text-sm font-medium hover:opacity-80"
@@ -265,9 +251,7 @@ function StatCard({
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
             {label}
           </p>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-            {value}
-          </h3>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">{value}</h3>
         </div>
       </div>
     </div>
@@ -285,45 +269,36 @@ function CardTile({
   siteName: string;
   holder: string;
 }) {
-  const last4 =
-    card.card_number_masked.replace(/\D/g, "").slice(-4) || "****";
+  const last4 = card.card_number_masked.replace(/\D/g, "").slice(-4) || "****";
   const expiry = card.expires_at
     ? new Date(card.expires_at).toLocaleDateString(undefined, {
         month: "2-digit",
         year: "2-digit",
       })
     : "--/--";
-  const gradient =
-    card.card_brand === "mastercard"
-      ? "linear-gradient(135deg,#b91c1c,#ea580c,#f97316)"
-      : "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.6))";
-  const badge =
-    {
-      active: [
-        "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
-        "fa-check-circle",
-        "Active",
-      ],
-      pending: [
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
-        "fa-clock",
-        "Pending",
-      ],
-      expired: [
-        "bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-300",
-        "fa-pause",
-        "Inactive",
-      ],
-      blocked: [
-        "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
-        "fa-lock",
-        "Blocked",
-      ],
-    }[card.status] ?? [
+  const gradient = "linear-gradient(135deg, var(--brand), rgba(0,0,0,0.6))";
+  const badge = {
+    active: [
+      "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
+      "fa-check-circle",
+      "Active",
+    ],
+    pending: [
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
+      "fa-clock",
+      "Pending",
+    ],
+    expired: [
       "bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-300",
       "fa-pause",
       "Inactive",
-    ];
+    ],
+    blocked: ["bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300", "fa-lock", "Blocked"],
+  }[card.status] ?? [
+    "bg-gray-100 text-gray-800 dark:bg-gray-700/50 dark:text-gray-300",
+    "fa-pause",
+    "Inactive",
+  ];
 
   return (
     <div className="group overflow-hidden rounded-xl border border-gray-200/50 bg-white/80 backdrop-blur-sm transition hover:shadow-lg dark:border-gray-700/50 dark:bg-gray-800/80">
@@ -350,14 +325,10 @@ function CardTile({
           <div className="relative flex h-full flex-col justify-between p-4 text-white">
             <div className="flex items-start justify-between">
               <div>
-                <div className="text-xs font-semibold opacity-90">
-                  {siteName}
-                </div>
+                <div className="text-xs font-semibold opacity-90">{siteName}</div>
                 <div className="text-xs opacity-70">Virtual Card</div>
               </div>
-              <div className="text-xs font-bold uppercase">
-                {card.card_brand}
-              </div>
+              <div className="text-xs font-bold uppercase">{card.card_brand}</div>
             </div>
             <div className="grid h-6 w-8 grid-cols-2 grid-rows-2 gap-px rounded bg-gradient-to-br from-yellow-400 to-yellow-500 p-1">
               {[0, 1, 2, 3].map((i) => (
@@ -371,9 +342,7 @@ function CardTile({
             <div className="flex items-end justify-between">
               <div>
                 <div className="text-xs uppercase opacity-70">Card Holder</div>
-                <div className="max-w-[120px] truncate text-xs font-medium">
-                  {holder}
-                </div>
+                <div className="max-w-[120px] truncate text-xs font-medium">{holder}</div>
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase opacity-70">Valid Thru</div>
@@ -385,17 +354,13 @@ function CardTile({
       </div>
       <div className="px-4 pb-4">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-            Balance
-          </span>
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Balance</span>
           <span className="text-sm font-bold text-gray-900 dark:text-white">
             {formatCurrency(card.currency, Number(card.balance))}
           </span>
         </div>
         <div className="mb-3 flex items-center justify-between">
-          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-            Daily Limit
-          </span>
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Daily Limit</span>
           <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
             {card.daily_limit != null
               ? formatCurrency(card.currency, Number(card.daily_limit))

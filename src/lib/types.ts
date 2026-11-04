@@ -46,7 +46,7 @@ export interface Transaction {
 
 export interface Card {
   id: number | string;
-  card_brand: "visa" | "mastercard";
+  card_brand: string;
   card_number_masked: string;
   expires_at?: string | null;
   balance: number | string;

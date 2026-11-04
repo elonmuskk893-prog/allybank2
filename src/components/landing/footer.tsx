@@ -3,9 +3,310 @@ import Link from "@/lib/next/link";
 import { useSite } from "@/lib/use-site";
 export function LandingFooter() {
   const { site } = useSite();
-  const brandName = site?.name ?? " ";
+  const brandName = site?.name ?? "Account Dashboard";
   const brandInitial = brandName.slice(0, 1).toUpperCase();
   return (
-    <footer className="relative mb-12 overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 py-16 text-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 lg:mb-0"><div className="pointer-events-none absolute inset-0 overflow-hidden"><div className="absolute -left-20 -top-20 h-40 w-40 animate-pulse rounded-full blur-3xl" style={{background: '#0ea5e933'}} /><div className="absolute -right-20 top-1/2 h-32 w-32 animate-pulse rounded-full blur-2xl" style={{background: '#14b8a633', animationDelay: '1s'}} /></div><div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"><div className="mb-12 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-4"><div><div className="mb-6 flex items-center gap-2"><span className="grid h-10 w-10 place-items-center overflow-hidden rounded-full text-lg font-bold text-white" style={{background: 'linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))'}}>{/* eslint-disable-next-line @next/next/no-img-element -- platform logo asset */}<img src="/logo.jpeg" alt={brandName} className="h-full w-full object-cover" /></span><span className="text-lg font-bold">{brandName}</span></div><p className="mb-6 text-sm leading-relaxed text-slate-300">Account tools for transfers, cards, activity history, and support.</p><div className="flex space-x-3"><Link href="/#" className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110" style={{background: 'linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))'}}><i className="fa-brands fa-facebook-f text-sm" /></Link><Link href="/#" className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110" style={{background: 'linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))'}}><i className="fa-brands fa-twitter text-sm" /></Link><Link href="/#" className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110" style={{background: 'linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))'}}><i className="fa-brands fa-linkedin-in text-sm" /></Link><Link href="/#" className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110" style={{background: 'linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))'}}><i className="fa-brands fa-instagram text-sm" /></Link></div></div><div><h4 className="mb-6 flex items-center font-bold text-white"><span className="mr-3 h-6 w-1 rounded-full" style={{background: '#0ea5e9'}} /> {" "}Quick Links</h4><ul className="space-y-3"><li><Link href="/about" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#0ea5e9'}} /><span className="transition-transform group-hover:translate-x-1">About Us</span></Link></li><li><Link href="/services/personal" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#0ea5e9'}} /><span className="transition-transform group-hover:translate-x-1">Services</span></Link></li><li><Link href="/services/grants" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#0ea5e9'}} /><span className="transition-transform group-hover:translate-x-1">Grants &amp; Aid</span></Link></li><li><Link href="/faq" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#0ea5e9'}} /><span className="transition-transform group-hover:translate-x-1">FAQ</span></Link></li><li><Link href="/contact" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#0ea5e9'}} /><span className="transition-transform group-hover:translate-x-1">Contact</span></Link></li></ul></div><div><h4 className="mb-6 flex items-center font-bold text-white"><span className="mr-3 h-6 w-1 rounded-full" style={{background: '#14b8a6'}} /> {" "}Services</h4><ul className="space-y-3"><li><Link href="/services/personal" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#14b8a6'}} /><span className="transition-transform group-hover:translate-x-1">Personal Accounts</span></Link></li><li><Link href="/services/business" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#14b8a6'}} /><span className="transition-transform group-hover:translate-x-1">Business Accounts</span></Link></li><li><Link href="/services/loans" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#14b8a6'}} /><span className="transition-transform group-hover:translate-x-1">Loans &amp; Credit</span></Link></li><li><Link href="/services/cards" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#14b8a6'}} /><span className="transition-transform group-hover:translate-x-1">Cards</span></Link></li></ul></div><div><h4 className="mb-6 flex items-center font-bold text-white"><span className="mr-3 h-6 w-1 rounded-full" style={{background: '#a855f7'}} /> {" "}Member Services</h4><ul className="space-y-3"><li><Link href="/auth/login" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#a855f7'}} /><span className="transition-transform group-hover:translate-x-1">Online Accounts</span></Link></li><li><Link href="/apps" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#a855f7'}} /><span className="transition-transform group-hover:translate-x-1">Mobile App</span></Link></li><li><Link href="/faq" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#a855f7'}} /><span className="transition-transform group-hover:translate-x-1">Help &amp; FAQ</span></Link></li><li><Link href="/terms" className="group flex items-center text-sm text-slate-300 transition hover:text-white"><i className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1" style={{color: '#a855f7'}} /><span className="transition-transform group-hover:translate-x-1">Security</span></Link></li></ul></div></div><div className="border-t border-white/10 pt-8"><div className="flex flex-col items-center justify-between space-y-4 lg:flex-row lg:space-y-0"><div className="flex flex-col items-center space-y-2 sm:flex-row sm:space-x-6 sm:space-y-0"><p className="text-sm text-slate-300">© {" "}2026{" "} {" "}{brandName}{" "}. All rights reserved.</p><div className="flex items-center space-x-2 text-xs text-slate-400"><i className="fa-solid fa-lock text-blue-400" /><span>Encrypted connection</span><span className="text-slate-600">•</span><i className="fa-solid fa-shield-halved text-green-400" /><span>Account controls</span></div></div><div className="flex flex-wrap justify-center space-x-6 lg:justify-end"><Link href="/privacy" className="text-sm text-slate-300 transition hover:text-white hover:underline">Privacy Policy</Link><Link href="/terms" className="text-sm text-slate-300 transition hover:text-white hover:underline">Terms of Service</Link><Link href="/" className="text-sm text-slate-300 transition hover:text-white hover:underline">Sitemap</Link></div></div></div></div></footer>
+    <footer className="relative mb-12 overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-slate-900 py-16 text-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 lg:mb-0">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -left-20 -top-20 h-40 w-40 animate-pulse rounded-full blur-3xl"
+          style={{ background: "#0ea5e933" }}
+        />
+        <div
+          className="absolute -right-20 top-1/2 h-32 w-32 animate-pulse rounded-full blur-2xl"
+          style={{ background: "#14b8a633", animationDelay: "1s" }}
+        />
+      </div>
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-12 grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <div className="mb-6 flex items-center gap-2">
+              <span
+                className="grid h-10 w-10 place-items-center overflow-hidden rounded-full text-lg font-bold text-white"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- platform logo asset */}
+                <img src="/logo.jpeg" alt={brandName} className="h-full w-full object-cover" />
+              </span>
+              <span className="text-lg font-bold">{brandName}</span>
+            </div>
+            <p className="mb-6 text-sm leading-relaxed text-slate-300">
+              Account tools for transfers, cards, activity history, and support.
+            </p>
+            <div className="flex space-x-3">
+              <Link
+                href="/#"
+                className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+                }}
+              >
+                <i className="fa-brands fa-facebook-f text-sm" />
+              </Link>
+              <Link
+                href="/#"
+                className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+                }}
+              >
+                <i className="fa-brands fa-twitter text-sm" />
+              </Link>
+              <Link
+                href="/#"
+                className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+                }}
+              >
+                <i className="fa-brands fa-linkedin-in text-sm" />
+              </Link>
+              <Link
+                href="/#"
+                className="grid h-10 w-10 place-items-center rounded-2xl text-white shadow-lg transition-all hover:-translate-y-1 hover:scale-110"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))",
+                }}
+              >
+                <i className="fa-brands fa-instagram text-sm" />
+              </Link>
+            </div>
+          </div>
+          <div>
+            <h4 className="mb-6 flex items-center font-bold text-white">
+              <span className="mr-3 h-6 w-1 rounded-full" style={{ background: "#0ea5e9" }} /> Quick
+              Links
+            </h4>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/about"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#0ea5e9" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">About Us</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/personal"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#0ea5e9" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">Services</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/grants"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#0ea5e9" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">
+                    Grants &amp; Aid
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/faq"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#0ea5e9" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">FAQ</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#0ea5e9" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">Contact</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-6 flex items-center font-bold text-white">
+              <span className="mr-3 h-6 w-1 rounded-full" style={{ background: "#14b8a6" }} />{" "}
+              Services
+            </h4>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/services/personal"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#14b8a6" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">
+                    Personal Accounts
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/business"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#14b8a6" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">
+                    Business Accounts
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/loans"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#14b8a6" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">
+                    Loans &amp; Credit
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/cards"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#14b8a6" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">Cards</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-6 flex items-center font-bold text-white">
+              <span className="mr-3 h-6 w-1 rounded-full" style={{ background: "#a855f7" }} />{" "}
+              Member Services
+            </h4>
+            <ul className="space-y-3">
+              <li>
+                <Link
+                  href="/auth/login"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#a855f7" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">
+                    Online Accounts
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/apps"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#a855f7" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">Mobile App</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/faq"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#a855f7" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">
+                    Help &amp; FAQ
+                  </span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms"
+                  className="group flex items-center text-sm text-slate-300 transition hover:text-white"
+                >
+                  <i
+                    className="fa-solid fa-chevron-right mr-3 text-xs transition-transform group-hover:translate-x-1"
+                    style={{ color: "#a855f7" }}
+                  />
+                  <span className="transition-transform group-hover:translate-x-1">Security</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-white/10 pt-8">
+          <div className="flex flex-col items-center justify-between space-y-4 lg:flex-row lg:space-y-0">
+            <div className="flex flex-col items-center space-y-2 sm:flex-row sm:space-x-6 sm:space-y-0">
+              <p className="text-sm text-slate-300">© 2026 {brandName} . All rights reserved.</p>
+              <div className="flex items-center space-x-2 text-xs text-slate-400">
+                <i className="fa-solid fa-lock text-blue-400" />
+                <span>Encrypted connection</span>
+                <span className="text-slate-600">•</span>
+                <i className="fa-solid fa-shield-halved text-green-400" />
+                <span>Account controls</span>
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center space-x-6 lg:justify-end">
+              <Link
+                href="/privacy"
+                className="text-sm text-slate-300 transition hover:text-white hover:underline"
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/terms"
+                className="text-sm text-slate-300 transition hover:text-white hover:underline"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                href="/"
+                className="text-sm text-slate-300 transition hover:text-white hover:underline"
+              >
+                Sitemap
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }

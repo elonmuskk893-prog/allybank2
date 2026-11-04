@@ -24,18 +24,14 @@ const lastUpdated = new Date().toLocaleDateString("en-US", {
 export default function TermsPage() {
   const { site } = useSite();
   const siteData = site as SiteWithContact | null;
-  const bankName = siteData?.name ?? "Online Banking";
+  const bankName = siteData?.name ?? "Account Dashboard";
   const contact = siteData?.contact ?? {
     email: null,
     phone: null,
     address: null,
     hours: null,
   };
-  const email = (
-    contact.email ||
-    siteData?.support_emails?.[0] ||
-    ""
-  ).trim();
+  const email = (contact.email || siteData?.support_emails?.[0] || "").trim();
   const hasContact = !!(email || contact.phone || contact.address);
 
   return (
@@ -67,8 +63,7 @@ export default function TermsPage() {
                 Terms of Service
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Please read these terms carefully before using our online account
-                services
+                Please read these terms carefully before using our online account services
               </p>
             </div>
           </div>
@@ -80,12 +75,11 @@ export default function TermsPage() {
               <div className="prose prose-lg dark:prose-invert max-w-none">
                 <h2>1. Acceptance of Terms</h2>
                 <p>
-                  By accessing and using {bankName} online account services, you accept
-                  and agree to be bound by the terms and provision of this
-                  agreement.
+                  By accessing and using this online account platform, you accept and agree to be
+                  bound by the terms and provisions of this agreement.
                 </p>
                 <h2>2. Account Opening and Maintenance</h2>
-                <p>To open an account with {bankName}, you must:</p>
+                <p>To open an account, you must:</p>
                 <ul>
                   <li>Be at least 18 years of age</li>
                   <li>Provide accurate and complete information</li>
@@ -94,56 +88,51 @@ export default function TermsPage() {
                 </ul>
                 <h2>3. Account Security</h2>
                 <p>
-                  You are responsible for maintaining the confidentiality of
-                  your account information and password. You agree to notify us
-                  immediately of any unauthorized use of your account.
+                  You are responsible for maintaining the confidentiality of your account
+                  information and password. You agree to notify us immediately of any unauthorized
+                  use of your account.
                 </p>
                 <h2>4. Services and Fees</h2>
                 <p>
-                  {bankName} provides online account services including but not
+                  This online account platform provides online account services including but not
                   limited to:
                 </p>
                 <ul>
-                  <li>Savings and checking accounts</li>
                   <li>Online account access</li>
-                  <li>Loan services</li>
-                  <li>Investment products</li>
-                  <li>Credit cards</li>
+                  <li>Transfers and payments</li>
+                  <li>Cards and account statements</li>
                 </ul>
                 <h2>5. Privacy and Data Protection</h2>
                 <p>
-                  We are committed to protecting your privacy and personal
-                  information. Please review our Privacy Policy for detailed
-                  information about how we collect, use, and protect your data.
+                  We are committed to protecting your privacy and personal information. Please
+                  review our Privacy Policy for detailed information about how we collect, use, and
+                  protect your data.
                 </p>
                 <h2>6. Electronic Communications</h2>
                 <p>
-                  By using our services, you consent to receive communications
-                  from us electronically, including account statements, notices,
-                  and other disclosures.
+                  By using our services, you consent to receive communications from us
+                  electronically, including account statements, notices, and other disclosures.
                 </p>
                 <h2>7. Limitation of Liability</h2>
                 <p>
-                  {bankName} shall not be liable for any indirect, incidental,
-                  special, consequential, or punitive damages arising from your
-                  use of our services.
+                  {bankName} shall not be liable for any indirect, incidental, special,
+                  consequential, or punitive damages arising from your use of our services.
                 </p>
                 <h2>8. Modifications to Terms</h2>
                 <p>
-                  We reserve the right to modify these terms at any time. We
-                  will notify you of any changes by posting the new terms on our
-                  website.
+                  We reserve the right to modify these terms at any time. We will notify you of any
+                  changes by posting the new terms on our website.
                 </p>
                 <h2>9. Governing Law</h2>
                 <p>
-                  These terms shall be governed by and construed in accordance
-                  with the laws of the jurisdiction in which {bankName}
+                  These terms shall be governed by and construed in accordance with the laws of the
+                  jurisdiction in which {bankName}
                   operates.
                 </p>
                 <h2>10. Contact Information</h2>
                 <p>
-                  If you have any questions about these Terms of Service, please
-                  contact us{hasContact ? " at:" : " through the contact page on this site."}
+                  If you have any questions about these Terms of Service, please contact us
+                  {hasContact ? " at:" : " through the contact page on this site."}
                 </p>
                 {hasContact && (
                   <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mt-4">

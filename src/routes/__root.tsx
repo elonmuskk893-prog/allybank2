@@ -1,12 +1,8 @@
-import {
-  HeadContent,
-  Outlet,
-  Scripts,
-  createRootRouteWithContext,
-} from "@tanstack/react-router";
+import { HeadContent, Outlet, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LiveChat } from "@/components/live-chat";
+import { SmartsuppChat } from "@/components/smartsupp-chat";
 import { renderErrorPage } from "@/lib/error-page";
 import "@/styles.css";
 
@@ -15,22 +11,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: " secure access" },
+      { title: "Account Dashboard — Secure Access" },
       {
         name: "description",
-        content:
-          "Manage transfers, cards, loans, and account activity in one secure place.",
+        content: "Manage transfers, cards, and account activity in one secure place.",
       },
-      { property: "og:title", content: "Online Banking — Secure Account Access" },
+      { property: "og:title", content: "Account Dashboard — Secure Access" },
       {
         property: "og:description",
-        content:
-          "Transfers, cards, loans, and account history in one secure place.",
+        content: "Transfers, cards, and account activity in one secure place.",
       },
       { property: "og:type", content: "website" },
       { name: "theme-color", content: "#0ea5e9" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "Online Banking" },
+      { name: "apple-mobile-web-app-title", content: "Account Dashboard" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -72,6 +66,7 @@ function RootDocument() {
         <ThemeProvider>
           <Outlet />
           <LiveChat />
+          <SmartsuppChat />
         </ThemeProvider>
         <Scripts />
       </body>
