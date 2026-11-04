@@ -370,7 +370,7 @@ function KycFlow() {
         <SectionCard
           icon="fa-solid fa-briefcase"
           title="Employment & identity"
-          subtitle="Helps us verify you and is required for some banking services."
+          subtitle="Helps us verify you and is required for some account features."
           brand={brand}
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

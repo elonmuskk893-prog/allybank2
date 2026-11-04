@@ -152,15 +152,17 @@ function SettingsFlow() {
                 <div className="flex flex-col items-center text-center">
                   <div className="relative mb-3">
                     <div className="h-16 w-16 overflow-hidden rounded-2xl border-2 border-white/50 bg-white shadow-lg">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- external avatar URL, parity requires plain img */}
-                      <img
-                        src={
-                          photoUrl ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(`${first} ${last}`)}&background=random`
-                        }
-                        alt={first}
-                        className="h-full w-full object-cover"
-                      />
+                      {photoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- user-provided avatar
+                        <img src={photoUrl} alt={first} className="h-full w-full object-cover" />
+                      ) : (
+                        <span
+                          className="grid h-full w-full place-items-center text-lg font-semibold text-white"
+                          style={{ background: "var(--brand)" }}
+                        >
+                          {(first || "?").slice(0, 1).toUpperCase()}
+                        </span>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -246,7 +248,7 @@ function SettingsFlow() {
                   Need Assistance?
                 </h3>
                 <p className="mb-3 text-xs text-gray-700 dark:text-gray-300">
-                  Our expert support team is available 24/7
+                  Contact our support team for help with your account
                 </p>
                 <Link
                   href="/support"

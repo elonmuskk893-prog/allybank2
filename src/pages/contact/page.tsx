@@ -65,8 +65,8 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="mx-auto max-w-3xl text-xl text-gray-300">
-              We&apos;re here to help with all your banking needs. Reach out to
-              us anytime.
+              We&apos;re here to help with account questions. Reach out to
+              us when you need help.
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function ContactPage() {
                           {email}
                         </p>
                         <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Response within 24 hours
+                          We reply as soon as possible
                         </p>
                       </div>
                     </div>
@@ -148,7 +148,7 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h3 className="mb-1 font-semibold text-gray-900 dark:text-white">
-                          Banking Hours
+                          Support Hours
                         </h3>
                         <p className="whitespace-pre-line text-gray-600 dark:text-gray-300">
                           {contact.hours}
@@ -168,10 +168,10 @@ export default function ContactPage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-8 text-center">
               <h2 className="mb-4 text-2xl font-bold text-gray-900 dark:text-white">
-                Find Our Locations
+                Our Location
               </h2>
               <p className="text-gray-600 dark:text-gray-300">
-                Visit any of our convenient branch locations
+                Address details are shown here when provided by the site operator.
               </p>
             </div>
             <div className="flex h-96 items-center justify-center rounded-2xl bg-gray-300 dark:bg-gray-700">

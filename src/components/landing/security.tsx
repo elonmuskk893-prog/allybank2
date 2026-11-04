@@ -1,7 +1,114 @@
-// Server component. Static marketing section reproduced from the original site.
 import Link from "@/lib/next/link";
+
+const controls = [
+  {
+    icon: "fa-lock",
+    title: "Encrypted connections",
+    text: "Traffic between your browser and the application is encrypted in transit.",
+  },
+  {
+    icon: "fa-mobile-alt",
+    title: "Two-factor authentication",
+    text: "Add an email verification step to help protect access to your account.",
+  },
+  {
+    icon: "fa-fingerprint",
+    title: "Session and PIN controls",
+    text: "Review active sessions, change your password, and manage your account PIN.",
+  },
+  {
+    icon: "fa-eye",
+    title: "Activity history",
+    text: "Review account activity and transaction history from your dashboard.",
+  },
+  {
+    icon: "fa-credit-card",
+    title: "Card controls",
+    text: "Freeze or unfreeze supported cards and review card activity when needed.",
+  },
+  {
+    icon: "fa-key",
+    title: "Phishing awareness",
+    text: "We never ask for your password by email. Report unexpected messages to support.",
+  },
+];
+
 export function SecuritySection() {
   return (
-    <section className="py-20 bg-gradient-to-br from-slate-50 to-blue-50"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="text-center mb-16"><div className="inline-flex items-center space-x-2 bg-green-100 text-green-700 rounded-full px-4 py-2 text-sm font-semibold mb-4"><i className="fas fa-shield-alt" /><span>Bank-Level Security</span></div><h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Your Money is Safe With Us</h2><p className="text-xl text-slate-600 max-w-3xl mx-auto">We use the same security measures as major banks to protect your money and personal information</p></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"><div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group"><div className="relative mb-6"><div className="absolute inset-0 bg-green-500/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><i className="fas fa-umbrella text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">FDIC Insured</h3><p className="text-slate-600 mb-4 leading-relaxed">Your deposits are FDIC insured up to $250,000 per depositor, giving you peace of mind that your money is protected.</p><div className="bg-green-50 rounded-xl p-3 text-center"><p className="text-green-700 font-semibold text-sm">Coverage up to $250,000</p></div></div><div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group"><div className="relative mb-6"><div className="absolute inset-0 bg-blue-500/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><i className="fas fa-lock text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">256-bit Encryption</h3><p className="text-slate-600 mb-4 leading-relaxed">Military-grade encryption protects all your data and transactions. Your information is always secure and private.</p><div className="bg-blue-50 rounded-xl p-3 text-center"><p className="text-blue-700 font-semibold text-sm">Bank-level security</p></div></div><div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group"><div className="relative mb-6"><div className="absolute inset-0 bg-purple-500/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><i className="fas fa-mobile-alt text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">2FA Protection</h3><p className="text-slate-600 mb-4 leading-relaxed">Extra layer of security with two-factor authentication. Even if someone has your password, they can&apos;t access your account.</p><div className="bg-purple-50 rounded-xl p-3 text-center"><p className="text-purple-700 font-semibold text-sm">Always optional, always secure</p></div></div><div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group"><div className="relative mb-6"><div className="absolute inset-0 bg-red-500/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><i className="fas fa-eye text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">24/7 Fraud Monitoring</h3><p className="text-slate-600 mb-4 leading-relaxed">Advanced AI systems monitor your accounts 24/7 for suspicious activity and alert you immediately to potential fraud.</p><div className="bg-red-50 rounded-xl p-3 text-center"><p className="text-red-700 font-semibold text-sm">Real-time alerts</p></div></div><div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group"><div className="relative mb-6"><div className="absolute inset-0 bg-teal-500/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><i className="fas fa-fingerprint text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Biometric Login</h3><p className="text-slate-600 mb-4 leading-relaxed">Secure and convenient access with fingerprint or face recognition. No more forgotten passwords, just instant access.</p><div className="bg-teal-50 rounded-xl p-3 text-center"><p className="text-teal-700 font-semibold text-sm">Fast &amp; secure</p></div></div><div className="bg-white rounded-3xl p-8 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300 group"><div className="relative mb-6"><div className="absolute inset-0 bg-yellow-500/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300"><i className="fas fa-credit-card text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Smart Card Security</h3><p className="text-slate-600 mb-4 leading-relaxed">Instant card freeze/unfreeze, real-time transaction alerts, and EMV chip technology protect you from unauthorized use.</p><div className="bg-yellow-50 rounded-xl p-3 text-center"><p className="text-yellow-700 font-semibold text-sm">Full control anytime</p></div></div></div><div className="bg-white rounded-3xl shadow-xl p-8 border border-slate-200 mb-12"><div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center"><div><div className="text-3xl font-bold text-green-600 mb-2">0</div><p className="text-sm text-slate-600 font-medium">Data Breaches</p><p className="text-xs text-slate-500 mt-1">Since 2010</p></div><div><div className="text-3xl font-bold text-blue-600 mb-2">99.9%</div><p className="text-sm text-slate-600 font-medium">Uptime</p><p className="text-xs text-slate-500 mt-1">Last 5 years</p></div><div><div className="text-3xl font-bold text-purple-600 mb-2">30s</div><p className="text-sm text-slate-600 font-medium">Avg Response Time</p><p className="text-xs text-slate-500 mt-1">For security alerts</p></div><div><div className="text-3xl font-bold text-teal-600 mb-2">24/7</div><p className="text-sm text-slate-600 font-medium">Monitoring</p><p className="text-xs text-slate-500 mt-1">Always protected</p></div></div></div><div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12"><div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 border border-blue-200"><div className="flex items-center mb-4"><div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4"><i className="fas fa-certificate text-blue-600 text-xl" /></div><h3 className="text-xl font-bold text-slate-900">Regulatory Compliance</h3></div><p className="text-slate-600 mb-4 leading-relaxed">We are fully compliant with all banking regulations including Know Your Customer (KYC), Anti-Money Laundering (AML), and Bank Secrecy Act requirements.</p><ul className="space-y-2"><li className="flex items-center text-sm text-slate-600"><i className="fas fa-check-circle text-green-500 mr-2" />Federal Deposit Insurance Corporation (FDIC)</li><li className="flex items-center text-sm text-slate-600"><i className="fas fa-check-circle text-green-500 mr-2" />Office of the Comptroller of the Currency (OCC)</li><li className="flex items-center text-sm text-slate-600"><i className="fas fa-check-circle text-green-500 mr-2" />Consumer Financial Protection Bureau (CFPB)</li></ul></div><div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-8 border border-green-200"><div className="flex items-center mb-4"><div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4"><i className="fas fa-award text-green-600 text-xl" /></div><h3 className="text-xl font-bold text-slate-900">Certifications</h3></div><p className="text-slate-600 mb-4 leading-relaxed">Our security practices and systems are independently audited and certified by leading industry organizations.</p><ul className="space-y-2"><li className="flex items-center text-sm text-slate-600"><i className="fas fa-check-circle text-green-500 mr-2" />SOC 2 Type II Certified</li><li className="flex items-center text-sm text-slate-600"><i className="fas fa-check-circle text-green-500 mr-2" />ISO 27001 Information Security</li><li className="flex items-center text-sm text-slate-600"><i className="fas fa-check-circle text-green-500 mr-2" />PCI DSS Level 1 Compliant</li></ul></div></div><div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-3xl p-8 text-white"><div className="text-center mb-8"><h3 className="text-2xl font-bold mb-4">Stay Safe Online</h3><p className="text-slate-300">Tips to keep your account secure</p></div><div className="grid grid-cols-1 md:grid-cols-3 gap-6"><div className="text-center"><div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-key text-white text-2xl" /></div><h4 className="font-semibold mb-2">Strong Passwords</h4><p className="text-sm text-slate-300">Use unique, complex passwords and change them regularly</p></div><div className="text-center"><div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-link text-white text-2xl" /></div><h4 className="font-semibold mb-2">Spot Phishing</h4><p className="text-sm text-slate-300">Never click suspicious links or share personal info</p></div><div className="text-center"><div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-sync text-white text-2xl" /></div><h4 className="font-semibold mb-2">Keep Updated</h4><p className="text-sm text-slate-300">Update your apps and devices for latest security</p></div></div><div className="mt-8 text-center"><Link href="/#" className="inline-flex items-center px-6 py-3 bg-white text-slate-800 font-semibold rounded-xl hover:bg-slate-100 transition-colors"><i className="fas fa-book mr-2" /> Security Center</Link></div></div></div></section>
+    <section className="bg-gradient-to-br from-slate-50 to-blue-50 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
+          <div className="mb-4 inline-flex items-center space-x-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+            <i className="fas fa-shield-alt" />
+            <span>Account security</span>
+          </div>
+          <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
+            Security controls you can use
+          </h2>
+          <p className="mx-auto max-w-3xl text-xl text-slate-600">
+            These are the safeguards available in your account. No online service can guarantee
+            absolute security, so keep your credentials private and report anything unusual.
+          </p>
+        </div>
+        <div className="mb-12 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {controls.map((item) => (
+            <div
+              key={item.title}
+              className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:shadow-xl"
+            >
+              <div className="mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-r from-blue-500 to-teal-500 shadow-lg">
+                <i className={`fas ${item.icon} text-2xl text-white`} />
+              </div>
+              <h3 className="mb-3 text-xl font-bold text-slate-900">{item.title}</h3>
+              <p className="leading-relaxed text-slate-600">{item.text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-3xl bg-gradient-to-r from-slate-800 to-slate-900 p-8 text-white">
+          <div className="mb-8 text-center">
+            <h3 className="mb-4 text-2xl font-bold">Protect your account</h3>
+            <p className="text-slate-300">Simple habits that make a difference</p>
+          </div>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <div className="text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-white/10">
+                <i className="fas fa-key text-2xl text-white" />
+              </div>
+              <h4 className="mb-2 font-semibold">Use a unique password</h4>
+              <p className="text-sm text-slate-300">
+                Do not reuse the password you use for other websites.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-white/10">
+                <i className="fas fa-link text-2xl text-white" />
+              </div>
+              <h4 className="mb-2 font-semibold">Check links before signing in</h4>
+              <p className="text-sm text-slate-300">
+                Confirm the address in your browser before entering credentials.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-white/10">
+                <i className="fas fa-sync text-2xl text-white" />
+              </div>
+              <h4 className="mb-2 font-semibold">Keep your devices updated</h4>
+              <p className="text-sm text-slate-300">
+                Install security updates for your browser and operating system.
+              </p>
+            </div>
+          </div>
+          <div className="mt-8 text-center">
+            <Link
+              href="/contact"
+              className="inline-flex items-center rounded-xl bg-white px-6 py-3 font-semibold text-slate-800 transition-colors hover:bg-slate-100"
+            >
+              <i className="fas fa-headset mr-2" />
+              Contact support
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

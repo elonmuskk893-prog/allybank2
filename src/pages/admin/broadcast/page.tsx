@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AdminShell } from "@/components/admin/admin-shell";
+import { AdminShell, useAdmin } from "@/components/admin/admin-shell";
 import { adminFetch } from "@/lib/api";
 import { Field, inputCls, Modal } from "@/components/admin/ui";
 import { SafeHtml } from "@/components/dashboard/safe-html";
@@ -33,6 +33,7 @@ function displayName(u: PickerUser) {
 }
 
 function BroadcastAdmin() {
+  const { slug, siteName } = useAdmin();
   const [mode, setMode] = useState<"segment" | "specific">("segment");
   const [users, setUsers] = useState<PickerUser[]>([]);
   const [search, setSearch] = useState("");
@@ -50,11 +51,11 @@ function BroadcastAdmin() {
 
   const loadUsers = useCallback(async () => {
     const res = await adminFetch<{ users: PickerUser[] }>(
-      "teslamodel",
+      slug,
       `/users?q=${encodeURIComponent(search)}`,
     );
     if (res.ok && res.data?.users) setUsers(res.data.users);
-  }, [search]);
+  }, [search, slug]);
 
   useEffect(() => {
     if (mode !== "specific") return;
@@ -83,7 +84,7 @@ function BroadcastAdmin() {
     setError(null);
     setResult(null);
     const res = await adminFetch<{ recipients: number; emailed: number; segment: string }>(
-      "teslamodel",
+      slug,
       "/broadcast",
       {
         method: "POST",
@@ -225,7 +226,7 @@ function BroadcastAdmin() {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               className={`${inputCls} font-mono text-xs`}
-              placeholder={`<p>Dear member,</p><p>Our new <strong>instant transfers</strong> are live.</p><ul><li>Faster settlements</li><li>No hidden fees</li></ul>`}
+              placeholder={`<p>Dear member,</p><p>Please review the latest account update.</p><ul><li>Review the details in your dashboard</li><li>Contact support with any questions</li></ul>`}
             />
           ) : (
             <textarea
@@ -233,7 +234,7 @@ function BroadcastAdmin() {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               className={inputCls}
-              placeholder="We'll be upgrading our banking core on Saturday between 02:00–04:00 UTC."
+              placeholder="We'll be performing scheduled maintenance on Saturday between 02:00–04:00 UTC."
             />
           )}
           {useHtml && (
@@ -284,7 +285,7 @@ function BroadcastAdmin() {
           <div className="rounded-2xl border border-gray-200/70 bg-white p-4 shadow-sm dark:border-gray-700/60 dark:bg-gray-900">
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--brand)" }}>
-                <i className="fa-solid fa-bullhorn" /> {`AllyBank · Announcement`}
+                <i className="fa-solid fa-bullhorn" /> {`${siteName} · Announcement`}
               </span>
             </div>
             <div className="mt-2 font-semibold text-gray-900 dark:text-white">{title}</div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { AdminShell } from "@/components/admin/admin-shell";
+import { AdminShell, useAdmin } from "@/components/admin/admin-shell";
 import { adminFetch } from "@/lib/api";
 import { Field, inputCls } from "@/components/admin/ui";
 
@@ -16,12 +16,9 @@ interface Settings {
   site: SiteRow;
   contact: Record<string, unknown>;
   live_chat: {
-    provider?: string;
     enabled?: boolean;
-    key?: string;
     position?: string;
     offset_bottom?: number;
-    custom_code?: string;
     welcome_message?: string;
     title?: string;
     dashboard_only?: boolean;
@@ -80,19 +77,17 @@ function Toggle({
 }
 
 function SettingsAdmin() {
+  const { slug } = useAdmin();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [general, setGeneral] = useState({ name: "", brand_color: "#0ea5e9", logo_url: "" });
   const [contact, setContact] = useState<Record<string, string>>({});
   const [chat, setChat] = useState({
-    provider: "builtin",
     enabled: false,
-    key: "",
     position: "bottom-right",
     offset_bottom: 96,
     welcome_message: "Hi! How can we help you today?",
     title: "Live support",
     dashboard_only: true,
-    custom_code: "",
   });
   const [email, setEmail] = useState({ ...EMPTY_EMAIL });
   const [testTo, setTestTo] = useState("");
@@ -103,7 +98,7 @@ function SettingsAdmin() {
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const res = await adminFetch<Settings>("teslamodel", "/settings");
+    const res = await adminFetch<Settings>(slug, "/settings");
     if (!res.ok || !res.data) return;
     const s = res.data;
     setSettings(s);
@@ -114,22 +109,19 @@ function SettingsAdmin() {
     });
     setContact(Object.fromEntries(CONTACT_FIELDS.map(([k]) => [k, String(s.contact?.[k] ?? "")])));
     setChat({
-      provider: String(s.live_chat?.provider ?? "builtin"),
       enabled: Boolean(s.live_chat?.enabled),
-      key: String(s.live_chat?.key ?? ""),
       position: String(s.live_chat?.position ?? "bottom-right"),
       offset_bottom: Number(s.live_chat?.offset_bottom ?? 96),
       welcome_message: String(s.live_chat?.welcome_message ?? "Hi! How can we help you today?"),
       title: String(s.live_chat?.title ?? "Live support"),
       dashboard_only: s.live_chat?.dashboard_only !== false,
-      custom_code: String(s.live_chat?.custom_code ?? ""),
     });
     setEmail({
       ...EMPTY_EMAIL,
       ...Object.fromEntries(Object.entries(s.email ?? {}).map(([k, v]) => [k, String(v ?? "")])),
     });
     setFeatures({ maintenance_mode: Boolean(s.features?.maintenance_mode) });
-  }, []);
+  }, [slug]);
 
   useEffect(() => {
     load();
@@ -138,7 +130,7 @@ function SettingsAdmin() {
   const save = async (group: string, value: Record<string, unknown>) => {
     setBusy(true);
     setError(null);
-    const res = await adminFetch("teslamodel", "/settings", {
+    const res = await adminFetch(slug, "/settings", {
       method: "PUT",
       body: JSON.stringify({ group, value }),
     });
@@ -231,7 +223,7 @@ function SettingsAdmin() {
           checked={chat.enabled}
           onChange={(v) => setChat({ ...chat, enabled: v })}
           label="Enable live chat"
-          hint="Turn the chat bubble on or off across the site."
+          hint="Messages are handled by the built-in support inbox."
         />
         <Toggle
           checked={chat.dashboard_only}
@@ -240,13 +232,6 @@ function SettingsAdmin() {
           hint="Keeps the bubble off the homepage, login and registration pages."
         />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label="Provider">
-            <select value={chat.provider} onChange={(e) => setChat({ ...chat, provider: e.target.value })} className={inputCls}>
-              <option value="builtin">Built-in chat (messages go to Tickets)</option>
-              <option value="smartsupp">Smartsupp</option>
-              <option value="custom">Other provider (paste embed code)</option>
-            </select>
-          </Field>
           <Field label="Bubble position">
             <select value={chat.position} onChange={(e) => setChat({ ...chat, position: e.target.value })} className={inputCls}>
               <option value="bottom-right">Bottom right</option>
@@ -273,33 +258,6 @@ function SettingsAdmin() {
             className={inputCls}
           />
         </Field>
-        {chat.provider === "custom" && (
-          <Field label="Embed code">
-            <textarea
-              rows={7}
-              value={chat.custom_code}
-              onChange={(e) => setChat({ ...chat, custom_code: e.target.value })}
-              className={`${inputCls} font-mono text-xs`}
-              placeholder="Paste the full snippet from Tawk.to, Crisp, Intercom, Zendesk, Chatway…"
-            />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Pasted exactly as your provider gives it. It loads once per page, is removed again when
-              you disable chat, and is lifted above the mobile bottom navigation.
-            </p>
-          </Field>
-        )}
-
-        {chat.provider === "smartsupp" && (
-          <Field label="Smartsupp key or install code">
-            <textarea
-              rows={4}
-              value={chat.key}
-              onChange={(e) => setChat({ ...chat, key: e.target.value })}
-              className={`${inputCls} font-mono text-xs`}
-              placeholder='_smartsupp.key = "abc123def456…";   — or just abc123def456…'
-            />
-          </Field>
-        )}
         <button
           disabled={busy}
           onClick={() => save("live_chat", chat)}
@@ -377,7 +335,7 @@ function SettingsAdmin() {
             onClick={async () => {
               setBusy(true);
               setTestState(null);
-              const res = await adminFetch("teslamodel", "/test-email", {
+              const res = await adminFetch(slug, "/test-email", {
                 method: "POST",
                 body: JSON.stringify({ to: testTo }),
               });

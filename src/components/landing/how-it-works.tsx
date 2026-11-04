@@ -1,7 +1,123 @@
-// Server component. Static marketing section reproduced from the original site.
 import Link from "@/lib/next/link";
+
+const STEPS = [
+  {
+    n: "1",
+    title: "Create an Account",
+    body: "Register with your name, email and a password.",
+    icon: "fa-user-plus",
+    note: "Start online",
+  },
+  {
+    n: "2",
+    title: "Verify Your Email",
+    body: "Confirm your email address to secure your account.",
+    icon: "fa-envelope-circle-check",
+    note: "Email verification",
+  },
+  {
+    n: "3",
+    title: "Complete Verification",
+    body: "If required, submit identity details for review.",
+    icon: "fa-id-card",
+    note: "KYC may apply",
+  },
+  {
+    n: "4",
+    title: "Use Your Account",
+    body: "Review your dashboard, deposit methods and available features.",
+    icon: "fa-gauge-high",
+    note: "Features vary",
+  },
+] as const;
+
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="text-center mb-16"><div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-4 py-2 text-sm font-semibold mb-4"><i className="fas fa-route" /><span>Simple Process</span></div><h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Get Started in 4 Simple Steps</h2><p className="text-xl text-slate-600 max-w-3xl mx-auto">Opening your account is quick, easy, and secure. Start banking better in minutes.</p></div><div className="relative"><div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-200 via-blue-300 to-blue-200 transform -translate-y-1/2" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative"><div className="text-center lg:text-left"><div className="relative mb-6"><div className="relative inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg"><span className="text-2xl font-bold text-white">1</span></div></div><div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300"><div className="flex items-center mb-4 lg:justify-start justify-center"><div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-4"><i className="fas fa-edit text-blue-600 text-xl" /></div><h3 className="text-xl font-bold text-slate-900">Apply Online</h3></div><p className="text-slate-600 leading-relaxed">Fill out our simple online application form. It only takes 2 minutes and requires basic information.</p><div className="mt-4 flex items-center text-sm text-blue-600 font-semibold"><i className="fas fa-clock mr-2" />2 minutes</div></div></div><div className="text-center lg:text-left"><div className="relative mb-6"><div className="relative inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-full shadow-lg"><span className="text-2xl font-bold text-white">2</span></div></div><div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300"><div className="flex items-center mb-4 lg:justify-start justify-center"><div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mr-4"><i className="fas fa-user-check text-green-600 text-xl" /></div><h3 className="text-xl font-bold text-slate-900">Verify Identity</h3></div><p className="text-slate-600 leading-relaxed">Securely verify your identity using government-issued ID. Our process is fast and protects your information.</p><div className="mt-4 flex items-center text-sm text-green-600 font-semibold"><i className="fas fa-shield-alt mr-2" />Bank-level security</div></div></div><div className="text-center lg:text-left"><div className="relative mb-6"><div className="relative inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-full shadow-lg"><span className="text-2xl font-bold text-white">3</span></div></div><div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300"><div className="flex items-center mb-4 lg:justify-start justify-center"><div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-4"><i className="fas fa-piggy-bank text-purple-600 text-xl" /></div><h3 className="text-xl font-bold text-slate-900">Fund Account</h3></div><p className="text-slate-600 leading-relaxed">Add funds to your new account using multiple options - bank transfer, debit card, or wire transfer.</p><div className="mt-4 flex items-center text-sm text-purple-600 font-semibold"><i className="fas fa-coins mr-2" />Multiple funding options</div></div></div><div className="text-center lg:text-left"><div className="relative mb-6"><div className="relative inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full shadow-lg"><span className="text-2xl font-bold text-white">4</span></div></div><div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300"><div className="flex items-center mb-4 lg:justify-start justify-center"><div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mr-4"><i className="fas fa-rocket text-yellow-600 text-xl" /></div><h3 className="text-xl font-bold text-slate-900">Start Banking</h3></div><p className="text-slate-600 leading-relaxed">Access your account immediately and enjoy all features. Your debit card arrives in 5-7 business days.</p><div className="mt-4 flex items-center text-sm text-yellow-600 font-semibold"><i className="fas fa-bolt mr-2" />Instant access</div></div></div></div></div><div className="mt-16 bg-white rounded-3xl shadow-xl p-8 border border-slate-200"><div className="grid grid-cols-1 md:grid-cols-3 gap-8"><div className="text-center"><div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-check-circle text-green-600 text-2xl" /></div><h4 className="font-bold text-slate-900 mb-2">No Hidden Fees</h4><p className="text-sm text-slate-600">Transparent pricing with no surprise charges or hidden costs.</p></div><div className="text-center"><div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-tachometer-alt text-blue-600 text-2xl" /></div><h4 className="font-bold text-slate-900 mb-2">Fast Setup</h4><p className="text-sm text-slate-600">Complete the entire process in under 10 minutes from any device.</p></div><div className="text-center"><div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4"><i className="fas fa-headset text-purple-600 text-2xl" /></div><h4 className="font-bold text-slate-900 mb-2">Expert Support</h4><p className="text-sm text-slate-600">Our team is here to help you every step of the way.</p></div></div></div><div className="mt-12 text-center"><h3 className="text-2xl font-bold text-slate-900 mb-4">Ready to get started?</h3><p className="text-slate-600 mb-6 max-w-2xl mx-auto">Join thousands of customers who have already discovered better banking. No minimum deposit required.</p><div className="flex flex-col sm:flex-row gap-4 justify-center"><Link href="/auth/register" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"><i className="fas fa-rocket mr-2" /> Open Your Account Now</Link><Link href="/contact" className="inline-flex items-center px-8 py-4 bg-white border-2 border-slate-300 hover:border-slate-400 text-slate-700 font-semibold rounded-xl transition-all duration-300"><i className="fas fa-question-circle mr-2" /> Have Questions?</Link></div></div></div></section>
+    <section id="how-it-works" className="bg-gradient-to-br from-slate-50 to-blue-50 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
+          <div className="mb-4 inline-flex items-center space-x-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+            <i className="fas fa-route" />
+            <span>Getting Started</span>
+          </div>
+          <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
+            How Account Registration Works
+          </h2>
+          <p className="mx-auto max-w-3xl text-xl text-slate-600">
+            Registration and verification requirements depend on the features you use.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((step) => (
+            <div
+              key={step.n}
+              className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl"
+            >
+              <div className="mb-4 flex items-center">
+                <div className="mr-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-100">
+                  <i className={`fas ${step.icon} text-xl text-blue-600`} />
+                </div>
+                <div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Step {step.n}
+                  </span>
+                  <h3 className="text-lg font-bold text-slate-900">{step.title}</h3>
+                </div>
+              </div>
+              <p className="leading-relaxed text-slate-600">{step.body}</p>
+              <div className="mt-4 flex items-center text-sm font-semibold text-blue-600">
+                <i className="fas fa-circle-info mr-2" />
+                {step.note}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-16 rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            <div className="text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-green-100">
+                <i className="fas fa-lock text-2xl text-green-600" />
+              </div>
+              <h4 className="mb-2 font-bold text-slate-900">Secure Sign-In</h4>
+              <p className="text-sm text-slate-600">Passwords are hashed and sessions are protected.</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-blue-100">
+                <i className="fas fa-mobile-screen text-2xl text-blue-600" />
+              </div>
+              <h4 className="mb-2 font-bold text-slate-900">Any Device</h4>
+              <p className="text-sm text-slate-600">Use the dashboard from a modern desktop or mobile browser.</p>
+            </div>
+            <div className="text-center">
+              <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-purple-100">
+                <i className="fas fa-headset text-2xl text-purple-600" />
+              </div>
+              <h4 className="mb-2 font-bold text-slate-900">Support</h4>
+              <p className="text-sm text-slate-600">Contact support when you need help with your account.</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-12 text-center">
+          <h3 className="mb-4 text-2xl font-bold text-slate-900">Need an account?</h3>
+          <p className="mx-auto mb-6 max-w-2xl text-slate-600">
+            Review the registration requirements and create an account to continue.
+          </p>
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+            <Link
+              href="/auth/register"
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-teal-600 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-teal-700"
+            >
+              <i className="fas fa-user-plus mr-2" /> Create Account
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center rounded-xl border-2 border-slate-300 bg-white px-8 py-4 font-semibold text-slate-700 transition-all duration-300 hover:border-slate-400"
+            >
+              <i className="fas fa-question-circle mr-2" /> Contact Support
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

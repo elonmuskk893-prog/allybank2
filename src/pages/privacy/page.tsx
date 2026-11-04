@@ -24,7 +24,7 @@ const lastUpdated = new Date().toLocaleDateString("en-US", {
 export default function PrivacyPage() {
   const { site } = useSite();
   const siteData = site as SiteWithContact | null;
-  const bankName = siteData?.name ?? "Bank";
+  const bankName = siteData?.name ?? "Online Banking";
   const contact = siteData?.contact ?? {
     email: null,
     phone: null,
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
                 <h2>2. How We Use Your Information</h2>
                 <p>We use the information we collect to:</p>
                 <ul>
-                  <li>Provide and maintain our banking services</li>
+                  <li>Provide and maintain our online account services</li>
                   <li>Process transactions and manage your accounts</li>
                   <li>Comply with legal and regulatory requirements</li>
                   <li>Prevent fraud and enhance security</li>

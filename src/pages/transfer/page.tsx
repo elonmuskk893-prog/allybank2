@@ -434,10 +434,10 @@ Date: ${receipt.date.toLocaleString()}`;
           </div>
           <p className="ml-13 text-gray-600 dark:text-gray-400">
             {tab === "international"
-              ? "Send money worldwide securely"
+              ? "Review available international transfer options and fees"
               : tab === "member"
-                ? "Send money instantly to another member on this platform"
-                : "Send money to any local bank account securely and instantly"}
+                ? "Send a transfer to another member on this platform"
+                : "Send a transfer to a saved local beneficiary"}
           </p>
         </div>
 

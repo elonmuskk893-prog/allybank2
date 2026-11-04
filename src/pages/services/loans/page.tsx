@@ -1,350 +1,197 @@
 "use client";
 
-import Link from "@/lib/next/link";
 import { useState } from "react";
+import Link from "@/lib/next/link";
 import { PublicLayout } from "@/components/landing/public-layout";
-
-const TINTS = {
-  blue: {
-    bg: "bg-blue-100 dark:bg-blue-900/30",
-    iconFg: "text-blue-600 dark:text-blue-400",
-    rateFg: "font-semibold text-blue-600 dark:text-blue-400",
-    link: "text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 transition-colors",
-  },
-  green: {
-    bg: "bg-green-100 dark:bg-green-900/30",
-    iconFg: "text-green-600 dark:text-green-400",
-    rateFg: "font-semibold text-green-600 dark:text-green-400",
-    link: "text-green-600 dark:text-green-400 font-semibold hover:text-green-700 dark:hover:text-green-300 transition-colors",
-  },
-  purple: {
-    bg: "bg-purple-100 dark:bg-purple-900/30",
-    iconFg: "text-purple-600 dark:text-purple-400",
-    rateFg: "font-semibold text-purple-600 dark:text-purple-400",
-    link: "text-purple-600 dark:text-purple-400 font-semibold hover:text-purple-700 dark:hover:text-purple-300 transition-colors",
-  },
-  orange: {
-    bg: "bg-orange-100 dark:bg-orange-900/30",
-    iconFg: "text-orange-600 dark:text-orange-400",
-    rateFg: "font-semibold text-orange-600 dark:text-orange-400",
-    link: "text-orange-600 dark:text-orange-400 font-semibold hover:text-orange-700 dark:hover:text-orange-300 transition-colors",
-  },
-  teal: {
-    bg: "bg-teal-100 dark:bg-teal-900/30",
-    iconFg: "text-teal-600 dark:text-teal-400",
-    rateFg: "font-semibold text-teal-600 dark:text-teal-400",
-    link: "text-teal-600 dark:text-teal-400 font-semibold hover:text-teal-700 dark:hover:text-teal-300 transition-colors",
-  },
-  red: {
-    bg: "bg-red-100 dark:bg-red-900/30",
-    iconFg: "text-red-600 dark:text-red-400",
-    rateFg: "font-semibold text-red-600 dark:text-red-400",
-    link: "text-red-600 dark:text-red-400 font-semibold hover:text-red-700 dark:hover:text-red-300 transition-colors",
-  },
-};
-
-const LOANS: { icon: string; tint: keyof typeof TINTS; title: string; body: string; rate: string; amount: string; term: string }[] = [
-  {
-    icon: "fa-solid fa-home",
-    tint: "blue",
-    title: "Home Loans",
-    body: "Competitive mortgage rates for first-time buyers and refinancing.",
-    rate: "From 3.25% APR",
-    amount: "Up to $1M",
-    term: "15-30 years",
-  },
-  {
-    icon: "fa-solid fa-car",
-    tint: "green",
-    title: "Auto Loans",
-    body: "Finance your dream car with our competitive auto loan rates.",
-    rate: "From 2.99% APR",
-    amount: "Up to $100K",
-    term: "3-7 years",
-  },
-  {
-    icon: "fa-solid fa-user",
-    tint: "purple",
-    title: "Personal Loans",
-    body: "Flexible personal loans for any purpose with quick approval.",
-    rate: "From 5.99% APR",
-    amount: "Up to $50K",
-    term: "2-7 years",
-  },
-  {
-    icon: "fa-solid fa-briefcase",
-    tint: "orange",
-    title: "Business Loans",
-    body: "Grow your business with our flexible commercial lending solutions.",
-    rate: "From 4.25% APR",
-    amount: "Up to $5M",
-    term: "1-25 years",
-  },
-  {
-    icon: "fa-solid fa-graduation-cap",
-    tint: "teal",
-    title: "Student Loans",
-    body: "Invest in your education with competitive student loan rates.",
-    rate: "From 3.75% APR",
-    amount: "Up to $200K",
-    term: "5-20 years",
-  },
-  {
-    icon: "fa-solid fa-house-circle-check",
-    tint: "red",
-    title: "Home Equity",
-    body: "Tap into your home&apos;s equity for major expenses or investments.",
-    rate: "From 4.50% APR",
-    amount: "Up to $500K",
-    term: "5-30 years",
-  },
-];
 
 const STEPS = [
   {
     n: "1",
-    title: "Apply Online",
-    body: "Complete our secure online application in minutes",
+    title: "Review Options",
+    body: "Open your account to see whether a loan application is available.",
   },
   {
     n: "2",
-    title: "Quick Review",
-    body: "Our team reviews your application within 24 hours",
+    title: "Submit Information",
+    body: "Provide the requested details and supporting documents.",
   },
   {
     n: "3",
-    title: "Get Approved",
-    body: "Receive your approval decision and loan terms",
+    title: "Review",
+    body: "Timelines and requirements vary by application.",
   },
   {
     n: "4",
-    title: "Receive Funds",
-    body: "Funds deposited directly into your account",
+    title: "Decision",
+    body: "Any decision and terms are shown in your account.",
   },
-];
+] as const;
 
-function formatMoney(e: number) {
-  return (
-    (0 > Number(e.toFixed(2)) ? "-" : "") +
-    "$" +
-    Math.abs(e)
-      .toFixed(2)
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-  );
+function formatMoney(value: number) {
+  return `$${Math.abs(value)
+    .toFixed(2)
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
 }
 
 export default function LoansPage() {
   const [amount, setAmount] = useState("");
   const [rate, setRate] = useState("");
   const [term, setTerm] = useState("");
-  const [result, setResult] = useState<{ monthly: string; interest: string; total: string } | null>(null);
+  const [result, setResult] = useState<{ monthly: string; interest: string; total: string } | null>(
+    null,
+  );
 
   return (
     <PublicLayout>
       <>
-        <section className="relative py-16 lg:py-20 bg-gradient-to-br from-slate-900 via-blue-900 to-gray-900 dark:from-gray-900 dark:via-blue-900 dark:to-black overflow-hidden">
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 opacity-10">
-              <div
-                className="absolute top-0 left-0 w-full h-full"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px), radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)",
-                  backgroundSize: "60px 60px",
-                  animation: "float 20s ease-in-out infinite",
-                }}
-              />
-            </div>
-            <div className="absolute top-20 left-20 w-96 h-96 bg-green-500/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-20 right-20 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-blue-900 to-gray-900 py-16 lg:py-20 dark:from-gray-900 dark:via-blue-900 dark:to-black">
+          <div className="absolute inset-0 opacity-10">
+            <div
+              className="h-full w-full"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 25% 25%, #ffffff 1px, transparent 1px), radial-gradient(circle at 75% 75%, #ffffff 1px, transparent 1px)",
+                backgroundSize: "60px 60px",
+              }}
+            />
           </div>
-          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm text-white/90 rounded-full text-sm font-semibold mb-6 border border-white/20">
-                <i className="fa-solid fa-hand-holding-dollar mr-2" />
-                Lending Solutions
-              </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
-                Loans & Financing
-              </h1>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Competitive rates and flexible terms to help you achieve your financial goals
-              </p>
+          <div className="relative z-10 mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+            <div className="mb-6 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white/90 backdrop-blur-sm">
+              <i className="fa-solid fa-landmark mr-2" />
+              Loan Tools
             </div>
+            <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+              Loan Calculator
+            </h1>
+            <p className="mx-auto max-w-3xl text-xl text-gray-300">
+              Estimate a monthly payment using the amount, rate and term you enter.
+            </p>
           </div>
         </section>
 
-        <section className="py-16 bg-white dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Loan Options
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Find the perfect loan solution for your personal or business needs
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {LOANS.map((loan) => {
-                const tint = TINTS[loan.tint];
-                return (
-                  <div
-                    key={loan.title}
-                    className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-all duration-300"
-                  >
-                    <div className={`w-16 h-16 ${tint.bg} rounded-2xl flex items-center justify-center mb-6`}>
-                      <i className={`${loan.icon} text-2xl ${tint.iconFg}`} />
-                    </div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                      {loan.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 mb-4">{loan.body}</p>
-                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
-                      <div className="flex justify-between">
-                        <span>Interest Rate:</span>
-                        <span className={tint.rateFg}>{loan.rate}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Loan Amount:</span>
-                        <span className="font-semibold">{loan.amount}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Term:</span>
-                        <span className="font-semibold">{loan.term}</span>
-                      </div>
-                    </div>
-                    <a href="#apply" className={`inline-flex items-center ${tint.link}`}>
-                      Apply Now <i className="fa-solid fa-arrow-right ml-2" />
-                    </a>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section className="py-16 bg-gray-50 dark:bg-gray-800">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Loan Calculator
-              </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300">
-                Estimate your monthly payments with our loan calculator
-              </p>
-            </div>
-            <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-xl">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Loan Amount
-                    </label>
+        <section className="bg-white py-16 dark:bg-gray-900">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+              <div>
+                <h2 className="mb-4 text-3xl font-bold text-gray-900 dark:text-white">
+                  Payment Estimate
+                </h2>
+                <p className="mb-6 text-gray-600 dark:text-gray-300">
+                  This calculator is for illustration only. It is not a loan offer, pre-approval or guarantee of terms.
+                </p>
+                <form
+                  className="space-y-4"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    const principal = parseFloat(amount.replace(/[^0-9.]/g, "")) || 0;
+                    const annualRate = parseFloat(rate) || 0;
+                    const months = parseInt(term, 10) || 0;
+                    if (principal <= 0 || months <= 0) {
+                      setResult(null);
+                      return;
+                    }
+                    const monthlyRate = annualRate / 100 / 12;
+                    const monthly =
+                      monthlyRate === 0
+                        ? principal / months
+                        : (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+                    const total = monthly * months;
+                    setResult({
+                      monthly: formatMoney(monthly),
+                      interest: formatMoney(total - principal),
+                      total: formatMoney(total),
+                    });
+                  }}
+                >
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Loan amount
+                    </span>
                     <input
-                      type="number"
-                      placeholder="$25,000"
                       value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      onChange={(event) => setAmount(event.target.value)}
+                      inputMode="decimal"
+                      placeholder="25000"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Interest Rate (%)
-                    </label>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Annual interest rate (%)
+                    </span>
                     <input
-                      type="number"
-                      placeholder="5.99"
-                      step="0.01"
                       value={rate}
-                      onChange={(e) => setRate(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      onChange={(event) => setRate(event.target.value)}
+                      inputMode="decimal"
+                      placeholder="8.5"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Loan Term (years)
-                    </label>
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">
+                      Term (months)
+                    </span>
                     <input
-                      type="number"
-                      placeholder="5"
                       value={term}
-                      onChange={(e) => setTerm(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                      onChange={(event) => setTerm(event.target.value)}
+                      inputMode="numeric"
+                      placeholder="36"
+                      className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-900 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     />
-                  </div>
+                  </label>
                   <button
-                    type="button"
-                    onClick={() => {
-                      const p = parseFloat(amount) || 0;
-                      const r = parseFloat(rate) || 0;
-                      const n = parseFloat(term) || 0;
-                      if (p > 0 && r > 0 && n > 0) {
-                        const i = r / 100 / 12;
-                        const periods = 12 * n;
-                        const monthly = (i * Math.pow(1 + i, periods) * p) / (Math.pow(1 + i, periods) - 1);
-                        const total = monthly * periods;
-                        setResult({
-                          monthly: formatMoney(monthly),
-                          interest: formatMoney(total - p),
-                          total: formatMoney(total),
-                        });
-                      }
-                    }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl transition-colors"
+                    type="submit"
+                    className="w-full rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
                   >
-                    Calculate Payment
+                    Calculate Estimate
                   </button>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Payment Breakdown
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Monthly Payment:</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400">
-                        {result?.monthly ?? "$0"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Total Interest:</span>
-                      <span className="font-bold text-gray-900 dark:text-white">
-                        {result?.interest ?? "$0"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-300">Total Payment:</span>
-                      <span className="font-bold text-gray-900 dark:text-white">
-                        {result?.total ?? "$0"}
-                      </span>
-                    </div>
+                </form>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 dark:border-gray-700 dark:bg-gray-800">
+                <h3 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
+                  Estimated Results
+                </h3>
+                <div className="space-y-4 text-gray-700 dark:text-gray-200">
+                  <div className="flex items-center justify-between">
+                    <span>Monthly payment</span>
+                    <span className="font-bold">{result?.monthly ?? "--"}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Total interest</span>
+                    <span className="font-bold">{result?.interest ?? "--"}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Total repayment</span>
+                    <span className="font-bold">{result?.total ?? "--"}</span>
                   </div>
                 </div>
+                <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
+                  Actual terms, if available, are shown before you submit an application.
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="apply" className="py-16 bg-white dark:bg-gray-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Easy Application Process
+        <section className="bg-gray-50 py-16 dark:bg-gray-800">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 text-center">
+              <h2 className="mb-4 text-3xl font-bold text-gray-900 dark:text-white lg:text-4xl">
+                Application Process
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Get approved in minutes with our streamlined application process
+              <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-300">
+                Availability, eligibility and timelines depend on your account and region.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
               {STEPS.map((step) => (
                 <div key={step.n} className="text-center">
-                  <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-full bg-blue-100 dark:bg-blue-900/30">
                     <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {step.n}
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-white">
                     {step.title}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-300">{step.body}</p>
@@ -354,28 +201,28 @@ export default function LoansPage() {
           </div>
         </section>
 
-        <section className="py-16 bg-blue-600 dark:bg-blue-700">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Ready to Apply for a Loan?
+        <section className="bg-blue-600 py-16 dark:bg-blue-700">
+          <div className="mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+            <h2 className="mb-4 text-3xl font-bold text-white lg:text-4xl">
+              Review Your Account
             </h2>
-            <p className="text-xl text-blue-100 mb-8">
-              Get started with your loan application today and receive a decision within 24 hours
+            <p className="mb-8 text-xl text-blue-100">
+              Check whether a loan application is available for your account.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Link
-                href="/auth/register"
-                className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+                href="/loans"
+                className="inline-flex items-center rounded-2xl bg-white px-8 py-4 font-bold text-blue-600 shadow-lg transition hover:bg-blue-50"
               >
-                <i className="fa-solid fa-file-alt mr-3" />
-                Apply Now
+                <i className="fa-solid fa-landmark mr-3" />
+                Open Loans
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center px-8 py-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-2xl transition-all duration-300 border-2 border-white/30"
+                className="inline-flex items-center rounded-2xl border-2 border-white/30 bg-blue-700 px-8 py-4 font-semibold text-white transition hover:bg-blue-800"
               >
-                <i className="fa-solid fa-phone mr-3" />
-                Speak with Advisor
+                <i className="fa-solid fa-headset mr-3" />
+                Contact Support
               </Link>
             </div>
           </div>

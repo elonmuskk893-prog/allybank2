@@ -1,13 +1,13 @@
 {
-  "name": "AllyBank — Secure Online Banking",
-  "short_name": "AllyBank",
-  "description": "Secure online banking with instant transfers, cards, loans, and 24/7 account access.",
+  "name": "Online Banking — Secure Account Access",
+  "short_name": "Online Banking",
+  "description": "Manage transfers, cards, loans, and account activity in one secure place.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
-  "theme_color": "#640b65",
+  "theme_color": "#0ea5e9",
   "categories": ["finance", "business"],
   "icons": [
     {

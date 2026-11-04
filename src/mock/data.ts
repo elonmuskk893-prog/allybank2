@@ -18,8 +18,8 @@ import type {
 
 export const SITE = {
   id: 1,
-  slug: "teslamodel",
-  name: "Tesla Model",
+  slug: "online-banking",
+  name: "Online Banking",
   brand_color: "#0ea5e9",
   primary_currency: "USD",
   kyc_required: true,

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { AppShell } from "@/components/dashboard/app-shell";
 import { bankFetch } from "@/lib/api";
 import type { NotificationItem } from "@/lib/types";
+import { safeInternalPath } from "@/lib/utils";
 
 interface NotificationsResponse {
   notifications: NotificationItem[];
@@ -61,13 +62,8 @@ function NotificationsFlow() {
       await bankFetch(`/notifications/${notification.id}/read`, { method: "POST" });
       load();
     }
-    if (notification.link) {
-      if (/^https?:\/\//i.test(notification.link)) {
-        window.open(notification.link, "_blank", "noopener");
-      } else {
-        window.location.assign(notification.link);
-      }
-    }
+    const link = safeInternalPath(notification.link);
+    if (link) window.location.assign(link);
   }
 
   useEffect(() => {

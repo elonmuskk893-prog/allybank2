@@ -8,7 +8,6 @@ import type { QueryClient } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LiveChat } from "@/components/live-chat";
 import { renderErrorPage } from "@/lib/error-page";
-import { reportLovableError } from "@/lib/lovable-error-reporting";
 import "@/styles.css";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -16,22 +15,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "AllyBank — Secure Online Banking" },
+      { title: " secure access" },
       {
         name: "description",
         content:
-          "AllyBank — secure online banking with instant transfers, cards, loans and 24/7 account access.",
+          "Manage transfers, cards, loans, and account activity in one secure place.",
       },
-      { property: "og:title", content: "AllyBank — Secure Online Banking" },
+      { property: "og:title", content: "Online Banking — Secure Account Access" },
       {
         property: "og:description",
         content:
-          "Open an account, move money worldwide and manage cards, loans and deposits in one secure place.",
+          "Transfers, cards, loans, and account history in one secure place.",
       },
       { property: "og:type", content: "website" },
-      { name: "theme-color", content: "#640b65" },
+      { name: "theme-color", content: "#0ea5e9" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "AllyBank" },
+      { name: "apple-mobile-web-app-title", content: "Online Banking" },
       { name: "mobile-web-app-capable", content: "yes" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -42,17 +41,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "manifest", href: "/manifest.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "preconnect", href: "https://cdn.jsdelivr.net" },
+      { rel: "preconnect", href: "https://cdnjs.cloudflare.com", crossOrigin: "anonymous" },
     ],
     scripts: [
       {
         // Load icon + webfont CSS without blocking the first paint.
-        children: `(function(){var h=["https://cdn.jsdelivr.net/gh/aquawolf04/font-awesome-pro@5cd1511/css/all.css","https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap"];for(var i=0;i<h.length;i++){var l=document.createElement("link");l.rel="stylesheet";l.href=h[i];l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l);}})();`,
+        children: `(function(){var h=[["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css","sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="],["https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500&display=swap",""]];for(var i=0;i<h.length;i++){var l=document.createElement("link");l.rel="stylesheet";l.href=h[i][0];if(h[i][1]){l.integrity=h[i][1];l.crossOrigin="anonymous"}l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l);}})();`,
       },
     ],
   }),
-  errorComponent: ({ error }) => {
-    reportLovableError(error);
+  errorComponent: () => {
     return <div dangerouslySetInnerHTML={{ __html: renderErrorPage() }} />;
   },
   component: RootDocument,

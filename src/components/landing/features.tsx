@@ -1,7 +1,126 @@
-// Server component. Static marketing section reproduced from the original site.
 import Link from "@/lib/next/link";
+
+const features = [
+  {
+    icon: "fa-mobile-alt",
+    title: "Account dashboard",
+    text: "Review balances, account details, and recent activity from a responsive dashboard.",
+    points: ["Account overview", "Recent activity", "Mobile-friendly layout"],
+    color: "from-blue-500 to-blue-600",
+    textColor: "text-blue-600",
+    hover: "hover:text-blue-700",
+  },
+  {
+    icon: "fa-shield-alt",
+    title: "Account security",
+    text: "Use available security controls to help protect access to your account.",
+    points: ["Optional two-factor authentication", "Session review", "Password controls"],
+    color: "from-green-500 to-green-600",
+    textColor: "text-green-600",
+    hover: "hover:text-green-700",
+  },
+  {
+    icon: "fa-chart-line",
+    title: "Activity history",
+    text: "Filter and review transaction history, then export a statement when needed.",
+    points: ["Transaction history", "Search and filters", "Statement export"],
+    color: "from-purple-500 to-purple-600",
+    textColor: "text-purple-600",
+    hover: "hover:text-purple-700",
+  },
+  {
+    icon: "fa-headset",
+    title: "Support inbox",
+    text: "Contact support from your account and keep replies organized in one place.",
+    points: ["Support requests", "Reply history", "Contact form"],
+    color: "from-orange-500 to-orange-600",
+    textColor: "text-orange-600",
+    hover: "hover:text-orange-700",
+  },
+  {
+    icon: "fa-arrow-right-arrow-left",
+    title: "Transfer tools",
+    text: "Move money between accounts and follow the status of your transfers.",
+    points: ["Account transfers", "Transfer history", "Status updates"],
+    color: "from-teal-500 to-teal-600",
+    textColor: "text-teal-600",
+    hover: "hover:text-teal-700",
+  },
+  {
+    icon: "fa-credit-card",
+    title: "Card controls",
+    text: "Review supported cards and use available freeze and unfreeze controls.",
+    points: ["Card overview", "Freeze controls", "Card activity"],
+    color: "from-rose-500 to-rose-600",
+    textColor: "text-rose-600",
+    hover: "hover:text-rose-700",
+  },
+];
+
 export function Features() {
   return (
-    <section id="features" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="text-center mb-16"><div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-100 to-teal-100 text-teal-700 rounded-full px-4 py-2 text-sm font-semibold mb-4 border border-teal-200"><i className="fas fa-sparkles" /><span>Powerful Features</span></div><h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Everything You Need in One Place</h2><p className="text-xl text-slate-600 max-w-3xl mx-auto">Experience banking that&apos;s designed for how you live today</p></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"><div className="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 transition-all duration-300 shadow-lg hover:shadow-xl"><div className="relative mb-6"><div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-600/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-mobile-alt text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Digital Banking</h3><p className="text-slate-600 mb-4 leading-relaxed">Bank anytime, anywhere with our award-winning mobile app and online platform. Manage your finances on the go.</p><ul className="space-y-2 text-sm text-slate-600"><li className="flex items-center"><i className="fas fa-check text-blue-500 mr-2" />Mobile check deposit</li><li className="flex items-center"><i className="fas fa-check text-blue-500 mr-2" />Instant transfers</li><li className="flex items-center"><i className="fas fa-check text-blue-500 mr-2" />Bill pay automation</li></ul><div className="mt-6 pt-6 border-t border-slate-100"><Link href="/#" className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold transition-colors">Learn more <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" /></Link></div></div><div className="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-green-300 transition-all duration-300 shadow-lg hover:shadow-xl"><div className="relative mb-6"><div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-green-600/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-shield-alt text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Advanced Security</h3><p className="text-slate-600 mb-4 leading-relaxed">Bank with confidence knowing your money and data are protected by military-grade security and 24/7 monitoring.</p><ul className="space-y-2 text-sm text-slate-600"><li className="flex items-center"><i className="fas fa-check text-green-500 mr-2" />256-bit encryption</li><li className="flex items-center"><i className="fas fa-check text-green-500 mr-2" />Two-factor authentication</li><li className="flex items-center"><i className="fas fa-check text-green-500 mr-2" />Fraud detection alerts</li></ul><div className="mt-6 pt-6 border-t border-slate-100"><Link href="/#" className="inline-flex items-center text-green-600 hover:text-green-700 font-semibold transition-colors">Learn more <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" /></Link></div></div><div className="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-purple-300 transition-all duration-300 shadow-lg hover:shadow-xl"><div className="relative mb-6"><div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-chart-line text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Smart Analytics</h3><p className="text-slate-600 mb-4 leading-relaxed">Get insights into your spending habits, savings goals, and investment performance with intelligent analytics.</p><ul className="space-y-2 text-sm text-slate-600"><li className="flex items-center"><i className="fas fa-check text-purple-500 mr-2" />Spending categorization</li><li className="flex items-center"><i className="fas fa-check text-purple-500 mr-2" />Budget tracking</li><li className="flex items-center"><i className="fas fa-check text-purple-500 mr-2" />Financial insights</li></ul><div className="mt-6 pt-6 border-t border-slate-100"><Link href="/#" className="inline-flex items-center text-purple-600 hover:text-purple-700 font-semibold transition-colors">Learn more <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" /></Link></div></div><div className="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-orange-300 transition-all duration-300 shadow-lg hover:shadow-xl"><div className="relative mb-6"><div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-orange-600/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-headset text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Premium Support</h3><p className="text-slate-600 mb-4 leading-relaxed">Get help when you need it from our team of banking experts available 24/7 via phone, chat, or email.</p><ul className="space-y-2 text-sm text-slate-600"><li className="flex items-center"><i className="fas fa-check text-orange-500 mr-2" />24/7 live support</li><li className="flex items-center"><i className="fas fa-check text-orange-500 mr-2" />Dedicated relationship manager</li><li className="flex items-center"><i className="fas fa-check text-orange-500 mr-2" />Priority assistance</li></ul><div className="mt-6 pt-6 border-t border-slate-100"><Link href="/#" className="inline-flex items-center text-orange-600 hover:text-orange-700 font-semibold transition-colors">Learn more <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" /></Link></div></div><div className="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-teal-300 transition-all duration-300 shadow-lg hover:shadow-xl"><div className="relative mb-6"><div className="absolute inset-0 bg-gradient-to-r from-teal-500/20 to-teal-600/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-chart-pie text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Investment Tools</h3><p className="text-slate-600 mb-4 leading-relaxed">Grow your wealth with integrated investment tools, portfolio management, and expert financial guidance.</p><ul className="space-y-2 text-sm text-slate-600"><li className="flex items-center"><i className="fas fa-check text-teal-500 mr-2" />Automated investing</li><li className="flex items-center"><i className="fas fa-check text-teal-500 mr-2" />Portfolio diversification</li><li className="flex items-center"><i className="fas fa-check text-teal-500 mr-2" />Retirement planning</li></ul><div className="mt-6 pt-6 border-t border-slate-100"><Link href="/#" className="inline-flex items-center text-teal-600 hover:text-teal-700 font-semibold transition-colors">Learn more <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" /></Link></div></div><div className="group bg-white rounded-3xl p-8 border border-slate-200 hover:border-rose-300 transition-all duration-300 shadow-lg hover:shadow-xl"><div className="relative mb-6"><div className="absolute inset-0 bg-gradient-to-r from-rose-500/20 to-rose-600/20 rounded-2xl blur-xl transition-all duration-300" /><div className="relative w-16 h-16 bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg"><i className="fas fa-credit-card text-white text-2xl" /></div></div><h3 className="text-xl font-bold text-slate-900 mb-3">Smart Cards</h3><p className="text-slate-600 mb-4 leading-relaxed">Modern debit and credit cards with advanced security features, tap-to-pay support, and instant controls.</p><ul className="space-y-2 text-sm text-slate-600"><li className="flex items-center"><i className="fas fa-check text-rose-500 mr-2" />Tap-to-pay support</li><li className="flex items-center"><i className="fas fa-check text-rose-500 mr-2" />Card freeze/unfreeze</li><li className="flex items-center"><i className="fas fa-check text-rose-500 mr-2" />Real-time notifications</li></ul><div className="mt-6 pt-6 border-t border-slate-100"><Link href="/#" className="inline-flex items-center text-rose-600 hover:text-rose-700 font-semibold transition-colors">Learn more <i className="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform" /></Link></div></div></div><div className="mt-16 text-center"><div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl p-8 border border-slate-700"><h3 className="text-2xl font-bold text-white mb-4">Ready to experience modern banking?</h3><p className="text-slate-300 mb-6 max-w-2xl mx-auto">Join thousands of satisfied customers who have already made the switch to smarter, more secure banking.</p><Link href="/auth/register" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"><i className="fas fa-rocket mr-2" /> Get Started Today</Link></div></div></div></section>
+    <section id="features" className="bg-gradient-to-br from-slate-50 to-blue-50 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
+          <div className="mb-4 inline-flex items-center space-x-2 rounded-full border border-teal-200 bg-gradient-to-r from-blue-100 to-teal-100 px-4 py-2 text-sm font-semibold text-teal-700">
+            <i className="fas fa-sparkles" />
+            <span>Account features</span>
+          </div>
+          <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
+            Everything in one dashboard
+          </h2>
+          <p className="mx-auto max-w-3xl text-xl text-slate-600">
+            Common account tasks are grouped together so you can find them quickly.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {features.map((feature) => (
+            <div
+              key={feature.title}
+              className="group rounded-3xl border border-slate-200 bg-white p-8 shadow-lg transition-all duration-300 hover:border-blue-300 hover:shadow-xl"
+            >
+              <div className="relative mb-6">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 to-blue-600/20 blur-xl transition-all duration-300" />
+                <div className={`relative grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-r ${feature.color} shadow-lg`}>
+                  <i className={`fas ${feature.icon} text-2xl text-white`} />
+                </div>
+              </div>
+              <h3 className="mb-3 text-xl font-bold text-slate-900">{feature.title}</h3>
+              <p className="mb-4 leading-relaxed text-slate-600">{feature.text}</p>
+              <ul className="space-y-2 text-sm text-slate-600">
+                {feature.points.map((point) => (
+                  <li key={point} className="flex items-center">
+                    <i className={`fas fa-check mr-2 ${feature.textColor}`} />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 border-t border-slate-100 pt-6">
+                <Link
+                  href="/auth/register"
+                  className={`inline-flex items-center font-semibold transition-colors ${feature.textColor} ${feature.hover}`}
+                >
+                  Open an account <i className="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-16 text-center">
+          <div className="rounded-3xl border border-slate-700 bg-gradient-to-r from-slate-900 to-slate-800 p-8">
+            <h3 className="mb-4 text-2xl font-bold text-white">Ready to see your account?</h3>
+            <p className="mx-auto mb-6 max-w-2xl text-slate-300">
+              Sign in to review the features available for your account.
+            </p>
+            <Link
+              href="/auth/login"
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-teal-600 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-teal-700 hover:shadow-xl"
+            >
+              <i className="fas fa-sign-in-alt mr-2" /> Sign in
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

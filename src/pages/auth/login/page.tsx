@@ -9,12 +9,12 @@ import { useSite } from "@/lib/use-site";
 
 const LOGIN_PANEL: AuthPanelContent = {
   title: "Welcome Back",
-  desc: "Swift and secure money transfers worldwide. Experience banking reimagined.",
+  desc: "Sign in to review your account, transfers and recent activity.",
   features: [
-    { icon: "fas fa-shield-alt", title: "Bank-Grade Security", sub: "256-bit encryption" },
-    { icon: "fas fa-bolt", title: "Instant Transfers", sub: "Real-time processing" },
-    { icon: "fas fa-globe", title: "Global Reach", sub: "200+ countries" },
-    { icon: "fas fa-mobile-alt", title: "Mobile First", sub: "iOS & Android" },
+    { icon: "fas fa-shield-alt", title: "Account security", sub: "Hashed passwords" },
+    { icon: "fas fa-bolt", title: "Transfers", sub: "Status tracking" },
+    { icon: "fas fa-globe", title: "Account Tools", sub: "Feature availability varies" },
+    { icon: "fas fa-mobile-screen", title: "Browser Access", sub: "Desktop and mobile" },
   ],
 };
 
@@ -293,7 +293,7 @@ function LoginForm() {
         </div>
         <p className="mx-auto max-w-xs text-xs leading-relaxed text-gray-500">
           By signing in, you agree to our Terms of Service and Privacy Policy. Your data is
-          protected with bank-grade security.
+          protected with an encrypted connection.
         </p>
       </div>
     </AuthLayout>

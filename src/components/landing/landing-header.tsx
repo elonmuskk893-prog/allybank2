@@ -12,8 +12,8 @@ const NAV = [
 ];
 
 const SERVICES = [
-  { label: "Personal Banking", icon: "fa-user", color: "text-sky-500", href: "/services/personal" },
-  { label: "Business Banking", icon: "fa-briefcase", color: "text-blue-500", href: "/services/business" },
+  { label: "Personal Accounts", icon: "fa-user", color: "text-sky-500", href: "/services/personal" },
+  { label: "Business Accounts", icon: "fa-briefcase", color: "text-blue-500", href: "/services/business" },
   { label: "Loans & Credit", icon: "fa-handshake", color: "text-green-500", href: "/services/loans" },
   { label: "Cards", icon: "fa-credit-card", color: "text-purple-500", href: "/services/cards" },
   { label: "Grants & Aid", icon: "fa-hand-holding-dollar", color: "text-orange-500", href: "/services/grants" },
@@ -25,7 +25,7 @@ export function LandingHeader() {
   const { theme, toggleTheme } = useTheme();
   const { site } = useSite();
   const [menuOpen, setMenuOpen] = useState(false);
-  const brandName = site?.name ?? "Bank";
+  const brandName = site?.name ?? "  ";
   const brandInitial = brandName.slice(0, 1).toUpperCase();
 
   return (
@@ -58,7 +58,7 @@ export function LandingHeader() {
                 style={{ background: "linear-gradient(135deg, #0ea5e9, color-mix(in srgb, #0ea5e9 70%, #000))" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- platform logo asset */}
-                <img src={site?.logo_url || "/allybank.jpeg"} alt={brandName} className="h-full w-full object-cover" />
+                <img src={site?.logo_url || "/logo.jpeg"} alt={brandName} className="h-full w-full object-cover" />
               </span>
             </div>
             <span className="ml-2 text-lg font-bold tracking-tight">{brandName}</span>

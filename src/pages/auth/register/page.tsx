@@ -8,10 +8,10 @@ import { bankFetch } from "@/lib/api";
 import { useSite } from "@/lib/use-site";
 
 const REGISTER_FEATURES: AuthPanelContent["features"] = [
-  { icon: "fas fa-shield-alt", title: "Secure Platform", sub: "Bank-grade security" },
-  { icon: "fas fa-bolt", title: "Fast Transfers", sub: "Instant payments" },
-  { icon: "fas fa-clock", title: "24/7 Access", sub: "Always available" },
-  { icon: "fas fa-globe", title: "Global Banking", sub: "Worldwide access" },
+  { icon: "fas fa-shield-alt", title: "Secure Platform", sub: "Account protection" },
+  { icon: "fas fa-bolt", title: "Transfers", sub: "Status tracking" },
+  { icon: "fas fa-clock", title: "Online Access", sub: "Modern browser" },
+  { icon: "fas fa-globe", title: "Online Account", sub: "Browser access" },
 ];
 
 const STEPS = [
@@ -33,7 +33,7 @@ interface RegisterResponse {
 function RegisterForm() {
   const router = useRouter();
   const { site } = useSite();
-  const siteName = site?.name ?? "Wind Finance";
+  const siteName = site?.name ?? "Online Banking";
   const currency = site?.primary_currency ?? "USD";
   const searchParams = useSearchParams();
   const refCode = searchParams.get("ref")?.trim() ?? "";
@@ -130,8 +130,8 @@ function RegisterForm() {
     <AuthLayout
       left={{
         title: `Join ${siteName}`,
-        subtitle: "Create Your Banking Account",
-        desc: `Start your financial journey with ${siteName}. Secure, fast, and reliable banking at your fingertips.`,
+        subtitle: "Create Your Account",
+        desc: `Start your financial journey with ${siteName}. Review account features and requirements before you sign up.`,
         features: REGISTER_FEATURES,
       }}
       rightMax="max-w-md"

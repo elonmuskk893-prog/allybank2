@@ -79,7 +79,7 @@ function FaqSection({
 
 function FaqContent() {
   const { site } = useSite();
-  const name = site?.name ?? "Bank";
+  const name = site?.name ?? "Online Banking";
   const [active, setActive] = useState("general");
   const [managedFaqs, setManagedFaqs] = useState<FaqEntry[]>([]);
 
@@ -100,22 +100,26 @@ function FaqContent() {
   const aboutItems: FaqEntry[] = [
     {
       q: `WHAT IS ${name}?`,
-      a: `${name} - Professional team of cryptocurrency industry developers. The main advantage of the company is a unique trading bot that makes a profit at the stage of growth and market decline.`,
+      a: `${name} is an online account dashboard for managing deposits, withdrawals, cards and account activity. It is not a bank, investment adviser or government agency.`,
     },
     {
-      q: `IS ${name} the OFFICIALLY REGISTERED COMPANY?`,
-      a: "Yes, we are legally binding and officially registered in the UK under the company registration number #08683932",
+      q: `IS ${name} A REGISTERED BANK?`,
+      a: "No. This service does not claim to be a bank and is not insured by any government deposit insurance program. Contact support for details about the operator of this site.",
     },
     {
-      q: "DO YOU HAVE ANY COUNTRY RESTRICTIONS?",
-      a: "Our company doesn't work and doesn't accept deposits from US residents. During the registration process you need to check the box that you are not a US citizen.",
+      q: "WHICH COUNTRIES ARE SUPPORTED?",
+      a: "Available features vary by location and by the payment providers that are currently enabled. Check the Deposit and Withdraw pages for the options available to you.",
     },
   ];
 
   const depositItems: FaqEntry[] = [
     {
-      q: `WHAT WAYS TO OBTAIN INCOME IN ${name} ARE?`,
-      a: "Users have the opportunity to earn in two ways: by opening a deposit for the chosen investment plan, as well as by receiving partner rewards for attracting new members.",
+      q: "HOW DO I ADD MONEY TO MY ACCOUNT?",
+      a: "Open the Deposit page and use one of the payment methods currently shown. Any fee is displayed before you confirm the transaction.",
+    },
+    {
+      q: "WILL MY BALANCE EARN A FIXED RETURN?",
+      a: "No fixed return is promised. Products that display a rate show the applicable terms in the app, and rates may change.",
     },
   ];
 
@@ -164,7 +168,7 @@ function FaqContent() {
               Find Answers to Your Questions
             </h2>
             <p className="text-lg text-muted-foreground dark:text-gray-300">
-              Browse through our comprehensive FAQ to find answers to the most common questions about our banking services.
+              Browse the FAQ for answers about accounts, verification and available features.
             </p>
           </div>
           <div className="space-y-8">
@@ -219,15 +223,15 @@ function FaqContent() {
                 items={[
                   {
                     q: "HOW MANY ACCOUNTS CAN I OPEN?",
-                    a: "Each user can only open and manage one account. Please follow this rule. In case of violation the company has the right to block all your accounts without a refund.",
+                    a: "Each person may maintain one account. Contact support if you need help with an existing account.",
                   },
                   {
-                    q: "HOW TO UPLOAD PERSONAL DATA?",
-                    a: "Please note that we do not require your personal information. To work with our platform, you need to specify your login, your email, come up with a password, and also specify the wallet number to which funds will be withdrawn from the platform.",
+                    q: "WHAT INFORMATION DO I NEED TO PROVIDE?",
+                    a: "Registration requires your name, email and password. Identity verification may require a government-issued ID, depending on the features you use.",
                   },
                   {
-                    q: "HOW MUCH DOES IT COST TO OPEN AN ACCOUNT?",
-                    a: "Opening an account is absolutely free. We do not charge you any hidden fees or service charges. The commission on operations and additional costs is included in the company's profits from the profits from the development of cryptocurrency robots.",
+                    q: "ARE THERE ACCOUNT FEES?",
+                    a: "Any applicable fee is shown before you confirm a transaction. Review the confirmation screen before submitting.",
                   },
                 ]}
               />
@@ -249,8 +253,8 @@ function FaqContent() {
                 title="Withdrawal of Funds"
                 items={[
                   {
-                    q: "HOW OFTEN WILL I RECEIVE ACCRUALS ON MY DEPOSITS?",
-                    a: "Interest on deposits is accrued in accordance with the terms of the investment plan. The countdown starts from the moment you open a deposit in the system.",
+                    q: "HOW LONG DOES A WITHDRAWAL TAKE?",
+                    a: "Withdrawals are reviewed before processing. The estimated timing for your selected method is shown before you submit the request.",
                   },
                 ]}
               />
@@ -264,7 +268,7 @@ function FaqContent() {
                 items={[
                   {
                     q: "DO YOU OFFER A REFERRAL PROGRAM?",
-                    a: "We offer an affiliate program for additional income for our investors. Anyone can take part in the development of the company by inviting new members and receiving a generous reward for this.",
+                    a: "If a referral program is available, its current terms and any rewards are shown on the Referrals page. Rewards are not guaranteed.",
                   },
                 ]}
               />
@@ -278,7 +282,7 @@ function FaqContent() {
                 items={[
                   {
                     q: "WHERE CAN I EXCHANGE ONE CURRENCY FOR ANOTHER?",
-                    a: "You can use monitoring with trusted exchange offices - bestchange. Choose the exchanger with the best rate and follow the instructions.",
+                    a: "Use the Currency Swap page to see the currencies and rates currently available in your account.",
                   },
                 ]}
               />

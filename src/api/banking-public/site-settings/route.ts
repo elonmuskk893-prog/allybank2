@@ -14,7 +14,7 @@ export async function GET(request: Request) {
       brand_color: null,
       logo_url: null,
       contact: {},
-      live_chat: { provider: "smartsupp", enabled: false, key: "" },
+      live_chat: { enabled: false },
       features: {},
       origin,
     });

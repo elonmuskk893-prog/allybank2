@@ -4,27 +4,27 @@ import Page from "@/pages/page";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AllyBank — Secure Online Banking" },
+      { title: "Online Banking — Secure Account Access" },
       {
         name: "description",
         content:
-          "Secure online banking with instant transfers, cards, loans, and 24/7 account access.",
+          "Manage transfers, cards, loans, and account activity in one secure place.",
       },
-      { property: "og:title", content: "AllyBank — Secure Online Banking" },
+      { property: "og:title", content: "Online Banking — Secure Account Access" },
       {
         property: "og:description",
         content:
-          "Open an account, move money worldwide, and manage your finances securely with AllyBank.",
+          "Transfers, cards, loans, and account history in one secure place.",
       },
       { property: "og:type", content: "website" },
       {
         property: "og:image",
-        content: "https://allybank2.vercel.app/allybank-og.jpg",
+        content: "/og-image.jpg",
       },
       { name: "twitter:card", content: "summary_large_image" },
       {
         name: "twitter:image",
-        content: "https://allybank2.vercel.app/allybank-og.jpg",
+        content: "/og-image.jpg",
       },
     ],
   }),

@@ -12,21 +12,21 @@ const CARD_TYPES = [
   {
     value: "visa",
     label: "Visa",
-    desc: "Accepted worldwide, suitable for most online purchases",
+    desc: "Card network option for online and in-person payments",
     tag: "VISA",
     tagCls: "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/50",
   },
   {
     value: "mastercard",
     label: "Mastercard",
-    desc: "Global acceptance with enhanced security features",
+    desc: "Card network option with standard card controls",
     tag: "MASTERCARD",
     tagCls: "text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/50",
   },
   {
     value: "american_express",
     label: "American Express",
-    desc: "Premium benefits and exclusive rewards program",
+    desc: "Card network option where supported",
     tag: "AMEX",
     tagCls: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50",
   },
@@ -116,7 +116,7 @@ function ApplyForm() {
                   Apply for Virtual Card
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Get instant access to a virtual card for online payments
+                  Apply for a virtual card for online payments
                 </p>
               </div>
             </div>
@@ -141,7 +141,7 @@ function ApplyForm() {
                   Apply for a Virtual Card
                 </h2>
                 <p className="text-sm text-white/90">
-                  Get instant access to a virtual card for online payments and
+                  Apply for a virtual card for online payments and
                   subscriptions
                 </p>
               </div>
@@ -351,19 +351,19 @@ function ApplyForm() {
             icon="fa-shield-alt"
             grad="linear-gradient(to right,#22c55e,#059669)"
             title="Secure"
-            desc="Bank-level security with real-time fraud monitoring and instant notifications."
+            desc="Session security, card controls, and transaction alerts."
           />
           <Feature
             icon="fa-bolt"
             grad="linear-gradient(to right,#3b82f6,#2563eb)"
-            title="Instant"
-            desc="Get your virtual card instantly after approval. Start using it for online purchases immediately."
+            title="After Approval"
+            desc="Available cards are shown in your account after an application is approved."
           />
           <Feature
             icon="fa-sliders-h"
             grad="linear-gradient(to right,#a855f7,#9333ea)"
             title="Control"
-            desc="Set spending limits, freeze cards instantly, and monitor all transactions in real-time."
+            desc="Review spending limits, freeze supported cards, and monitor card activity in your account."
           />
         </div>
       </div>

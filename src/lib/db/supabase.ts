@@ -60,6 +60,7 @@ async function siteNameForEmail(): Promise<string> {
   }
 }
 import { DbError } from "@/lib/db/error";
+import { validateUpload } from "@/lib/db/upload";
 import { parseAmountInput } from "@/lib/utils";
 import type {
   Site,
@@ -112,7 +113,7 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "fixed",
     duration: "0-2 hours",
     custom_fields: [
-      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "Tesla Model Bank, N.A." },
+      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "Online Banking" },
       { id: "account_number", label: "Account Number", type: "text", role: "display", value: "4023391234" },
       { id: "reference", label: "Deposit Reference", type: "text", role: "input", required: false, placeholder: "Optional note" },
     ],
@@ -264,7 +265,7 @@ async function resolveSite(slug: string | undefined): Promise<Site> {
   }
   const { data, error } = await query;
   if (error) throw new DbError("site_error", error.message, 500);
-  if (!data) throw new DbError("site_not_found", "Banking site not found.", 404);
+  if (!data) throw new DbError("site_not_found", "Site not found.", 404);
   return data as Site;
 }
 
@@ -1790,23 +1791,12 @@ async function generateTransferCode(input: { id?: string }) {
 
 async function uploadFile(input: { filename?: string; contentType?: string; data?: string }) {
   const user = await requireUser();
-  const filename = (input.filename ?? "upload.bin").replace(/[^\w.\-]+/g, "_").slice(-80);
-  const contentType = input.contentType || "application/octet-stream";
+  if (!input.data) throw new DbError("invalid_file", "No file content was provided.");
+  const raw = input.data.includes(",") ? input.data.split(",")[1] : input.data;
+  const body = new Uint8Array(Buffer.from(raw, "base64"));
+  const { filename, contentType } = validateUpload(input, body);
   const admin = createAdminClient();
   const path = `${user.id}/${Date.now()}-${filename}`;
-  let body: Uint8Array;
-  if (input.data) {
-    // Base64 payload from JSON requests.
-    const raw = input.data.includes(",") ? input.data.split(",")[1] : input.data;
-    const buf = Buffer.from(raw, "base64");
-    if (buf.length === 0) throw new DbError("invalid_file", "The uploaded file is empty.");
-    if (buf.length > 10 * 1024 * 1024) {
-      throw new DbError("file_too_large", "Files must be 10MB or smaller.");
-    }
-    body = new Uint8Array(buf);
-  } else {
-    throw new DbError("invalid_file", "No file content was provided.");
-  }
   const { error } = await admin.storage
     .from("uploads")
     .upload(path, body, { contentType, upsert: false });
@@ -4101,15 +4091,12 @@ async function readConfigGroups(admin: ReturnType<typeof createAdminClient>): Pr
   return {
     contact: (map.get("contact") as Record<string, unknown>) ?? {},
     live_chat: {
-      provider: "builtin",
       enabled: false,
-      key: "",
       position: "bottom-right",
       offset_bottom: 96,
       welcome_message: "Hi! How can we help you today?",
       title: "Live support",
       dashboard_only: true,
-      custom_code: "",
       ...((map.get("live_chat") as Record<string, unknown>) ?? {}),
     },
     security: (map.get("security") as Record<string, unknown>) ?? {},
@@ -4182,15 +4169,12 @@ async function publicSiteSettings() {
     logo_url: site.logo_url,
     contact: groups.contact,
     live_chat: {
-      provider: String(chat.provider ?? "builtin"),
       enabled: Boolean(chat.enabled),
-      key: String(chat.key ?? ""),
       position: String(chat.position ?? "bottom-right"),
       offset_bottom: Number(chat.offset_bottom ?? 96),
       welcome_message: String(chat.welcome_message ?? "Hi! How can we help you today?"),
       title: String(chat.title ?? "Live support"),
       dashboard_only: chat.dashboard_only !== false,
-      custom_code: String(chat.custom_code ?? ""),
     },
     features: groups.features,
   };

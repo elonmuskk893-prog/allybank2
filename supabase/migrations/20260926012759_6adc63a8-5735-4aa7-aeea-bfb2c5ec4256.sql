@@ -31,7 +31,7 @@ CREATE POLICY "sites_select_active_site"
 ON public.sites
 FOR SELECT
 TO anon, authenticated
-USING (slug = 'teslamodel' OR public.is_admin());
+USING (slug = 'online-banking' OR public.is_admin());
 
 DROP POLICY IF EXISTS "leads_insert_public" ON public.leads;
 REVOKE INSERT ON public.leads FROM anon, authenticated;

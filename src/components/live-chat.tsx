@@ -4,33 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "@/lib/next/navigation";
 import { bankFetch } from "@/lib/api";
 
-/**
- * Live chat for signed-in customers.
- *
- * Two providers, both configured in Admin → Live chat:
- *   - "builtin"   → in-house chat panel that files a support ticket the admin
- *                   can answer in Admin → Tickets.
- *   - "smartsupp" → third-party widget loaded from the saved key.
- *
- * It only ever renders inside the customer dashboard (never on the homepage,
- * login or registration), and it is offset above the mobile bottom navigation
- * so it can't cover the "More" menu or any dashboard control.
- */
-
 export interface LiveChatSettings {
-  provider?: string;
   enabled?: boolean;
-  key?: string;
   position?: string;
   offset_bottom?: number;
   welcome_message?: string;
   title?: string;
   dashboard_only?: boolean;
-  /** Raw embed snippet for any third-party widget (Tawk.to, Crisp, Intercom…). */
-  custom_code?: string;
 }
 
-/** Routes that belong to the signed-in dashboard experience. */
 const DASHBOARD_PREFIXES = [
   "/dashboard",
   "/transactions",
@@ -50,126 +32,6 @@ const DASHBOARD_PREFIXES = [
 
 function isDashboardRoute(pathname: string): boolean {
   return DASHBOARD_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
-
-function extractSmartsuppKey(input: string): string | null {
-  const value = (input ?? "").trim();
-  if (!value) return null;
-  if (/^[\w-]{8,}$/.test(value)) return value;
-  const match = value.match(/key\s*[:=]\s*["']([\w-]+)["']/);
-  return match ? match[1] : null;
-}
-
-declare global {
-  interface Window {
-    _smartsupp?: { key?: string; offsetY?: number; offsetX?: number; [k: string]: unknown };
-  }
-}
-
-function teardownSmartsupp() {
-  document.getElementById("smartsupp-widget-script")?.remove();
-  document.getElementById("smartsupp-lift-style")?.remove();
-  Array.from(document.body.children)
-    .filter(
-      (node) =>
-        /smartsupp/i.test(`${node.id} ${node.className}`) ||
-        (node.tagName === "IFRAME" && /smartsupp/i.test(node.getAttribute("src") ?? "")),
-    )
-    .forEach((el) => el.remove());
-  delete window._smartsupp;
-}
-
-/** Pixels the chat bubble is lifted above the mobile bottom navigation. */
-const SMARSUPP_EXTRA_LIFT = 40;
-
-function liftSmartsuppNode(node: HTMLElement, offset: number) {
-  node.style.setProperty("bottom", `${offset + SMARSUPP_EXTRA_LIFT}px`, "important");
-  node.style.setProperty("z-index", "35", "important");
-}
-
-/** Force-lift anything Smartsupp injects (its bubble sets inline positioning). */
-function liftInjectedSmartsupp(offset: number) {
-  const candidates = document.querySelectorAll<HTMLElement>(
-    '[id*="smartsupp" i], [class*="smartsupp" i], iframe[src*="smartsupp" i]',
-  );
-  candidates.forEach((el) => {
-    const target =
-      el.tagName === "IFRAME" && el.parentElement ? el.parentElement : el;
-    if (target !== document.documentElement && target !== document.body) {
-      liftSmartsuppNode(target, offset);
-    }
-  });
-}
-
-function mountSmartsupp(key: string, offset: number) {
-  const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
-  if (!document.getElementById("smartsupp-widget-script")) {
-    window._smartsupp = window._smartsupp || {};
-    window._smartsupp.key = key;
-    // Smartsupp's official offset option — lifts the bubble above our bottom nav.
-    window._smartsupp.offsetY = isDesktop ? 0 : offset + SMARSUPP_EXTRA_LIFT;
-    const script = document.createElement("script");
-    script.id = "smartsupp-widget-script";
-    script.charset = "utf-8";
-    script.async = true;
-    script.src = "https://www.smartsuppchat.com/loader.js";
-    document.body.appendChild(script);
-  }
-  if (!isDesktop && !document.getElementById("smartsupp-lift-style")) {
-    // Fallback: watch for injected widget nodes and lift them too, in case the
-    // offsetY option is ignored by a future widget version.
-    liftInjectedSmartsupp(offset);
-    const observer = new MutationObserver(() => liftInjectedSmartsupp(offset));
-    observer.observe(document.body, { childList: true, subtree: true });
-    window.setInterval(() => liftInjectedSmartsupp(offset), 2500);
-  }
-}
-
-/* ------------------------------------------------------------------------- */
-/* Custom provider: run any vendor's embed snippet exactly once               */
-/* ------------------------------------------------------------------------- */
-
-const CUSTOM_MARKER = "live-chat-custom-snippet";
-
-function teardownCustom() {
-  document.querySelectorAll(`[data-${CUSTOM_MARKER}]`).forEach((el) => el.remove());
-}
-
-/**
- * Injects the snippet the admin pasted in Admin → Settings → Live chat.
- * Inline and external <script> tags are recreated so the browser executes them
- * (innerHTML alone never runs scripts); everything is tagged so switching the
- * provider off removes it cleanly and it can never mount twice.
- */
-function mountCustom(snippet: string, offset: number) {
-  if (document.querySelector(`[data-${CUSTOM_MARKER}]`)) return;
-  const holder = document.createElement("div");
-  holder.innerHTML = snippet;
-  Array.from(holder.childNodes).forEach((node) => {
-    if (node.nodeName === "SCRIPT") {
-      const source = node as HTMLScriptElement;
-      const script = document.createElement("script");
-      Array.from(source.attributes).forEach((a) => script.setAttribute(a.name, a.value));
-      script.text = source.text;
-      script.setAttribute(`data-${CUSTOM_MARKER}`, "1");
-      document.body.appendChild(script);
-    } else if (node.nodeType === 1) {
-      const el = node as HTMLElement;
-      el.setAttribute(`data-${CUSTOM_MARKER}`, "1");
-      document.body.appendChild(el);
-    }
-  });
-  const style = document.createElement("style");
-  style.setAttribute(`data-${CUSTOM_MARKER}`, "1");
-  // Keep any vendor bubble clear of the mobile bottom navigation.
-  style.textContent = `@media (max-width: 1023px){
-    #crisp-chatbox > div, #tawkchat-container, .tawk-min-container,
-    #intercom-container, .intercom-lightweight-app-launcher,
-    iframe[title*="chat" i], iframe[id*="chat" i] {
-      bottom: ${offset + 40}px !important;
-    }
-  }`;
-  document.head.appendChild(style);
 }
 
 interface ChatLine {
@@ -211,21 +73,6 @@ export function LiveChat() {
     return settings;
   }, [settings, onDashboard, signedIn]);
 
-  // Third-party widget lifecycle.
-  useEffect(() => {
-    if (typeof document === "undefined") return;
-    const offset = Number(active?.offset_bottom ?? 96);
-
-    const key = active && active.provider === "smartsupp" ? extractSmartsuppKey(active.key ?? "") : null;
-    if (key) mountSmartsupp(key, offset);
-    else teardownSmartsupp();
-
-    const snippet =
-      active && active.provider === "custom" ? (active.custom_code ?? active.key ?? "").trim() : "";
-    if (snippet) mountCustom(snippet, offset);
-    else teardownCustom();
-  }, [active]);
-
   const send = useCallback(async () => {
     const text = draft.trim();
     if (!text || sending) return;
@@ -254,7 +101,7 @@ export function LiveChat() {
     ]);
   }, [draft, sending]);
 
-  if (!active || active.provider === "smartsupp" || active.provider === "custom") return null;
+  if (!active) return null;
 
   const offset = Number(active.offset_bottom ?? 96);
   const left = active.position === "bottom-left";

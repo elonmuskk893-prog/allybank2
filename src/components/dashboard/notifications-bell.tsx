@@ -1,5 +1,6 @@
 "use client";
 import { SafeHtml, looksLikeHtml } from "@/components/dashboard/safe-html";
+import { safeInternalPath } from "@/lib/utils";
 
 import { useEffect, useState } from "react";
 import { bankFetch } from "@/lib/api";
@@ -84,7 +85,7 @@ export function NotificationsBell() {
                 items.map((item) => (
                   <Link
                     key={item.id}
-                    href={item.link ?? "#"}
+                    href={safeInternalPath(item.link) ?? "#"}
                     onClick={() => markRead(item.id)}
                     className={`block rounded-lg px-3 py-2.5 text-sm transition hover:bg-black/[0.04] dark:hover:bg-white/[0.04] ${
                       !item.read_at ? "bg-indigo-500/5" : ""

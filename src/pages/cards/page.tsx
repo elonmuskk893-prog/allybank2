@@ -116,15 +116,15 @@ function Cards() {
                   Virtual Cards Made Easy
                 </h2>
                 <p className="mb-4 text-sm text-white/90">
-                  Create virtual cards for secure online payments, subscription
-                  management, and more. Enhanced security and spending control.
+                  Apply for a virtual card for online payments and review the
+                  available controls for supported cards.
                 </p>
                 <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
                   {[
                     ["fa-shield-alt", "Secure", "Protected payments"],
-                    ["fa-globe", "Global", "Worldwide acceptance"],
+                    ["fa-globe", "Networks", "Where supported"],
                     ["fa-sliders-h", "Control", "Spending limits"],
-                    ["fa-bolt", "Instant", "Quick issuance"],
+                    ["fa-hourglass-half", "Review", "Subject to approval"],
                   ].map(([icon, title, desc]) => (
                     <div key={title} className="flex items-center gap-2">
                       <div className="grid h-8 w-8 place-items-center rounded-lg bg-white/20 backdrop-blur-sm">
@@ -226,8 +226,7 @@ function Cards() {
                 No Cards Yet
               </h3>
               <p className="mx-auto mb-6 max-w-sm text-gray-500 dark:text-gray-400">
-                Get started by applying for your first virtual card. It only
-                takes a few minutes!
+                Review the application requirements before applying for a virtual card.
               </p>
               <Link
                 href="/cards/apply"

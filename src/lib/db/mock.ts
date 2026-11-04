@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/security";
 import { isCryptoMethod, maskPaymentMethodDetails } from "@/lib/db/masking";
 import { DbError } from "@/lib/db/error";
+import { validateUpload } from "@/lib/db/upload";
 import { parseAmountInput } from "@/lib/utils";
 import type {
   Site,
@@ -70,7 +71,7 @@ const paymentMethodsList: PaymentMethod[] = [
     charges_type: "fixed",
     duration: "0-2 hours",
     custom_fields: [
-      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "Tesla Model Bank, N.A." },
+      { id: "bank_name", label: "Bank Name", type: "text", role: "display", value: "Online Banking" },
       { id: "account_number", label: "Account Number", type: "text", role: "display", value: "4023391234" },
       { id: "reference", label: "Deposit Reference", type: "text", role: "input", required: false, placeholder: "Optional note" },
     ],
@@ -182,8 +183,8 @@ const paymentMethodsList: PaymentMethod[] = [
 const state = {
   site: {
     id: 1,
-    slug: "teslamodel",
-    name: "Tesla Model",
+    slug: "online-banking",
+    name: "Online Banking",
     brand_color: "#0ea5e9",
     primary_currency: "USD",
     kyc_required: true,
@@ -219,7 +220,7 @@ const state = {
       "u-admin",
       {
         id: "u-admin",
-        email: "admin@teslamodel.xyz",
+        email: "admin@example.com",
         first_name: "Admin",
         last_name: "User",
         full_name: "Admin User",
@@ -244,7 +245,7 @@ const state = {
 
   passwords: new Map<string, string>([
     ["alex.morgan@example.com", "password123"],
-    ["admin@teslamodel.xyz", "admin123"],
+    ["admin@example.com", "admin123"],
   ]),
 
   adminCodes: new Map<string, string>([["u-admin", "scrypt:master"]]),
@@ -1404,15 +1405,10 @@ async function verifyTransfer(input: { transfer_id: string; code: string }) {
 
 async function uploadFile(input: { filename?: string; contentType?: string; data?: string }) {
   await requireSession();
-  const filename = (input.filename ?? "upload.bin").replace(/[^\w.\-]+/g, "_").slice(-80);
   if (!input.data) throw new DbError("invalid_file", "No file content was provided.", 400);
   const raw = input.data.includes(",") ? input.data.split(",")[1] : input.data;
-  const buf = Buffer.from(raw, "base64");
-  if (buf.length === 0) throw new DbError("invalid_file", "The uploaded file is empty.");
-  if (buf.length > 10 * 1024 * 1024) {
-    throw new DbError("file_too_large", "Files must be 10MB or smaller.");
-  }
-  const contentType = input.contentType || "application/octet-stream";
+  const body = new Uint8Array(Buffer.from(raw, "base64"));
+  const { filename, contentType } = validateUpload(input, body);
   const url = `data:${contentType};base64,${raw}`;
   return { url, publicUrl: url, path: `mock/${Date.now()}-${filename}` };
 }
@@ -1715,7 +1711,7 @@ async function register(input: {
   state.notifications.push({
     id: `n-${Date.now()}`,
     user_id: id,
-    title: "Welcome to Tesla Model",
+    title: "Welcome to Online Banking",
     body: "Your account is ready. Complete your KYC to unlock all features.",
     link: "/settings/kyc",
     icon: null,
@@ -3053,7 +3049,7 @@ async function getSiteSettings() {
   return {
     site: state.site,
     contact: state.siteSettings.get("contact") ?? {},
-    live_chat: { provider: "builtin", enabled: false, key: "", ...(state.siteSettings.get("live_chat") ?? {}) } as Record<string, unknown>,
+    live_chat: { enabled: false, ...(state.siteSettings.get("live_chat") ?? {}) } as Record<string, unknown>,
     security: (state.siteSettings.get("security") ?? {}) as Record<string, unknown>,
     features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
     email: (state.siteSettings.get("email") ?? {}) as Record<string, unknown>,
@@ -3087,26 +3083,20 @@ async function publicSiteSettings() {
     logo_url: null as string | null | undefined,
     contact: (state.siteSettings.get("contact") ?? {}) as Record<string, unknown>,
     live_chat: {
-      provider: "builtin",
       enabled: false,
-      key: "",
       position: "bottom-right",
       offset_bottom: 96,
       welcome_message: "Hi! How can we help you today?",
       title: "Live support",
       dashboard_only: true,
-      custom_code: "",
       ...(state.siteSettings.get("live_chat") ?? {}),
     } as {
-      provider: string;
       enabled: boolean;
-      key: string;
       position: string;
       offset_bottom: number;
       welcome_message: string;
       title: string;
       dashboard_only: boolean;
-      custom_code: string;
     },
     features: (state.siteSettings.get("features") ?? {}) as Record<string, unknown>,
   };

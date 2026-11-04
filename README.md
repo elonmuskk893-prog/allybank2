@@ -1,4 +1,4 @@
-# AllyBank
+# Online Banking
 
 TanStack Start application with a Supabase backend and a Vercel-compatible Nitro server build.
 
@@ -26,14 +26,14 @@ Add these variables to **Production, Preview, and Development** in Vercel:
 
 Optional email variables are `RESEND_API_KEY` or `MAILERSEND_API_KEY`, plus
 `EMAIL_FROM_NAME` and `EMAIL_FROM_ADDRESS`. SMTP can instead be configured in the admin
-settings. If scheduled endpoints are used, add a strong `LOVABLE_CRON_SECRET` to Vercel.
+settings. If scheduled endpoints are used, add a strong `CRON_SECRET` to Vercel.
 
 Never create a `VITE_SUPABASE_SERVICE_ROLE_KEY`; any `VITE_` value is bundled for browsers.
 Never set `ALLOW_MOCK_DB=true` on Vercel.
 
 ## Independent backend migration
 
-The existing live backend is Lovable-managed. For independent hosting, create a new project
+The live backend runs on Supabase. To move it, create a new project
 in your own Supabase account, restore the schema and data, migrate authentication users with
 their IDs intact, and copy the private `uploads` bucket. Validate the migration in a Vercel
 Preview deployment before changing Production variables or the custom domain.

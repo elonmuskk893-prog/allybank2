@@ -202,7 +202,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
       }
       setCtx({
         slug,
-        siteLogo: info.data.site.logo_url || "/allybank.jpeg",
+        siteLogo: info.data.site.logo_url || "/logo.jpeg",
         siteName: me.data.site.name ?? info.data.site.name ?? slug,
         brandColor: info.data.site.brand_color || "#0ea5e9",
         primaryCurrency: me.data.site.primary_currency ?? info.data.site.primary_currency ?? "USD",

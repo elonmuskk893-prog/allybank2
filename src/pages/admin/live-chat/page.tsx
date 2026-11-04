@@ -2,7 +2,7 @@
 
 import Link from "@/lib/next/link";
 import { useCallback, useEffect, useState } from "react";
-import { AdminShell } from "@/components/admin/admin-shell";
+import { AdminShell, useAdmin } from "@/components/admin/admin-shell";
 import { adminFetch } from "@/lib/api";
 
 interface LiveChatSettings {
@@ -18,12 +18,13 @@ interface LiveChatSettings {
  * (Settings → Live chat) so the two screens can never disagree.
  */
 function LiveChatAdmin() {
+  const { slug } = useAdmin();
   const [chat, setChat] = useState<LiveChatSettings | null>(null);
 
   const load = useCallback(async () => {
-    const res = await adminFetch<{ live_chat: LiveChatSettings }>("teslamodel", "/settings");
+    const res = await adminFetch<{ live_chat: LiveChatSettings }>(slug, "/settings");
     if (res.ok && res.data?.live_chat) setChat(res.data.live_chat);
-  }, []);
+  }, [slug]);
 
   useEffect(() => {
     load();
@@ -31,7 +32,7 @@ function LiveChatAdmin() {
 
   const rows: [string, string][] = [
     ["Status", chat?.enabled ? "Enabled" : "Disabled"],
-    ["Provider", chat?.provider === "smartsupp" ? "Smartsupp" : "Built-in chat"],
+    ["Provider", "Built-in chat"],
     ["Bubble position", chat?.position === "bottom-left" ? "Bottom left" : "Bottom right"],
     ["Shown on", chat?.dashboard_only === false ? "All pages" : "Signed-in dashboard only"],
     ["Welcome message", chat?.welcome_message ?? "—"],

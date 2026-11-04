@@ -1,9 +1,98 @@
-/* eslint-disable @next/next/no-img-element */
-// Server component. Static marketing section reproduced from the original site.
 import Link from "@/lib/next/link";
+
+const PRODUCTS = [
+  {
+    icon: "fa-gauge-high",
+    title: "Account Dashboard",
+    body: "Review balances, recent activity and account details in one place.",
+    points: ["Balance overview", "Recent transactions", "Account status"],
+    href: "/services/personal",
+    cta: "Personal Accounts",
+  },
+  {
+    icon: "fa-building",
+    title: "Business Tools",
+    body: "Manage account activity, beneficiaries and transfers for a business account.",
+    points: ["Beneficiary list", "Transfer status", "Statement export"],
+    href: "/services/business",
+    cta: "Business Accounts",
+  },
+  {
+    icon: "fa-credit-card",
+    title: "Card Controls",
+    body: "Review supported cards and use the controls available on your account.",
+    points: ["Card overview", "Freeze controls", "Card activity"],
+    href: "/services/cards",
+    cta: "Card Management",
+  },
+] as const;
+
 export function Products() {
   return (
-    <section className="py-20 bg-white"><div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"><div className="text-center mb-16"><div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-4 py-2 text-sm font-semibold mb-4"><i className="fas fa-briefcase" /><span>Our Products</span></div><h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Banking Solutions for Every Need</h2><p className="text-xl text-slate-600 max-w-3xl mx-auto">From everyday checking to long-term investments, we have the right products for you</p></div><div className="mb-20"><div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"><div className="order-2 lg:order-1"><div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-sm font-semibold mb-4"><i className="fas fa-star" /><span>Most Popular</span></div><h3 className="text-3xl font-bold text-slate-900 mb-4">Personal Checking</h3><p className="text-lg text-slate-600 mb-6 leading-relaxed">Modern checking with no monthly fees, built-in budgeting tools, and early direct deposit. Get paid up to 2 days earlier.</p><div className="space-y-4 mb-8"><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">No Monthly Fees</h4><p className="text-sm text-slate-600">No minimum balance requirements or hidden charges</p></div></div><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Early Direct Deposit</h4><p className="text-sm text-slate-600">Receive your paycheck up to 2 days earlier</p></div></div><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Smart Budgeting</h4><p className="text-sm text-slate-600">Automatic spending categorization and insights</p></div></div></div><div className="flex flex-col sm:flex-row gap-4"><Link href="/auth/register" className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors"><i className="fas fa-rocket mr-2" /> Open Account</Link><Link href="/#" className="inline-flex items-center px-6 py-3 border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold rounded-xl transition-colors"><i className="fas fa-info-circle mr-2" /> Learn More</Link></div></div><div className="order-1 lg:order-2"><div className="relative"><div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-teal-500/20 rounded-3xl blur-2xl" /><div className="relative bg-gradient-to-br from-blue-600 to-teal-600 rounded-3xl p-8 shadow-2xl"><div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"><div className="flex justify-between items-start mb-8"><div><p className="text-blue-100 text-xs mb-1">DEBIT CARD</p><p className="text-white text-2xl font-bold">•••• 4582</p></div><div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center"><i className="fas fa-credit-card text-white text-xl" /></div></div><div className="space-y-4"><div className="flex justify-between text-sm"><span className="text-blue-100">Available Balance</span><span className="text-white font-bold">$4,250.00</span></div><div className="flex justify-between text-sm"><span className="text-blue-100">Pending Transactions</span><span className="text-yellow-300">-$125.50</span></div></div><div className="mt-6 pt-6 border-t border-white/20"><div className="flex items-center justify-between"><div className="flex items-center space-x-2"><div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center"><i className="fas fa-check text-white text-xs" /></div><span className="text-white text-sm">Active</span></div><div className="flex space-x-2"><div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center"><i className="fas fa-snowflake text-white text-xs" /></div><div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center"><i className="fas fa-cog text-white text-xs" /></div></div></div></div></div></div></div></div></div></div><div className="mb-20"><div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"><div className="order-2 lg:order-1"><div className="relative"><div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-3xl blur-2xl" />
-<img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop" alt="Business team reviewing financial reports" className="relative w-full rounded-3xl shadow-2xl object-cover" loading="lazy" /></div></div><div className="order-1 lg:order-2"><div className="inline-flex items-center space-x-2 bg-purple-100 text-purple-700 rounded-full px-3 py-1 text-sm font-semibold mb-4"><i className="fas fa-building" /><span>For Business</span></div><h3 className="text-3xl font-bold text-slate-900 mb-4">Business Banking</h3><p className="text-lg text-slate-600 mb-6 leading-relaxed">Complete banking solutions designed for growing businesses. Manage cash flow, payroll, and expenses with powerful tools.</p><div className="space-y-4 mb-8"><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Business Checking</h4><p className="text-sm text-slate-600">Unlimited transactions with competitive interest rates</p></div></div><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Payroll Services</h4><p className="text-sm text-slate-600">Integrated payroll processing and tax management</p></div></div><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Business Credit</h4><p className="text-sm text-slate-600">Lines of credit and business loans for growth</p></div></div></div><div className="flex flex-col sm:flex-row gap-4"><Link href="/services/business" className="inline-flex items-center px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors"><i className="fas fa-briefcase mr-2" /> Explore Business</Link><Link href="/contact" className="inline-flex items-center px-6 py-3 border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold rounded-xl transition-colors"><i className="fas fa-phone mr-2" /> Contact Sales</Link></div></div></div></div><div className="mb-20"><div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"><div className="order-2 lg:order-1"><div className="inline-flex items-center space-x-2 bg-green-100 text-green-700 rounded-full px-3 py-1 text-sm font-semibold mb-4"><i className="fas fa-chart-line" /><span>Grow Wealth</span></div><h3 className="text-3xl font-bold text-slate-900 mb-4">Savings &amp; Investment</h3><p className="text-lg text-slate-600 mb-6 leading-relaxed">High-yield savings accounts and smart investment portfolios to help your money grow faster than traditional banks.</p><div className="space-y-4 mb-8"><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">High-Yield Savings</h4><p className="text-sm text-slate-600">Earn 10x more interest than traditional savings accounts</p></div></div><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Automated Investing</h4><p className="text-sm text-slate-600">Build a diversified portfolio tailored to your goals</p></div></div><div className="flex items-start"><div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0"><i className="fas fa-check text-green-600 text-xs" /></div><div><h4 className="font-semibold text-slate-900">Retirement Planning</h4><p className="text-sm text-slate-600">IRAs, 401(k) rollovers, and retirement calculators</p></div></div></div><div className="flex flex-col sm:flex-row gap-4"><Link href="/auth/register" className="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors"><i className="fas fa-piggy-bank mr-2" /> Start Saving</Link><Link href="/#" className="inline-flex items-center px-6 py-3 border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold rounded-xl transition-colors"><i className="fas fa-calculator mr-2" /> Calculate Returns</Link></div></div><div className="order-1 lg:order-2"><div className="relative"><div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-teal-500/20 rounded-3xl blur-2xl" /><div className="relative bg-gradient-to-br from-green-600 to-teal-600 rounded-3xl p-8 shadow-2xl"><div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20"><div className="flex items-center justify-between mb-6"><h4 className="text-white font-bold">Portfolio Growth</h4><div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full">+24.5%</div></div><div className="h-32 flex items-end justify-between space-x-2 mb-6"><div className="w-full bg-white/20 rounded-t" style={{height: '40%'}} /><div className="w-full bg-white/20 rounded-t" style={{height: '55%'}} /><div className="w-full bg-white/20 rounded-t" style={{height: '45%'}} /><div className="w-full bg-white/20 rounded-t" style={{height: '70%'}} /><div className="w-full bg-white/20 rounded-t" style={{height: '60%'}} /><div className="w-full bg-white/20 rounded-t" style={{height: '85%'}} /><div className="w-full bg-green-400 rounded-t" style={{height: '100%'}} /></div><div className="grid grid-cols-2 gap-4"><div className="bg-white/10 rounded-xl p-3"><p className="text-green-100 text-xs">Total Invested</p><p className="text-white font-bold">$25,000</p></div><div className="bg-white/10 rounded-xl p-3"><p className="text-green-100 text-xs">Current Value</p><p className="text-white font-bold">$31,125</p></div></div></div></div></div></div></div></div><div className="bg-gradient-to-r from-slate-100 to-blue-100 rounded-3xl p-8 text-center border border-slate-200"><h3 className="text-2xl font-bold text-slate-900 mb-4">Find the Perfect Banking Solution</h3><p className="text-slate-600 mb-6 max-w-2xl mx-auto">Whether you&apos;re an individual, family, or business, we have the right products to help you achieve your financial goals.</p><div className="flex flex-col sm:flex-row gap-4 justify-center"><Link href="/auth/register" className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"><i className="fas fa-rocket mr-2" /> Compare All Products</Link><Link href="/contact" className="inline-flex items-center px-8 py-4 bg-white border-2 border-slate-300 hover:border-slate-400 text-slate-700 font-semibold rounded-xl transition-all duration-300"><i className="fas fa-user-tie mr-2" /> Talk to an Expert</Link></div></div></div></section>
+    <section className="bg-white py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 text-center">
+          <div className="mb-4 inline-flex items-center space-x-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700">
+            <i className="fas fa-layer-group" />
+            <span>Account Tools</span>
+          </div>
+          <h2 className="mb-4 text-3xl font-bold text-slate-900 md:text-4xl">
+            What You Can Manage
+          </h2>
+          <p className="mx-auto max-w-3xl text-xl text-slate-600">
+            Available features depend on your account, verification and region.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          {PRODUCTS.map((product) => (
+            <div
+              key={product.title}
+              className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
+            >
+              <div className="mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-blue-100">
+                <i className={`fas ${product.icon} text-2xl text-blue-600`} />
+              </div>
+              <h3 className="mb-3 text-2xl font-bold text-slate-900">{product.title}</h3>
+              <p className="mb-6 text-slate-600">{product.body}</p>
+              <ul className="mb-6 space-y-2 text-sm text-slate-600">
+                {product.points.map((point) => (
+                  <li key={point} className="flex items-center">
+                    <i className="fas fa-check mr-2 text-green-500" />
+                    {point}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href={product.href}
+                className="inline-flex items-center font-semibold text-blue-600 hover:text-blue-700"
+              >
+                {product.cta}
+                <i className="fas fa-arrow-right ml-2" />
+              </Link>
+            </div>
+          ))}
+        </div>
+        <div className="mt-16 rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-100 to-blue-100 p-8 text-center">
+          <h3 className="mb-4 text-2xl font-bold text-slate-900">Compare Account Features</h3>
+          <p className="mx-auto mb-6 max-w-2xl text-slate-600">
+            Review the current features and requirements before creating an account.
+          </p>
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
+            <Link
+              href="/auth/register"
+              className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-600 to-teal-600 px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 hover:from-blue-700 hover:to-teal-700"
+            >
+              <i className="fas fa-user-plus mr-2" /> Create Account
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center rounded-xl border-2 border-slate-300 bg-white px-8 py-4 font-semibold text-slate-700 transition-all duration-300 hover:border-slate-400"
+            >
+              <i className="fas fa-headset mr-2" /> Contact Support
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

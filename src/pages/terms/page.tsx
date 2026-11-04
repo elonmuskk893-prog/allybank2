@@ -24,7 +24,7 @@ const lastUpdated = new Date().toLocaleDateString("en-US", {
 export default function TermsPage() {
   const { site } = useSite();
   const siteData = site as SiteWithContact | null;
-  const bankName = siteData?.name ?? "Bank";
+  const bankName = siteData?.name ?? "Online Banking";
   const contact = siteData?.contact ?? {
     email: null,
     phone: null,
@@ -67,7 +67,7 @@ export default function TermsPage() {
                 Terms of Service
               </h1>
               <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-                Please read these terms carefully before using our banking
+                Please read these terms carefully before using our online account
                 services
               </p>
             </div>
@@ -80,7 +80,7 @@ export default function TermsPage() {
               <div className="prose prose-lg dark:prose-invert max-w-none">
                 <h2>1. Acceptance of Terms</h2>
                 <p>
-                  By accessing and using {bankName} banking services, you accept
+                  By accessing and using {bankName} online account services, you accept
                   and agree to be bound by the terms and provision of this
                   agreement.
                 </p>
@@ -100,12 +100,12 @@ export default function TermsPage() {
                 </p>
                 <h2>4. Services and Fees</h2>
                 <p>
-                  {bankName} provides various banking services including but not
+                  {bankName} provides online account services including but not
                   limited to:
                 </p>
                 <ul>
                   <li>Savings and checking accounts</li>
-                  <li>Online and mobile banking</li>
+                  <li>Online account access</li>
                   <li>Loan services</li>
                   <li>Investment products</li>
                   <li>Credit cards</li>

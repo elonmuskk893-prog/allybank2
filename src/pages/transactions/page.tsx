@@ -5,6 +5,7 @@ import { AppShell, useMe } from "@/components/dashboard/app-shell";
 import { bankFetch } from "@/lib/api";
 import { formatCurrency } from "@/lib/format";
 import { Loader } from "@/components/ui/loader";
+import { escapeHtml } from "@/lib/utils";
 
 const INPUT_CLS =
   "block w-full rounded-xl border border-gray-200/50 bg-white/80 p-2.5 text-gray-900 backdrop-blur-sm transition focus:border-transparent focus:ring-2 dark:border-gray-600/50 dark:bg-gray-700/80 dark:text-white";
@@ -779,11 +780,11 @@ function ExportModal({
         });
         const label = tx.meta?.label ?? kindLabel(tx.kind);
         return `<tr>
-        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;">${date} ${time}</td>
-        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;">${label}</td>
-        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;color:${credit ? "#16a34a" : "#dc2626"};">${credit ? "+" : "−"}${amount}</td>
-        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;">${balanceAfter}</td>
-        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;font-family:monospace;">#${tx.id}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;">${escapeHtml(date)} ${escapeHtml(time)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;">${escapeHtml(label)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;font-weight:600;color:${credit ? "#16a34a" : "#dc2626"};">${credit ? "+" : "−"}${escapeHtml(amount)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;">${escapeHtml(balanceAfter)}</td>
+        <td style="padding:8px 10px;border-bottom:1px solid #e5e7eb;font-size:12px;color:#374151;font-family:monospace;">#${escapeHtml(tx.id)}</td>
       </tr>`;
       })
       .join("");
@@ -791,7 +792,7 @@ function ExportModal({
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>${siteName} -- Transaction Statement</title>
+  <title>${escapeHtml(siteName)} -- Transaction Statement</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #111827; padding: 40px; }
@@ -806,8 +807,8 @@ function ExportModal({
 </head>
 <body>
   <div class="header">
-    <div class="site-name">${siteName}</div>
-    <div class="meta">Transaction Statement &nbsp;\xb7&nbsp; Generated ${generated} &nbsp;\xb7&nbsp; ${filtered.length} transaction${filtered.length !== 1 ? "s" : ""}</div>
+    <div class="site-name">${escapeHtml(siteName)}</div>
+    <div class="meta">Transaction Statement &nbsp;\xb7&nbsp; Generated ${escapeHtml(generated)} &nbsp;\xb7&nbsp; ${filtered.length} transaction${filtered.length !== 1 ? "s" : ""}</div>
   </div>
   <table>
     <thead>
@@ -823,7 +824,7 @@ function ExportModal({
       ${rows || '<tr><td colspan="5" style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">No transactions in selected range</td></tr>'}
     </tbody>
   </table>
-  <div class="footer">${siteName} &nbsp;\xb7&nbsp; Secure Banking Platform &nbsp;\xb7&nbsp; Confidential</div>
+  <div class="footer">${escapeHtml(siteName)} &nbsp;\xb7&nbsp; Online Account Platform &nbsp;\xb7&nbsp; Confidential</div>
 </body>
 </html>`;
     const win = window.open("", "_blank");

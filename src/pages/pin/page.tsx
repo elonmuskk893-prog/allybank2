@@ -15,7 +15,7 @@ const PIN_PANEL: AuthPanelContent = {
     { icon: "fas fa-shield-halved", title: "Extra Layer", sub: "PIN protection" },
     { icon: "fas fa-lock", title: "Private", sub: "Only you know it" },
     { icon: "fas fa-bolt", title: "Quick", sub: "One-time check" },
-    { icon: "fas fa-user-shield", title: "Secure", sub: "Bank-grade" },
+    { icon: "fas fa-user-shield", title: "Secure", sub: "Account security" },
   ],
 };
 

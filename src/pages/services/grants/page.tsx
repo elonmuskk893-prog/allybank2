@@ -48,80 +48,26 @@ interface GrantProgram {
   bullets: string[];
 }
 
-/** Shown until the admin-managed programs load (and if none are enabled). */
-const GRANTS = [
-  {
-    icon: "fa-solid fa-store",
-    tint: "blue",
-    title: "Small Business Grant",
-    body: "Up to $50,000 in funding for small business startups and expansion projects.",
-    items: [
-      "No collateral required",
-      "Flexible repayment terms",
-      "Business mentorship included",
-    ],
-  },
-  {
-    icon: "fa-solid fa-graduation-cap",
-    tint: "purple",
-    title: "Education Grant",
-    body: "Financial assistance for higher education, vocational training, and skill development.",
-    items: ["Up to $25,000 per year", "Merit-based selection", "Career guidance support"],
-  },
-  {
-    icon: "fa-solid fa-home",
-    tint: "green",
-    title: "Home Ownership Grant",
-    body: "Down payment assistance and closing cost support for first-time homebuyers.",
-    items: ["Up to $15,000 assistance", "First-time buyer priority", "Homebuyer education"],
-  },
-  {
-    icon: "fa-solid fa-heart",
-    tint: "red",
-    title: "Emergency Relief Grant",
-    body: "Immediate financial assistance for unexpected emergencies and hardships.",
-    items: ["Quick approval process", "Up to $10,000 immediate", "24/7 application support"],
-  },
-  {
-    icon: "fa-solid fa-users",
-    tint: "orange",
-    title: "Community Development",
-    body: "Support for community projects, non-profits, and local development initiatives.",
-    items: ["Up to $100,000 funding", "Community impact focus", "Ongoing project support"],
-  },
-  {
-    icon: "fa-solid fa-stethoscope",
-    tint: "teal",
-    title: "Healthcare Grant",
-    body: "Medical expense assistance and healthcare accessibility support programs.",
-    items: [
-      "Medical bill assistance",
-      "Prescription drug support",
-      "Health insurance help",
-    ],
-  },
-] as const;
-
 const STEPS = [
   {
     n: "1",
-    title: "Choose Program",
-    body: "Select the grant program that best fits your needs",
+    title: "Review Programs",
+    body: "Open a program to review its current eligibility criteria",
   },
   {
     n: "2",
     title: "Submit Application",
-    body: "Complete our online application with required documents",
+    body: "Provide the requested information and documents",
   },
   {
     n: "3",
     title: "Review Process",
-    body: "Our team reviews your application within 5-7 business days",
+    body: "Review timelines vary by program and application volume",
   },
   {
     n: "4",
-    title: "Receive Funding",
-    body: "Approved grants are disbursed directly to your account",
+    title: "Status Updates",
+    body: "Track the decision and any next steps in your account",
   },
 ] as const;
 
@@ -137,17 +83,7 @@ export default function GrantsServicesPage() {
       .catch(() => setPrograms([]));
   }, []);
 
-  const cards: GrantProgram[] =
-    programs && programs.length > 0
-      ? programs
-      : GRANTS.map((g, i) => ({
-          id: `static-${i}`,
-          title: g.title,
-          description: g.body,
-          icon: g.icon,
-          tint: g.tint,
-          bullets: [...g.items],
-        }));
+  const cards: GrantProgram[] = programs ?? [];
 
   return (
     <PublicLayout>
@@ -178,7 +114,7 @@ export default function GrantsServicesPage() {
                 Grants &amp; Financial Aid
               </h1>
               <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                Supporting your dreams with accessible funding opportunities and financial assistance programs
+                Review any financial assistance programs currently offered by this platform. Availability and eligibility vary.
               </p>
             </div>
           </div>
@@ -188,12 +124,19 @@ export default function GrantsServicesPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Available Grant Programs
+                Financial Assistance Programs
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Explore our comprehensive grant programs designed to support various financial needs
+                Only programs enabled by an administrator are shown here. Programs may change or close.
               </p>
             </div>
+            {cards.length === 0 ? (
+              <div className="mx-auto max-w-2xl rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800">
+                <p className="text-gray-600 dark:text-gray-300">
+                  No financial assistance programs are open right now.
+                </p>
+              </div>
+            ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {cards.map((e) => {
                 const t = TINTS[e.tint as TintKey] ?? TINTS.blue;
@@ -224,6 +167,10 @@ export default function GrantsServicesPage() {
                 );
               })}
             </div>
+            )}
+            <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-gray-500 dark:text-gray-400">
+              Submitting an application does not guarantee approval or funding. This platform is not a government agency.
+            </p>
           </div>
         </section>
 
@@ -234,7 +181,7 @@ export default function GrantsServicesPage() {
                 How to Apply
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                Simple steps to get the financial assistance you need
+                What to expect when a program is open
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -258,25 +205,25 @@ export default function GrantsServicesPage() {
         <section className="py-16 bg-blue-600 dark:bg-blue-700">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-              Ready to Apply for a Grant?
+              Check Available Programs
             </h2>
             <p className="text-xl text-blue-100 mb-8">
-              Take the first step towards achieving your financial goals with our grant programs
+              Review the current programs and eligibility details before applying
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                href="/auth/register"
+                href="/grants"
                 className="inline-flex items-center px-8 py-4 bg-white text-blue-600 font-bold rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
               >
                 <i className="fa-solid fa-file-alt mr-3" />
-                Start Application
+                View My Applications
               </Link>
               <Link
                 href="/contact"
                 className="inline-flex items-center px-8 py-4 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-2xl transition-all duration-300 border-2 border-white/30"
               >
                 <i className="fa-solid fa-phone mr-3" />
-                Speak with Advisor
+                Contact Support
               </Link>
             </div>
           </div>

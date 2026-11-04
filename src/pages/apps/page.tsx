@@ -29,42 +29,36 @@ function AppsPage() {
             <div>
               <div className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm text-white/90 rounded-full text-sm font-semibold mb-6 border border-white/20">
                 <i className="fa-solid fa-mobile-alt mr-2" />
-                Mobile Banking
+                Online Access
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-                Banking Made Mobile
+                Account Access From Your Browser
               </h1>
               <p className="text-xl text-gray-300 mb-8">
-                Take control of your finances with our award-winning mobile banking app. Available for iOS and Android.
+                Sign in from a modern desktop or mobile browser. No download is required.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="#"
-                  className="inline-flex items-center px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors"
+                  href="/auth/login"
+                  className="inline-flex items-center px-6 py-3 bg-white text-blue-700 rounded-xl hover:bg-blue-50 transition-colors font-semibold"
                 >
-                  <i className="fa-brands fa-apple text-2xl mr-3" />
-                  <div className="text-left">
-                    <div className="text-xs">Download on the</div>
-                    <div className="font-semibold">App Store</div>
-                  </div>
+                  <i className="fa-solid fa-right-to-bracket text-xl mr-3" />
+                  Sign In
                 </a>
                 <a
-                  href="#"
-                  className="inline-flex items-center px-6 py-3 bg-black text-white rounded-xl hover:bg-gray-800 transition-colors"
+                  href="/auth/register"
+                  className="inline-flex items-center px-6 py-3 bg-blue-800 text-white rounded-xl hover:bg-blue-900 transition-colors font-semibold"
                 >
-                  <i className="fa-brands fa-google-play text-2xl mr-3" />
-                  <div className="text-left">
-                    <div className="text-xs">Get it on</div>
-                    <div className="font-semibold">Google Play</div>
-                  </div>
+                  <i className="fa-solid fa-user-plus text-xl mr-3" />
+                  Create Account
                 </a>
               </div>
             </div>
             <div className="relative">
               <div className="relative z-10">
                 <img
-                  src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
-                  alt="Mobile banking app interface"
+                  src="/hero-bg.jpg"
+                  alt="Account dashboard preview"
                   className="w-full max-w-md mx-auto rounded-3xl shadow-2xl"
                 />
               </div>
@@ -96,7 +90,7 @@ function AppsPage() {
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Real-time balance updates
+                  Balance updates in your dashboard
                 </li>
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
@@ -114,20 +108,20 @@ function AppsPage() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Send Money</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Transfer money instantly to friends, family, or between your accounts.
+                Move funds between your own accounts or to saved beneficiaries.
               </p>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Instant transfers
+                  Account-to-account transfers
                 </li>
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Zelle integration
+                  Saved beneficiaries
                 </li>
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  International wire transfers
+                  Transfer status tracking
                 </li>
               </ul>
             </div>
@@ -158,22 +152,22 @@ function AppsPage() {
               <div className="w-16 h-16 bg-orange-100 dark:bg-orange-900/30 rounded-2xl flex items-center justify-center mb-6">
                 <i className="fa-solid fa-camera text-2xl text-orange-600 dark:text-orange-400" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Mobile Deposit</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Document Upload</h3>
               <p className="text-gray-600 dark:text-gray-300 mb-4">
-                Deposit checks instantly by taking a photo with your phone.
+                Upload a receipt or supporting document through the deposit flow.
               </p>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Photo check deposit
+                  Receipt image or PDF
                 </li>
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Instant availability
+                  Private storage
                 </li>
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Deposit limits up to $10K
+                  Files up to 10MB
                 </li>
               </ul>
             </div>
@@ -188,7 +182,7 @@ function AppsPage() {
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
-                  Lock/unlock cards instantly
+                  Lock/unlock supported cards
                 </li>
                 <li className="flex items-center">
                   <i className="fa-solid fa-check text-green-500 mr-2" />
@@ -231,38 +225,38 @@ function AppsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Bank-Level Security
+              Account Security
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Your security is our priority with advanced protection features built into every aspect of our app
+              Review the security controls available for your account.
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <i className="fa-solid fa-fingerprint text-2xl text-blue-600 dark:text-blue-400" />
+                <i className="fa-solid fa-right-to-bracket text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Biometric Login</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Password Sign-In</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Secure access with fingerprint and face recognition
+                Sign in with your email and password, plus optional 2FA.
               </p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-shield-halved text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">256-bit Encryption</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Encrypted Connection</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Military-grade encryption protects all your data
+                TLS helps protect data in transit.
               </p>
             </div>
             <div className="text-center">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <i className="fa-solid fa-bell text-2xl text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Real-time Alerts</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Activity Alerts</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Instant notifications for all account activity
+                Notifications for account activity
               </p>
             </div>
             <div className="text-center">
@@ -271,7 +265,7 @@ function AppsPage() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Fraud Protection</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                24/7 monitoring and zero liability guarantee
+                Session controls and activity history
               </p>
             </div>
           </div>
@@ -285,7 +279,7 @@ function AppsPage() {
               See It in Action
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-              Take a look at our intuitive interface designed for modern banking
+              Take a look at the account dashboard interface
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -322,30 +316,24 @@ function AppsPage() {
 
       <section className="py-16 bg-blue-600 dark:bg-blue-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Download Our App Today</h2>
+          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Use Your Account Online</h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join millions of satisfied customers who bank with confidence using our mobile app
+            Access the dashboard from a modern desktop or mobile browser. No download is required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#"
-              className="inline-flex items-center px-8 py-4 bg-black text-white rounded-2xl hover:bg-gray-800 transition-colors shadow-lg"
+              href="/auth/login"
+              className="inline-flex items-center px-8 py-4 bg-white text-blue-700 rounded-2xl hover:bg-blue-50 transition-colors shadow-lg font-semibold"
             >
-              <i className="fa-brands fa-apple text-3xl mr-4" />
-              <div className="text-left">
-                <div className="text-sm">Download on the</div>
-                <div className="text-lg font-semibold">App Store</div>
-              </div>
+              <i className="fa-solid fa-right-to-bracket text-xl mr-3" />
+              Sign In
             </a>
             <a
-              href="#"
-              className="inline-flex items-center px-8 py-4 bg-black text-white rounded-2xl hover:bg-gray-800 transition-colors shadow-lg"
+              href="/auth/register"
+              className="inline-flex items-center px-8 py-4 bg-blue-800 text-white rounded-2xl hover:bg-blue-900 transition-colors shadow-lg font-semibold"
             >
-              <i className="fa-brands fa-google-play text-3xl mr-4" />
-              <div className="text-left">
-                <div className="text-sm">Get it on</div>
-                <div className="text-lg font-semibold">Google Play</div>
-              </div>
+              <i className="fa-solid fa-user-plus text-xl mr-3" />
+              Create Account
             </a>
           </div>
         </div>

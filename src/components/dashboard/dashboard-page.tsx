@@ -691,7 +691,7 @@ function ActiveCards({
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="text-xs font-semibold tracking-wide">{siteName}</div>
-                          <div className="text-xs opacity-70">Virtual Banking</div>
+                          <div className="text-xs opacity-70">Virtual Card</div>
                         </div>
                         <i className={`fa-brands ${card.card_brand === "mastercard" ? "fa-cc-mastercard" : "fa-cc-visa"} text-lg`} />
                       </div>
@@ -873,11 +873,11 @@ function SupportCard() {
           Need Assistance?
         </h3>
         <p className="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
-          Our expert support team is available
+          Contact support when you need help with your account
         </p>
         <div className="flex items-center justify-center text-xs font-semibold" style={{ color: "var(--brand)" }}>
           <span className="mr-1 h-1.5 w-1.5 animate-pulse rounded-full bg-green-500" />
-          <span>24/7 Live Support</span>
+          <span>Live Chat Support</span>
         </div>
       </div>
       <div className="mb-3 grid grid-cols-2 gap-2">
@@ -958,15 +958,21 @@ function MobileDashboard({
       <div className="-mx-4 -mt-5 rounded-b-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 pb-8 pt-6 text-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* eslint-disable-next-line @next/next/no-img-element -- remote avatar URL */}
-            <img
-              src={
-                user.photo_url ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=${(site.brand_color || "#0ea5e9").replace("#", "")}&color=fff&bold=true`
-              }
-              alt={fullName}
-              className="h-10 w-10 rounded-full border-2 border-white/20 object-cover"
-            />
+            {user.photo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element -- user-provided avatar
+              <img
+                src={user.photo_url}
+                alt={fullName}
+                className="h-10 w-10 rounded-full border-2 border-white/20 object-cover"
+              />
+            ) : (
+              <span
+                className="grid h-10 w-10 place-items-center rounded-full border-2 border-white/20 text-sm font-semibold text-white"
+                style={{ background: site.brand_color || "#0ea5e9" }}
+              >
+                {fullName.trim().slice(0, 1).toUpperCase() || "?"}
+              </span>
+            )}
             <div>
               <p className="text-xs text-white/80">{greeting()},</p>
               <p className="text-base font-semibold">{fullName}</p>

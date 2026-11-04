@@ -628,7 +628,7 @@ function DepositFlow() {
                 Secure Deposit
               </h3>
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                {"All deposits are processed through secure payment channels. Your financial information is never stored on our servers."}
+                {"Deposits are submitted through the payment channels shown for your account. Review the method details before confirming."}
               </p>
             </div>
           </div>

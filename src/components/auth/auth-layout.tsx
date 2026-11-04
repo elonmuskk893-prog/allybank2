@@ -79,7 +79,7 @@ export function AuthLayout({
               {siteName || "Loading"}
             </div>
             <div className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">
-              Secure Banking Platform
+              Online Account Platform
             </div>
           </div>
         </div>

@@ -84,7 +84,7 @@ async function request<T = unknown>(
 }
 
 /**
- * Public + authenticated endpoints for the currently viewed banking site.
+ * Public + authenticated endpoints for the currently viewed site.
  * Examples: /site-info, /me, /balance, /transactions, /cards, /notifications, ...
  */
 export function bankFetch<T = unknown>(path: string, options?: RequestOptions) {

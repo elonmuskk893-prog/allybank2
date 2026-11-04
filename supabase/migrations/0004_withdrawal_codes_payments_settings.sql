@@ -54,9 +54,9 @@ create table if not exists public.faqs (
 
 insert into public.faqs (question, answer, sort_order)
 values
-  ('How do I open an account?', 'Click Sign Up, fill in your details and verify your email address. Your account is ready instantly.', 10),
-  ('How long does a withdrawal take?', 'Withdrawals are reviewed by our team and typically settle within 1-2 business days depending on the destination.', 20),
-  ('How do I verify my identity?', 'Go to Settings → Verification and submit a government-issued ID. Reviews are usually completed within 24 hours.', 30),
+  ('How do I open an account?', 'Click Sign Up, fill in your details and verify your email address. Your account is ready after verification.', 10),
+  ('How long does a withdrawal take?', 'Withdrawals are reviewed before processing. The estimated timing for your selected method is shown before you submit the request.', 20),
+  ('How do I verify my identity?', 'Go to Settings → Verification and submit a government-issued ID. Review times vary.', 30),
   ('Are there any fees?', 'Fees, when they apply, are shown before you confirm any transaction.', 40)
 on conflict do nothing;
 

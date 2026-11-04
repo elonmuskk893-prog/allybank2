@@ -10,7 +10,7 @@ import { adminFetch, bankFetch, errorMessage } from "@/lib/api";
 const ADMIN_PANEL: AuthPanelContent = {
   title: "Admin Console",
   subtitle: "Operator access",
-  desc: "Manage your banking site -- users, deposits, withdrawals, cards and more -- from one secure console.",
+  desc: "Manage this platform -- users, deposits, withdrawals, cards and more -- from one secure console.",
   features: [
     { icon: "fas fa-shield-halved", title: "Secure Access", sub: "Code or password" },
     { icon: "fas fa-users-gear", title: "Full Control", sub: "Users & money" },
@@ -68,7 +68,7 @@ function AdminLoginPage() {
         setError(
           info.errorCode === "service_disabled"
             ? "This service is temporarily unavailable. Please check back shortly."
-            : "This page is not configured for any banking site.",
+            : "This page is not configured for any site.",
         );
         return;
       }
